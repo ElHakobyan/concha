@@ -43,13 +43,6 @@
         <p class="lead">Тихие формы и настоящий смысл.</p>
         <a class="btn" href="#bestsellers">Смотреть коллекцию</a>
       </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="stone"></div>
-        <svg class="h-ring a" viewBox="0 0 200 140"><use href="#ring-art"/></svg>
-        <svg class="h-ring b" viewBox="0 0 200 140"><use href="#ring-art"/></svg>
-        <svg class="h-pearl a" viewBox="0 0 100 100"><use href="#pearl-art"/></svg>
-        <svg class="h-pearl b" viewBox="0 0 100 100"><use href="#pearl-art"/></svg>
-      </div>
     </section>
 
     <section class="cats" id="categories">
@@ -69,9 +62,7 @@
 
     <section class="section duo" id="about">
       <div class="story">
-        <div class="story-art" aria-hidden="true">
-          <svg viewBox="0 0 220 220"><use href="#vase-art"/></svg>
-        </div>
+        <div class="story-art"><img src="assets/vase.png" alt="Ваза с сухоцветами и золотые кольца"></div>
         <div class="story-text">
           <p class="eyebrow">История Concha</p>
           <h2>Украшения для<br>каждой главы.</h2>
@@ -79,9 +70,7 @@
           <a class="link" href="#contact">Читать журнал →</a>
         </div>
       </div>
-      <div class="portrait" aria-hidden="true">
-        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><use href="#portrait-art"/></svg>
-      </div>
+      <div class="portrait"><img src="assets/portrait.png" alt="Девушка с золотыми серьгами и кольцами"></div>
     </section>
 
     <section class="section" id="promise">
@@ -126,39 +115,6 @@
     </div>
     <div class="copy"><span>© 2026 Concha Jewelry. Все права защищены.</span><span>Политика конфиденциальности &nbsp;|&nbsp; Условия <a href="https://github.com/ElHakobyan/concha">GitHub</a></span></div>
   </footer>
-
-  <!-- SVG-иллюстрации (повторно используются) -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#f6e1a0"/><stop offset=".45" stop-color="#cfa24a"/><stop offset="1" stop-color="#8a6420"/>
-      </linearGradient>
-      <radialGradient id="pearlg" cx=".35" cy=".3" r=".8">
-        <stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#ece5da"/><stop offset="1" stop-color="#b9ad9d"/>
-      </radialGradient>
-      <g id="ring-art">
-        <ellipse cx="100" cy="76" rx="62" ry="48" fill="url(#gold)"/>
-        <ellipse cx="100" cy="72" rx="34" ry="26" fill="#e8dccd"/>
-        <ellipse cx="100" cy="72" rx="34" ry="26" fill="none" stroke="#8a6420" stroke-opacity=".35" stroke-width="3"/>
-        <ellipse cx="78" cy="48" rx="26" ry="8" fill="#fff" opacity=".35" transform="rotate(-18 78 48)"/>
-      </g>
-      <g id="pearl-art"><circle cx="50" cy="50" r="42" fill="url(#pearlg)"/></g>
-      <g id="vase-art">
-        <ellipse cx="110" cy="196" rx="80" ry="10" fill="#000" opacity=".08"/>
-        <path d="M80 190c-20-30-14-70 10-86 6-4 6-14 4-22h32c-2 8-2 18 4 22 24 16 30 56 10 86z" fill="#e9e0d4"/>
-        <path d="M110 80C100 50 84 30 78 10M112 80c4-30 20-48 34-62M112 80c-2-26-2-44 2-70" stroke="#a07840" stroke-width="3" fill="none"/>
-        <ellipse cx="60" cy="186" rx="30" ry="8" fill="#d8ccbc"/>
-      </g>
-      <g id="portrait-art">
-        <rect width="400" height="300" fill="#e0c9b6"/>
-        <ellipse cx="220" cy="150" rx="60" ry="76" fill="#efd3bd"/>
-        <path d="M150 120c0-70 140-80 150 0 4 40-6 80-20 100 10-60-10-110-60-110-40 0-60 40-66 100-6-20-8-60-4-90z" fill="#4a3228"/>
-        <path d="M200 215h80l40 85H150z" fill="#f2ede6"/>
-        <circle cx="266" cy="160" r="7" fill="none" stroke="url(#gold)" stroke-width="4"/>
-        <circle cx="180" cy="163" r="7" fill="none" stroke="url(#gold)" stroke-width="4"/>
-      </g>
-    </defs>
-  </svg>
 
   <script src="script.js"></script>
 </body>
