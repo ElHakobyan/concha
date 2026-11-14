@@ -2,6 +2,8 @@
 // Значения вставляются как HTML (нужны <br> и <strong>) — только наши собственные строки.
 const I18N = {
   ru: {
+    m_gold: "Золото", credit: "Фото: The Metropolitan Museum of Art (Open Access, CC0)",
+    dd_view_all: "Смотреть все →", filter_cat: "Категория: {name}",
     music_on: "Включить музыку", music_off: "Выключить музыку",
     slide_prev: "Предыдущий слайд", slide_next: "Следующий слайд", slide_go: "Слайд {n}",
     auth_surname: "Фамилия", auth_phone: "Номер телефона", auth_err_surname: "Введите фамилию.", auth_err_phone: "Введите корректный номер телефона (например, +374 99 123456).",
@@ -47,6 +49,8 @@ const I18N = {
     copy2: "Политика конфиденциальности &nbsp;|&nbsp; Условия",
   },
   en: {
+    m_gold: "Gold", credit: "Photos: The Metropolitan Museum of Art (Open Access, CC0)",
+    dd_view_all: "View all →", filter_cat: "Category: {name}",
     music_on: "Play music", music_off: "Pause music",
     slide_prev: "Previous slide", slide_next: "Next slide", slide_go: "Slide {n}",
     auth_surname: "Surname", auth_phone: "Phone number", auth_err_surname: "Please enter your surname.", auth_err_phone: "Please enter a valid phone number (e.g. +374 99 123456).",
@@ -92,6 +96,8 @@ const I18N = {
     copy2: "Privacy Policy &nbsp;|&nbsp; Terms of Service",
   },
   hy: {
+    m_gold: "Ոսկի", credit: "Լուսանկարներ՝ The Metropolitan Museum of Art (Open Access, CC0)",
+    dd_view_all: "Դիտել բոլորը →", filter_cat: "Կատեգորիա՝ {name}",
     music_on: "Միացնել երաժշտությունը", music_off: "Անջատել երաժշտությունը",
     slide_prev: "Նախորդ սլայդ", slide_next: "Հաջորդ սլայդ", slide_go: "Սլայդ {n}",
     auth_surname: "Ազգանուն", auth_phone: "Հեռախոսահամար", auth_err_surname: "Մուտքագրեք ազգանունը։", auth_err_phone: "Մուտքագրեք վավեր հեռախոսահամար (օր.՝ +374 99 123456)։",
