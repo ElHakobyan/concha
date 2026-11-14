@@ -159,7 +159,9 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 @media (max-width: 480px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
   .footer { grid-template-columns: repeat(2, 1fr); }
-  .cats { grid-template-columns: repeat(2, 1fr); }
+  .cats { grid-template-columns: repeat(4, 1fr); }
+  .cats a { padding: 14px 4px 12px; letter-spacing: .08em; font-size: 8.5px; }
+  .cats svg { width: 28px; height: 28px; }
   .promise { grid-template-columns: 1fr; }
   .promise > div { border-left: 0; padding-left: 0; }
 }
