@@ -58,6 +58,7 @@ function applyLang() {
   renderProducts();
   renderCart();
   renderAuth();
+  if (window.heroSlidesRelabel) window.heroSlidesRelabel();
 }
 
 const searchBtn = document.getElementById("searchBtn");
@@ -269,5 +270,64 @@ authForm.addEventListener("submit", async e => {
   renderAuth();
   setAuthMsg("");
 });
+
+// ---------- слайдшоу в главном экране ----------
+// Чтобы добавить кадр, положите файл в assets/ и допишите его сюда.
+// Кадры без файла пропускаются; при одном кадре управление скрыто.
+const HERO_SLIDES = [
+  { src: "assets/hero.png", size: "auto 100%" },
+  // Добавьте файлы в assets/ и раскомментируйте строки — слайдшоу включится само:
+  // { src: "assets/hero2.jpg", size: "cover" },
+  // { src: "assets/hero3.jpg", size: "cover" },
+  // { src: "assets/hero4.jpg", size: "cover" },
+  // { src: "assets/hero5.jpg", size: "cover" },
+];
+(async function initHeroSlides() {
+  const box = document.getElementById("heroSlides");
+  const ctrl = document.getElementById("heroCtrl");
+  const dotsEl = document.getElementById("heroDots");
+  const hero = document.getElementById("hero");
+  const loaded = (await Promise.all(HERO_SLIDES.map(s => new Promise(res => {
+    const img = new Image();
+    img.onload = () => res(s); img.onerror = () => res(null);
+    img.src = s.src;
+  })))).filter(Boolean);
+  if (!loaded.length) return;
+  box.innerHTML = loaded.map(s => `<div class="slide" style="background-image:url('${s.src}');background-size:${s.size}"></div>`).join("");
+  const slides = [...box.children];
+  let i = 0, timer = null, paused = false;
+  const show = n => {
+    i = (n + slides.length) % slides.length;
+    slides.forEach((el, k) => el.classList.toggle("on", k === i));
+    [...dotsEl.children].forEach((d, k) => d.setAttribute("aria-current", k === i));
+  };
+  show(0);
+  if (slides.length < 2) return;           // один кадр — без управления
+  dotsEl.innerHTML = slides.map((_, k) => `<button type="button" data-i="${k}"></button>`).join("");
+  const labelDots = () => [...dotsEl.children].forEach((d, k) => d.setAttribute("aria-label", t("slide_go").replace("{n}", k + 1)));
+  labelDots();
+  window.heroSlidesRelabel = labelDots;     // вызывается при смене языка
+  ctrl.hidden = false;
+  show(0);
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const start = () => { stop(); if (!reduce && !paused && !document.hidden) timer = setInterval(() => show(i + 1), 5500); };
+  const stop = () => { clearInterval(timer); timer = null; };
+  document.getElementById("heroPrev").addEventListener("click", () => { show(i - 1); start(); });
+  document.getElementById("heroNext").addEventListener("click", () => { show(i + 1); start(); });
+  dotsEl.addEventListener("click", e => { const b = e.target.closest("button[data-i]"); if (b) { show(+b.dataset.i); start(); } });
+  hero.addEventListener("mouseenter", () => { paused = true; stop(); });
+  hero.addEventListener("mouseleave", () => { paused = false; start(); });
+  hero.addEventListener("focusin", () => { paused = true; stop(); });
+  hero.addEventListener("focusout", () => { paused = false; start(); });
+  document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+  let x0 = null;
+  hero.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  hero.addEventListener("touchend", e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 40) { show(i + (dx < 0 ? 1 : -1)); start(); }
+  });
+  start();
+})();
 
 applyLang();
