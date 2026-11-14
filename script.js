@@ -1,26 +1,64 @@
 const products = [
-  { name: "Aurelia Ring", mat: "Gold Vermeil", price: 98, img: "assets/p1.png" },
-  { name: "Lumin Pearl Drops", mat: "Freshwater Pearls", price: 128, img: "assets/p2.png" },
-  { name: "Sentinel Pendant", mat: "Gold Vermeil", price: 98, img: "assets/p3.png" },
-  { name: "Forma Cuff", mat: "Gold Vermeil", price: 148, img: "assets/p4.png" },
-  { name: "Moment Chain", mat: "14k Gold Fill", price: 68, img: "assets/p5.png" },
-  { name: "Ora Hoops", mat: "Gold Vermeil", price: 108, img: "assets/p6.png" },
+  { name: "Aurelia Ring", mat: "m_vermeil", price: 98, img: "assets/p1.png" },
+  { name: "Lumin Pearl Drops", mat: "m_pearls", price: 128, img: "assets/p2.png" },
+  { name: "Sentinel Pendant", mat: "m_vermeil", price: 98, img: "assets/p3.png" },
+  { name: "Forma Cuff", mat: "m_vermeil", price: 148, img: "assets/p4.png" },
+  { name: "Moment Chain", mat: "m_fill", price: 68, img: "assets/p5.png" },
+  { name: "Ora Hoops", mat: "m_vermeil", price: 108, img: "assets/p6.png" },
 ];
 
-const grid = document.getElementById("products");
-grid.innerHTML = products.map(p => `
-  <article class="card">
-    <div class="img"><img src="${p.img}" alt="${p.name}"></div>
-    <div class="meta">
-      <div class="name">${p.name}</div>
-      <div class="mat">${p.mat}</div>
-      <div class="row"><span>$${p.price.toFixed(2)}</span>
-        <button aria-label="Добавить ${p.name}">+</button></div>
-    </div>
-  </article>`).join("");
+const LANGS = ["hy", "ru", "en"];
+let lang = "ru";
+try {
+  const saved = localStorage.getItem("lang");
+  if (LANGS.includes(saved)) lang = saved;
+} catch (e) {}
 
+const t = key => I18N[lang][key] ?? I18N.ru[key] ?? key;
+
+const grid = document.getElementById("products");
 const count = document.getElementById("count");
+const msg = document.getElementById("msg");
 let n = 0;
+let msgKey = null;
+
+function renderProducts() {
+  grid.innerHTML = products.map(p => `
+    <article class="card">
+      <div class="img"><img src="${p.img}" alt="${p.name}"></div>
+      <div class="meta">
+        <div class="name">${p.name}</div>
+        <div class="mat">${t(p.mat)}</div>
+        <div class="row"><span>$${p.price.toFixed(2)}</span>
+          <button aria-label="+ ${p.name}">+</button></div>
+      </div>
+    </article>`).join("");
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll("[data-i18n-alt]").forEach(el => { el.alt = t(el.dataset.i18nAlt); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  document.querySelector('meta[name="description"]').content = t("meta_desc");
+  document.querySelectorAll(".langs button").forEach(b => {
+    const on = b.dataset.lang === lang;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on);
+  });
+  if (msgKey) msg.textContent = t(msgKey);
+  renderProducts();
+}
+
+document.querySelector(".langs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-lang]");
+  if (!b) return;
+  lang = b.dataset.lang;
+  try { localStorage.setItem("lang", lang); } catch (err) {}
+  applyLang();
+});
+
 grid.addEventListener("click", e => {
   if (e.target.closest("button")) count.textContent = ++n;
 });
@@ -36,9 +74,11 @@ nav.addEventListener("click", () => { nav.classList.remove("open"); burger.setAt
 document.getElementById("form").addEventListener("submit", e => {
   e.preventDefault();
   const email = document.getElementById("email");
-  const msg = document.getElementById("msg");
   const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+  msgKey = ok ? "sub_ok" : "sub_err";
   msg.className = "msg " + (ok ? "ok" : "err");
-  msg.textContent = ok ? "Спасибо! Вы подписаны." : "Введите корректный email.";
+  msg.textContent = t(msgKey);
   if (ok) email.value = "";
 });
+
+applyLang();
