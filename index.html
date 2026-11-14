@@ -8,9 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@400;500;600&family=Noto+Sans+Armenian:wght@400;500;600&family=Noto+Serif+Armenian:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo-shell" viewBox="0 0 200 200"><path d="M92.0 178.0L76.0 188.0L124.0 188.0L108.0 178.0Z" fill="#faf8f5" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M92.0 178.0 L9.4 112.2 Q2.9 85.1 30.2 90.4 Q31.1 62.6 56.0 75.0 Q64.2 48.4 85.0 67.0 Q100.0 43.6 115.0 67.0 Q135.8 48.4 144.0 75.0 Q168.9 62.6 169.8 90.4 Q197.1 85.1 190.6 112.2 L108.0 178.0 Z" fill="#faf8f5" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M97.8 170.3L10.3 112.8M98.4 170.2L30.9 91.3M99.0 170.1L56.4 76.0M99.7 170.0L85.1 68.1M100.3 170.0L114.9 68.1M101.0 170.1L143.6 76.0M101.6 170.2L169.1 91.3M102.2 170.3L189.7 112.8" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".38" stroke-linecap="round"/><g text-anchor="middle" fill="currentColor" paint-order="stroke" stroke="#faf8f5" stroke-linejoin="round"><text x="100" y="113" font-family="'Cormorant Garamond',Georgia,serif" font-size="22" font-weight="500" letter-spacing="2.6" stroke-width="6">CONCHA</text><text x="100" y="130" font-family="'Jost',Arial,sans-serif" font-size="9.5" font-weight="500" letter-spacing="3.6" stroke-width="5">JEWELRY</text></g></symbol></svg>
   <div class="topbar">
     <div class="promos">
       <span data-i18n="top1"></span>
@@ -24,7 +26,7 @@
   </div>
 
   <header class="header">
-    <a class="logo" href="#top">CONCHA<small>JEWELRY</small></a>
+    <a class="logo" href="#top"><svg class="logo-mark" viewBox="0 0 200 200" role="img" aria-label="Concha Jewelry"><use href="#logo-shell"/></svg></a>
     <nav class="nav" id="nav">
       <a href="#bestsellers" data-i18n="nav_shop"></a>
       <a href="#bestsellers" data-i18n="nav_best"></a>
@@ -34,11 +36,15 @@
       <a href="#contact" data-i18n="nav_contact"></a>
     </nav>
     <div class="icons">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>
+      <button class="icon-btn" id="searchBtn" type="button" aria-expanded="false" data-i18n-aria="search_label"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></button>
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 15-5 16 0"/></svg>
       <span class="bag"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 016 0"/></svg><b id="count">0</b></span>
       <button class="burger" id="burger" aria-expanded="false" data-i18n-aria="menu">☰</button>
     </div>
+    <form class="searchbar" id="searchbar" role="search" hidden>
+      <input type="search" id="q" autocomplete="off" data-i18n-ph="search_ph" data-i18n-aria="search_label">
+      <button type="button" id="qclose" data-i18n-aria="search_close">✕</button>
+    </form>
   </header>
 
   <main id="top">
@@ -64,6 +70,7 @@
     <section class="section" id="bestsellers">
       <div class="section-head"><h2 data-i18n="best_title"></h2><a href="#contact" data-i18n="view_all"></a></div>
       <div class="grid" id="products"></div>
+      <p class="noresults" id="noresults" hidden data-i18n="search_none"></p>
     </section>
 
     <section class="section duo" id="about">
@@ -107,7 +114,7 @@
 
   <footer class="footer">
     <div class="f-brand">
-      <div class="logo">CONCHA<small>JEWELRY</small></div>
+      <div class="logo"><svg class="logo-mark" viewBox="0 0 200 200" role="img" aria-label="Concha Jewelry"><use href="#logo-shell"/></svg></div>
       <p data-i18n="f_brand"></p>
     </div>
     <div><h4 data-i18n="f_shop"></h4><a href="#bestsellers" data-i18n="f_all"></a><a href="#bestsellers" data-i18n="nav_best"></a><a href="#bestsellers" data-i18n="c_new"></a><a href="#bestsellers" data-i18n="c_rings"></a><a href="#bestsellers" data-i18n="c_earrings"></a><a href="#bestsellers" data-i18n="c_necklaces"></a><a href="#bestsellers" data-i18n="c_bracelets"></a><a href="#bestsellers" data-i18n="c_chains"></a></div>
