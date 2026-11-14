@@ -4,107 +4,109 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concha — Jewelry</title>
-  <meta name="description" content="Concha — украшения, которые хочется носить каждый день.">
+  <meta name="description" content="">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@400;500;600&family=Noto+Sans+Armenian:wght@400;500;600&family=Noto+Serif+Armenian:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo-shell" viewBox="0 0 200 200"><path d="M92.0 178.0L76.0 188.0L124.0 188.0L108.0 178.0Z" fill="#faf8f5" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M92.0 178.0 L9.4 112.2 Q2.9 85.1 30.2 90.4 Q31.1 62.6 56.0 75.0 Q64.2 48.4 85.0 67.0 Q100.0 43.6 115.0 67.0 Q135.8 48.4 144.0 75.0 Q168.9 62.6 169.8 90.4 Q197.1 85.1 190.6 112.2 L108.0 178.0 Z" fill="#faf8f5" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M97.8 170.3L10.3 112.8M98.4 170.2L30.9 91.3M99.0 170.1L56.4 76.0M99.7 170.0L85.1 68.1M100.3 170.0L114.9 68.1M101.0 170.1L143.6 76.0M101.6 170.2L169.1 91.3M102.2 170.3L189.7 112.8" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".38" stroke-linecap="round"/><g text-anchor="middle" fill="currentColor" paint-order="stroke" stroke="#faf8f5" stroke-linejoin="round"><text x="100" y="113" font-family="'Cormorant Garamond',Georgia,serif" font-size="22" font-weight="500" letter-spacing="2.6" stroke-width="6">CONCHA</text><text x="100" y="130" font-family="'Jost',Arial,sans-serif" font-size="9.5" font-weight="500" letter-spacing="3.6" stroke-width="5">JEWELRY</text></g></symbol></svg>
   <div class="topbar">
-    <span>▭ Бесплатная доставка от $75</span>
-    <span>▢ Подарочная упаковка к каждому заказу</span>
-    <span class="cur">US (USD) ⌄</span>
+    <div class="promos">
+      <span data-i18n="top1"></span>
+      <span data-i18n="top2"></span>
+    </div>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="hy" lang="hy">ՀԱՅ</button>
+      <button type="button" data-lang="ru" lang="ru">РУС</button>
+      <button type="button" data-lang="en" lang="en">ENG</button>
+    </div>
   </div>
 
   <header class="header">
-    <a class="logo" href="#top">CONCHA<small>JEWELRY</small></a>
+    <a class="logo" href="#top"><svg class="logo-mark" viewBox="0 0 200 200" role="img" aria-label="Concha Jewelry"><use href="#logo-shell"/></svg></a>
     <nav class="nav" id="nav">
-      <a href="#bestsellers">Каталог ⌄</a>
-      <a href="#bestsellers">Хиты</a>
-      <a href="#categories">Коллекции</a>
-      <a href="#about">О нас</a>
-      <a href="#about">Журнал</a>
-      <a href="#contact">Контакты</a>
+      <a href="#bestsellers" data-i18n="nav_shop"></a>
+      <a href="#bestsellers" data-i18n="nav_best"></a>
+      <a href="#categories" data-i18n="nav_collections"></a>
+      <a href="#about" data-i18n="nav_about"></a>
+      <a href="#about" data-i18n="nav_journal"></a>
+      <a href="#contact" data-i18n="nav_contact"></a>
     </nav>
     <div class="icons">
-      <svg viewBox="0 0 24 24" aria-label="Поиск"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>
-      <svg viewBox="0 0 24 24" aria-label="Аккаунт"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 15-5 16 0"/></svg>
-      <span class="bag"><svg viewBox="0 0 24 24" aria-label="Корзина"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 016 0"/></svg><b id="count">0</b></span>
-      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">☰</button>
+      <button class="icon-btn" id="searchBtn" type="button" aria-expanded="false" data-i18n-aria="search_label"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></button>
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 15-5 16 0"/></svg>
+      <span class="bag"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 016 0"/></svg><b id="count">0</b></span>
+      <button class="burger" id="burger" aria-expanded="false" data-i18n-aria="menu">☰</button>
     </div>
+    <form class="searchbar" id="searchbar" role="search" hidden>
+      <input type="search" id="q" autocomplete="off" data-i18n-ph="search_ph" data-i18n-aria="search_label">
+      <button type="button" id="qclose" data-i18n-aria="search_close">✕</button>
+    </form>
   </header>
 
   <main id="top">
     <section class="hero">
       <div class="hero-text">
-        <p class="eyebrow">Продуманно. Изящно. Навсегда.</p>
-        <h1>Вещи, которые<br>хочется носить близко</h1>
-        <p class="lead">Тихие формы и настоящий смысл.</p>
-        <a class="btn" href="#bestsellers">Смотреть коллекцию</a>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="stone"></div>
-        <svg class="h-ring a" viewBox="0 0 200 140"><use href="#ring-art"/></svg>
-        <svg class="h-ring b" viewBox="0 0 200 140"><use href="#ring-art"/></svg>
-        <svg class="h-pearl a" viewBox="0 0 100 100"><use href="#pearl-art"/></svg>
-        <svg class="h-pearl b" viewBox="0 0 100 100"><use href="#pearl-art"/></svg>
+        <p class="eyebrow" data-i18n="hero_eyebrow"></p>
+        <h1 data-i18n="hero_title"></h1>
+        <p class="lead" data-i18n="hero_lead"></p>
+        <a class="btn" href="#bestsellers" data-i18n="hero_btn"></a>
       </div>
     </section>
 
     <section class="cats" id="categories">
-      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="24" cy="30" r="11"/><path d="M19 15l5-7 5 7-5 4z"/></svg>Кольца</a>
-      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="16" cy="32" r="6"/><circle cx="32" cy="32" r="6"/><path d="M16 26V10M32 26V10"/></svg>Серьги</a>
-      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M8 8c0 18 10 22 16 22s16-4 16-22"/><circle cx="24" cy="36" r="5"/></svg>Колье</a>
-      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/></svg>Браслеты</a>
-      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M6 14c6 22 30 22 36 0"/></svg>Цепочки</a>
-      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M24 6c1 11 7 17 18 18-11 1-17 7-18 18-1-11-7-17-18-18 11-1 17-7 18-18z"/></svg>Новинки</a>
-      <a href="#contact"><svg viewBox="0 0 48 48"><rect x="8" y="18" width="32" height="22"/><path d="M6 18h36v-6H6zM24 12v28M24 12c-8-8-14 0-6 0M24 12c8-8 14 0 6 0"/></svg>Подарки</a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="24" cy="30" r="11"/><path d="M19 15l5-7 5 7-5 4z"/></svg><span data-i18n="c_rings"></span></a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="16" cy="32" r="6"/><circle cx="32" cy="32" r="6"/><path d="M16 26V10M32 26V10"/></svg><span data-i18n="c_earrings"></span></a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M8 8c0 18 10 22 16 22s16-4 16-22"/><circle cx="24" cy="36" r="5"/></svg><span data-i18n="c_necklaces"></span></a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/></svg><span data-i18n="c_bracelets"></span></a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M6 14c6 22 30 22 36 0"/></svg><span data-i18n="c_chains"></span></a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M24 6c1 11 7 17 18 18-11 1-17 7-18 18-1-11-7-17-18-18 11-1 17-7 18-18z"/></svg><span data-i18n="c_new"></span></a>
+      <a href="#contact"><svg viewBox="0 0 48 48"><rect x="8" y="18" width="32" height="22"/><path d="M6 18h36v-6H6zM24 12v28M24 12c-8-8-14 0-6 0M24 12c8-8 14 0 6 0"/></svg><span data-i18n="c_gifts"></span></a>
     </section>
 
     <section class="section" id="bestsellers">
-      <div class="section-head"><h2>ХИТЫ ПРОДАЖ</h2><a href="#contact">СМОТРЕТЬ ВСЕ →</a></div>
+      <div class="section-head"><h2 data-i18n="best_title"></h2><a href="#contact" data-i18n="view_all"></a></div>
       <div class="grid" id="products"></div>
+      <p class="noresults" id="noresults" hidden data-i18n="search_none"></p>
     </section>
 
     <section class="section duo" id="about">
       <div class="story">
-        <div class="story-art" aria-hidden="true">
-          <svg viewBox="0 0 220 220"><use href="#vase-art"/></svg>
-        </div>
+        <div class="story-art"><img src="assets/vase.png" alt="" data-i18n-alt="alt_vase"></div>
         <div class="story-text">
-          <p class="eyebrow">История Concha</p>
-          <h2>Украшения для<br>каждой главы.</h2>
-          <p>Продуманные вещи, которые чтят тихие моменты и отмечают то, что действительно важно.</p>
-          <a class="link" href="#contact">Читать журнал →</a>
+          <p class="eyebrow" data-i18n="story_eyebrow"></p>
+          <h2 data-i18n="story_title"></h2>
+          <p data-i18n="story_text"></p>
+          <a class="link" href="#contact" data-i18n="story_link"></a>
         </div>
       </div>
-      <div class="portrait" aria-hidden="true">
-        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><use href="#portrait-art"/></svg>
-      </div>
+      <div class="portrait"><img src="assets/portrait.png" alt="" data-i18n-alt="alt_portrait"></div>
     </section>
 
     <section class="section" id="promise">
-      <p class="eyebrow center">НАШЕ ОБЕЩАНИЕ</p>
+      <p class="eyebrow center" data-i18n="promise_title"></p>
       <div class="promise">
-        <div><svg viewBox="0 0 48 48"><path d="M10 38C8 20 20 8 40 8c0 20-12 32-30 30zM10 38L28 20"/></svg><div><h3>ЭТИЧНЫЕ МАТЕРИАЛЫ</h3><p>Переработанное золото и ответственно добытые камни.</p></div></div>
-        <div><svg viewBox="0 0 48 48"><path d="M24 40C8 28 6 18 12 14c5-3 9 0 12 5 3-5 7-8 12-5 6 4 4 14-12 26z"/></svg><div><h3>СДЕЛАНО С ЗАБОТОЙ</h3><p>Небольшие партии, сделанные с намерением и честностью.</p></div></div>
-        <div><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><path d="M7 24h34M24 7c-9 9-9 25 0 34M24 7c9 9 9 25 0 34"/></svg><div><h3>ОСОЗНАННЫЙ ВЫБОР</h3><p>Экологичная упаковка на каждом шаге.</p></div></div>
-        <div><svg viewBox="0 0 48 48"><path d="M24 6l16 6v12c0 10-7 15-16 18C15 39 8 34 8 24V12z"/></svg><div><h3>НА ДОЛГИЕ ГОДЫ</h3><p>Вневременной дизайн, который любят годами.</p></div></div>
+        <div><svg viewBox="0 0 48 48"><path d="M10 38C8 20 20 8 40 8c0 20-12 32-30 30zM10 38L28 20"/></svg><div><h3 data-i18n="pr1_t"></h3><p data-i18n="pr1_d"></p></div></div>
+        <div><svg viewBox="0 0 48 48"><path d="M24 40C8 28 6 18 12 14c5-3 9 0 12 5 3-5 7-8 12-5 6 4 4 14-12 26z"/></svg><div><h3 data-i18n="pr2_t"></h3><p data-i18n="pr2_d"></p></div></div>
+        <div><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><path d="M7 24h34M24 7c-9 9-9 25 0 34M24 7c9 9 9 25 0 34"/></svg><div><h3 data-i18n="pr3_t"></h3><p data-i18n="pr3_d"></p></div></div>
+        <div><svg viewBox="0 0 48 48"><path d="M24 6l16 6v12c0 10-7 15-16 18C15 39 8 34 8 24V12z"/></svg><div><h3 data-i18n="pr4_t"></h3><p data-i18n="pr4_d"></p></div></div>
       </div>
     </section>
 
     <section class="press">
-      <b>КАК НАС ЗАМЕТИЛИ</b>
+      <b data-i18n="press"></b>
       <span class="p1">Harper</span><span class="p2">THE DAILY EDIT</span><span class="p3">B Y R D I E</span><span class="p4">L A I N E</span><span class="p5">K I N F O L K</span><span class="p6">Home Journal</span>
     </section>
 
     <section class="subscribe" id="contact">
-      <b>ОСТАВАЙТЕСЬ НА СВЯЗИ</b>
-      <p>Новинки, закрытые предложения и истории журнала — первыми.</p>
+      <b data-i18n="sub_title"></b>
+      <p data-i18n="sub_text"></p>
       <form id="form" novalidate>
-        <input type="email" id="email" placeholder="Ваш email" required aria-label="Email">
-        <button class="btn" type="submit">ПОДПИСАТЬСЯ</button>
+        <input type="email" id="email" required data-i18n-ph="sub_ph" data-i18n-aria="sub_ph">
+        <button class="btn" type="submit" data-i18n="sub_btn"></button>
         <p class="msg" id="msg" role="status"></p>
       </form>
     </section>
@@ -112,54 +114,22 @@
 
   <footer class="footer">
     <div class="f-brand">
-      <div class="logo">CONCHA<small>JEWELRY</small></div>
-      <p>Современные семейные ценности. Значимые украшения.</p>
+      <div class="logo"><svg class="logo-mark" viewBox="0 0 200 200" role="img" aria-label="Concha Jewelry"><use href="#logo-shell"/></svg></div>
+      <p data-i18n="f_brand"></p>
     </div>
-    <div><h4>КАТАЛОГ</h4><a href="#bestsellers">Все украшения</a><a href="#bestsellers">Хиты</a><a href="#bestsellers">Новинки</a><a href="#bestsellers">Кольца</a><a href="#bestsellers">Серьги</a><a href="#bestsellers">Колье</a><a href="#bestsellers">Браслеты</a><a href="#bestsellers">Цепочки</a></div>
-    <div><h4>КОЛЛЕКЦИИ</h4><a href="#categories">Базовые</a><a href="#categories">Наследие</a><a href="#categories">Скульптурные</a><a href="#categories">Жемчуг</a><a href="#categories">Минимал</a></div>
-    <div><h4>О НАС</h4><a href="#about">Наша история</a><a href="#about">Материалы и уход</a><a href="#about">Устойчивость</a><a href="#about">Мастерство</a></div>
-    <div><h4>ПОМОЩЬ</h4><a href="#contact">FAQ</a><a href="#contact">Доставка и возврат</a><a href="#contact">Отследить заказ</a><a href="#contact">Связаться</a></div>
+    <div><h4 data-i18n="f_shop"></h4><a href="#bestsellers" data-i18n="f_all"></a><a href="#bestsellers" data-i18n="nav_best"></a><a href="#bestsellers" data-i18n="c_new"></a><a href="#bestsellers" data-i18n="c_rings"></a><a href="#bestsellers" data-i18n="c_earrings"></a><a href="#bestsellers" data-i18n="c_necklaces"></a><a href="#bestsellers" data-i18n="c_bracelets"></a><a href="#bestsellers" data-i18n="c_chains"></a></div>
+    <div><h4 data-i18n="f_collections"></h4><a href="#categories" data-i18n="f_essentials"></a><a href="#categories" data-i18n="f_heirlooms"></a><a href="#categories" data-i18n="f_sculptural"></a><a href="#categories" data-i18n="f_pearls"></a><a href="#categories" data-i18n="f_minimal"></a></div>
+    <div><h4 data-i18n="f_about"></h4><a href="#about" data-i18n="f_story"></a><a href="#about" data-i18n="f_materials"></a><a href="#about" data-i18n="f_sustain"></a><a href="#about" data-i18n="f_craft"></a></div>
+    <div><h4 data-i18n="f_help"></h4><a href="#contact" data-i18n="f_faq"></a><a href="#contact" data-i18n="f_shipping"></a><a href="#contact" data-i18n="f_track"></a><a href="#contact" data-i18n="f_contact"></a></div>
     <div class="services">
-      <p><b>▭</b> <span><strong>БЕСПЛАТНАЯ ДОСТАВКА</strong><br>при заказе от $75</span></p>
-      <p><b>↺</b> <span><strong>ЛЁГКИЙ ВОЗВРАТ</strong><br>30 дней без вопросов</span></p>
-      <p><b>▢</b> <span><strong>БЕЗОПАСНАЯ ОПЛАТА</strong><br>Покупайте уверенно</span></p>
+      <p><b>▭</b> <span data-i18n="s1"></span></p>
+      <p><b>↺</b> <span data-i18n="s2"></span></p>
+      <p><b>▢</b> <span data-i18n="s3"></span></p>
     </div>
-    <div class="copy"><span>© 2026 Concha Jewelry. Все права защищены.</span><span>Политика конфиденциальности &nbsp;|&nbsp; Условия <a href="https://github.com/ElHakobyan/concha">GitHub</a></span></div>
+    <div class="copy"><span data-i18n="copy1"></span><span><span data-i18n="copy2"></span> <a href="https://github.com/ElHakobyan/concha">GitHub</a></span></div>
   </footer>
 
-  <!-- SVG-иллюстрации (повторно используются) -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#f6e1a0"/><stop offset=".45" stop-color="#cfa24a"/><stop offset="1" stop-color="#8a6420"/>
-      </linearGradient>
-      <radialGradient id="pearlg" cx=".35" cy=".3" r=".8">
-        <stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#ece5da"/><stop offset="1" stop-color="#b9ad9d"/>
-      </radialGradient>
-      <g id="ring-art">
-        <ellipse cx="100" cy="76" rx="62" ry="48" fill="url(#gold)"/>
-        <ellipse cx="100" cy="72" rx="34" ry="26" fill="#e8dccd"/>
-        <ellipse cx="100" cy="72" rx="34" ry="26" fill="none" stroke="#8a6420" stroke-opacity=".35" stroke-width="3"/>
-        <ellipse cx="78" cy="48" rx="26" ry="8" fill="#fff" opacity=".35" transform="rotate(-18 78 48)"/>
-      </g>
-      <g id="pearl-art"><circle cx="50" cy="50" r="42" fill="url(#pearlg)"/></g>
-      <g id="vase-art">
-        <ellipse cx="110" cy="196" rx="80" ry="10" fill="#000" opacity=".08"/>
-        <path d="M80 190c-20-30-14-70 10-86 6-4 6-14 4-22h32c-2 8-2 18 4 22 24 16 30 56 10 86z" fill="#e9e0d4"/>
-        <path d="M110 80C100 50 84 30 78 10M112 80c4-30 20-48 34-62M112 80c-2-26-2-44 2-70" stroke="#a07840" stroke-width="3" fill="none"/>
-        <ellipse cx="60" cy="186" rx="30" ry="8" fill="#d8ccbc"/>
-      </g>
-      <g id="portrait-art">
-        <rect width="400" height="300" fill="#e0c9b6"/>
-        <ellipse cx="220" cy="150" rx="60" ry="76" fill="#efd3bd"/>
-        <path d="M150 120c0-70 140-80 150 0 4 40-6 80-20 100 10-60-10-110-60-110-40 0-60 40-66 100-6-20-8-60-4-90z" fill="#4a3228"/>
-        <path d="M200 215h80l40 85H150z" fill="#f2ede6"/>
-        <circle cx="266" cy="160" r="7" fill="none" stroke="url(#gold)" stroke-width="4"/>
-        <circle cx="180" cy="163" r="7" fill="none" stroke="url(#gold)" stroke-width="4"/>
-      </g>
-    </defs>
-  </svg>
-
+  <script src="i18n.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

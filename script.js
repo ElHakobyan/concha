@@ -1,38 +1,92 @@
-// Золотой градиент и украшения как inline SVG (ссылаются на defs в index.html)
-const G = "url(#gold)", P = "url(#pearlg)";
-
-const art = {
-  ring: `<svg viewBox="0 0 200 200"><ellipse cx="100" cy="112" rx="64" ry="50" fill="${G}"/><ellipse cx="100" cy="108" rx="36" ry="28" fill="#e6d9c8"/><ellipse cx="80" cy="82" rx="26" ry="8" fill="#fff" opacity=".35" transform="rotate(-18 80 82)"/></svg>`,
-  pearls: `<svg viewBox="0 0 200 200"><path d="M70 30c-10 10-8 28 6 30M130 30c10 10 8 28-6 30" stroke="${G}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="72" cy="48" r="9" fill="${G}"/><circle cx="128" cy="48" r="9" fill="${G}"/><circle cx="72" cy="105" r="30" fill="${P}"/><circle cx="128" cy="105" r="30" fill="${P}"/></svg>`,
-  pendant: `<svg viewBox="0 0 200 200"><path d="M30 10c8 70 40 82 70 82s62-12 70-82" stroke="${G}" stroke-width="3" fill="none"/><path d="M100 90c26 0 38 34 30 64-6 22-60 22-60 0-8-30 4-64 30-64z" fill="#e8e0d2"/><path d="M100 90c26 0 38 34 30 64-6 22-60 22-60 0-8-30 4-64 30-64z" fill="none" stroke="${G}" stroke-width="5"/></svg>`,
-  cuff: `<svg viewBox="0 0 200 200"><path d="M40 120c0-50 40-70 90-60 20 4 34 14 38 28" stroke="${G}" stroke-width="22" fill="none" stroke-linecap="round"/><path d="M168 88c-10 38-50 60-96 54" stroke="${G}" stroke-width="22" fill="none" stroke-linecap="round" opacity=".92"/></svg>`,
-  chain: `<svg viewBox="0 0 200 200"><path d="M40 10c8 70 40 110 60 120 20-10 52-50 60-120" stroke="${G}" stroke-width="2.5" fill="none"/><circle cx="100" cy="132" r="4" fill="${G}"/></svg>`,
-  hoops: `<svg viewBox="0 0 200 200"><circle cx="76" cy="105" r="46" fill="none" stroke="${G}" stroke-width="18"/><circle cx="130" cy="120" r="34" fill="none" stroke="${G}" stroke-width="15"/></svg>`,
-};
-
 const products = [
-  { name: "Aurelia Ring", mat: "Gold Vermeil", price: 98, art: "ring" },
-  { name: "Lumin Pearl Drops", mat: "Freshwater Pearls", price: 128, art: "pearls" },
-  { name: "Sentinel Pendant", mat: "Gold Vermeil", price: 98, art: "pendant" },
-  { name: "Forma Cuff", mat: "Gold Vermeil", price: 148, art: "cuff" },
-  { name: "Moment Chain", mat: "14k Gold Fill", price: 68, art: "chain" },
-  { name: "Ora Hoops", mat: "Gold Vermeil", price: 108, art: "hoops" },
+  { name: "Aurelia Ring", mat: "m_vermeil", price: 98, img: "assets/p1.png", cat: "c_rings" },
+  { name: "Lumin Pearl Drops", mat: "m_pearls", price: 128, img: "assets/p2.png", cat: "c_earrings" },
+  { name: "Sentinel Pendant", mat: "m_vermeil", price: 98, img: "assets/p3.png", cat: "c_necklaces" },
+  { name: "Forma Cuff", mat: "m_vermeil", price: 148, img: "assets/p4.png", cat: "c_bracelets" },
+  { name: "Moment Chain", mat: "m_fill", price: 68, img: "assets/p5.png", cat: "c_chains" },
+  { name: "Ora Hoops", mat: "m_vermeil", price: 108, img: "assets/p6.png", cat: "c_earrings" },
 ];
 
-const grid = document.getElementById("products");
-grid.innerHTML = products.map(p => `
-  <article class="card">
-    <div class="img" aria-hidden="true">${art[p.art]}</div>
-    <div class="meta">
-      <div class="name">${p.name}</div>
-      <div class="mat">${p.mat}</div>
-      <div class="row"><span>$${p.price.toFixed(2)}</span>
-        <button aria-label="Добавить ${p.name}">+</button></div>
-    </div>
-  </article>`).join("");
+const LANGS = ["hy", "ru", "en"];
+let lang = "ru";
+try {
+  const saved = localStorage.getItem("lang");
+  if (LANGS.includes(saved)) lang = saved;
+} catch (e) {}
 
+const t = key => I18N[lang][key] ?? I18N.ru[key] ?? key;
+
+const grid = document.getElementById("products");
 const count = document.getElementById("count");
+const msg = document.getElementById("msg");
 let n = 0;
+let msgKey = null;
+
+let query = "";
+const noResults = document.getElementById("noresults");
+
+function renderProducts() {
+  const q = query.trim().toLowerCase();
+  // ищем сразу по всем языкам (hy/ru/en)
+  const hay = p => `${p.name} ${LANGS.map(l => `${I18N[l][p.mat]} ${I18N[l][p.cat]}`).join(" ")}`.toLowerCase();
+  const list = products.filter(p => !q || hay(p).includes(q));
+  noResults.hidden = list.length > 0;
+  grid.innerHTML = list.map(p => `
+    <article class="card">
+      <div class="img"><img src="${p.img}" alt="${p.name}"></div>
+      <div class="meta">
+        <div class="name">${p.name}</div>
+        <div class="mat">${t(p.mat)}</div>
+        <div class="row"><span>$${p.price.toFixed(2)}</span>
+          <button aria-label="+ ${p.name}">+</button></div>
+      </div>
+    </article>`).join("");
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll("[data-i18n-alt]").forEach(el => { el.alt = t(el.dataset.i18nAlt); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  document.querySelector('meta[name="description"]').content = t("meta_desc");
+  document.querySelectorAll(".langs button").forEach(b => {
+    const on = b.dataset.lang === lang;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on);
+  });
+  if (msgKey) msg.textContent = t(msgKey);
+  renderProducts();
+}
+
+const searchBtn = document.getElementById("searchBtn");
+const searchbar = document.getElementById("searchbar");
+const qInput = document.getElementById("q");
+
+function openSearch(open) {
+  searchbar.hidden = !open;
+  searchBtn.setAttribute("aria-expanded", open);
+  if (open) qInput.focus();
+  else if (query) { query = ""; qInput.value = ""; renderProducts(); }
+}
+searchBtn.addEventListener("click", () => openSearch(searchbar.hidden));
+document.getElementById("qclose").addEventListener("click", () => openSearch(false));
+searchbar.addEventListener("submit", e => { e.preventDefault(); document.getElementById("bestsellers").scrollIntoView(); });
+qInput.addEventListener("input", () => {
+  query = qInput.value;
+  renderProducts();
+  document.getElementById("bestsellers").scrollIntoView({ behavior: "smooth" });
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !searchbar.hidden) { openSearch(false); searchBtn.focus(); } });
+
+document.querySelector(".langs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-lang]");
+  if (!b) return;
+  lang = b.dataset.lang;
+  try { localStorage.setItem("lang", lang); } catch (err) {}
+  applyLang();
+});
+
 grid.addEventListener("click", e => {
   if (e.target.closest("button")) count.textContent = ++n;
 });
@@ -48,9 +102,11 @@ nav.addEventListener("click", () => { nav.classList.remove("open"); burger.setAt
 document.getElementById("form").addEventListener("submit", e => {
   e.preventDefault();
   const email = document.getElementById("email");
-  const msg = document.getElementById("msg");
   const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+  msgKey = ok ? "sub_ok" : "sub_err";
   msg.className = "msg " + (ok ? "ok" : "err");
-  msg.textContent = ok ? "Спасибо! Вы подписаны." : "Введите корректный email.";
+  msg.textContent = t(msgKey);
   if (ok) email.value = "";
 });
+
+applyLang();
