@@ -2,6 +2,8 @@
 // Значения вставляются как HTML (нужны <br> и <strong>) — только наши собственные строки.
 const I18N = {
   ru: {
+    auth_surname: "Фамилия", auth_phone: "Номер телефона", auth_err_surname: "Введите фамилию.", auth_err_phone: "Введите корректный номер телефона (например, +374 99 123456).",
+    auth_account: "Аккаунт", auth_register: "Регистрация", auth_login: "Вход", auth_name: "Имя", auth_email: "Email", auth_pass: "Пароль (мин. 8 символов)", auth_pass2: "Повторите пароль", auth_sub_reg: "СОЗДАТЬ АККАУНТ", auth_sub_login: "ВОЙТИ", auth_hello: "Здравствуйте, {name}!", auth_logout: "ВЫЙТИ", auth_err_name: "Введите имя.", auth_err_email: "Введите корректный email.", auth_err_pass: "Пароль должен быть не короче 8 символов.", auth_err_match: "Пароли не совпадают.", auth_err_exists: "Аккаунт с таким email уже есть. Войдите.", auth_err_login: "Неверный email или пароль.", auth_err_crypto: "Не удалось защитить пароль в этом браузере.", auth_note: "Демо: данные хранятся только в вашем браузере.",
     cart_title: "Корзина", cart_empty: "Корзина пуста", cart_total: "Итого", cart_checkout: "ОФОРМИТЬ ЗАКАЗ", cart_done: "Спасибо! Заказ принят, мы свяжемся с вами.", cart_remove: "Удалить", cart_add: "Добавить в корзину", cart_added: "Добавлено",
     search_label: "Поиск", search_ph: "Поиск: кольца, жемчуг, цепочка…", search_close: "Закрыть поиск", search_none: "Ничего не найдено. Попробуйте другой запрос.",
     meta_desc: "Concha — украшения, которые хочется носить каждый день.",
@@ -44,6 +46,8 @@ const I18N = {
     copy2: "Политика конфиденциальности &nbsp;|&nbsp; Условия",
   },
   en: {
+    auth_surname: "Surname", auth_phone: "Phone number", auth_err_surname: "Please enter your surname.", auth_err_phone: "Please enter a valid phone number (e.g. +374 99 123456).",
+    auth_account: "Account", auth_register: "Sign up", auth_login: "Log in", auth_name: "Name", auth_email: "Email", auth_pass: "Password (min. 8 characters)", auth_pass2: "Repeat password", auth_sub_reg: "CREATE ACCOUNT", auth_sub_login: "LOG IN", auth_hello: "Hello, {name}!", auth_logout: "LOG OUT", auth_err_name: "Please enter your name.", auth_err_email: "Please enter a valid email.", auth_err_pass: "Password must be at least 8 characters.", auth_err_match: "Passwords do not match.", auth_err_exists: "An account with this email already exists. Log in instead.", auth_err_login: "Wrong email or password.", auth_err_crypto: "Could not secure the password in this browser.", auth_note: "Demo: data is stored only in your browser.",
     cart_title: "Cart", cart_empty: "Your cart is empty", cart_total: "Total", cart_checkout: "CHECKOUT", cart_done: "Thank you! Your order is received, we will contact you.", cart_remove: "Remove", cart_add: "Add to cart", cart_added: "Added",
     search_label: "Search", search_ph: "Search: rings, pearls, chain…", search_close: "Close search", search_none: "Nothing found. Try a different search.",
     meta_desc: "Concha — jewelry you will want to wear every day.",
@@ -86,6 +90,8 @@ const I18N = {
     copy2: "Privacy Policy &nbsp;|&nbsp; Terms of Service",
   },
   hy: {
+    auth_surname: "Ազգանուն", auth_phone: "Հեռախոսահամար", auth_err_surname: "Մուտքագրեք ազգանունը։", auth_err_phone: "Մուտքագրեք վավեր հեռախոսահամար (օր.՝ +374 99 123456)։",
+    auth_account: "Հաշիվ", auth_register: "Գրանցում", auth_login: "Մուտք", auth_name: "Անուն", auth_email: "Էլ. փոստ", auth_pass: "Գաղտնաբառ (նվազ. 8 նիշ)", auth_pass2: "Կրկնեք գաղտնաբառը", auth_sub_reg: "ՍՏԵՂԾԵԼ ՀԱՇԻՎ", auth_sub_login: "ՄՈՒՏՔ", auth_hello: "Բարև, {name}։", auth_logout: "ԵԼՔ", auth_err_name: "Մուտքագրեք անունը։", auth_err_email: "Մուտքագրեք վավեր email։", auth_err_pass: "Գաղտնաբառը պետք է լինի առնվազն 8 նիշ։", auth_err_match: "Գաղտնաբառերը չեն համընկնում։", auth_err_exists: "Այս email-ով հաշիվ արդեն կա։ Մուտք գործեք։", auth_err_login: "Սխալ email կամ գաղտնաբառ։", auth_err_crypto: "Չհաջողվեց պաշտպանել գաղտնաբառը այս բրաուզերում։", auth_note: "Դեմո՝ տվյալները պահվում են միայն ձեր բրաուզերում։",
     cart_title: "Զամբյուղ", cart_empty: "Զամբյուղը դատարկ է", cart_total: "Ընդամենը", cart_checkout: "ՊԱՏՎԻՐԵԼ", cart_done: "Շնորհակալություն։ Պատվերն ընդունված է, կկապվենք ձեզ հետ։", cart_remove: "Հեռացնել", cart_add: "Ավելացնել զամբյուղ", cart_added: "Ավելացվեց",
     search_label: "Որոնում", search_ph: "Որոնել՝ մատանի, մարգարիտ, շղթա…", search_close: "Փակել որոնումը", search_none: "Ոչինչ չի գտնվել։ Փորձեք այլ հարցում։",
     meta_desc: "Concha — զարդեր, որոնք ուզում ես կրել ամեն օր։",

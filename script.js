@@ -57,6 +57,7 @@ function applyLang() {
   if (msgKey) msg.textContent = t(msgKey);
   renderProducts();
   renderCart();
+  renderAuth();
 }
 
 const searchBtn = document.getElementById("searchBtn");
@@ -173,6 +174,100 @@ document.getElementById("form").addEventListener("submit", e => {
   msg.className = "msg " + (ok ? "ok" : "err");
   msg.textContent = t(msgKey);
   if (ok) email.value = "";
+});
+
+// ---------- регистрация / вход (демо: данные только в localStorage) ----------
+const authDlg = document.getElementById("auth");
+const authForm = document.getElementById("authForm");
+const authMsg = document.getElementById("authMsg");
+const userBtn = document.getElementById("userBtn");
+let authMode = "register";
+
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+async function hashPw(pw, salt) {
+  if (!(window.crypto && crypto.subtle)) throw new Error("no-crypto");
+  return hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + pw)));
+}
+const newSalt = () => hex(crypto.getRandomValues(new Uint8Array(16)));
+const currentUser = () => { const e = load("session", null); const u = e && load("users", {})[e]; return u ? { email: e, ...u } : null; };
+
+function renderAuth() {
+  const user = currentUser();
+  const reg = authMode === "register";
+  authForm.hidden = !!user;
+  document.getElementById("account").hidden = !user;
+  document.getElementById("authTitle").textContent = user ? t("auth_account") : t(reg ? "auth_register" : "auth_login");
+  authForm.querySelectorAll("[data-reg]").forEach(el => { el.hidden = !reg; });
+  authForm.querySelectorAll(".tabs button").forEach(b => {
+    const on = b.dataset.mode === authMode;
+    b.classList.toggle("on", on); b.setAttribute("aria-selected", on);
+  });
+  document.getElementById("authSubmit").textContent = t(reg ? "auth_sub_reg" : "auth_sub_login");
+  document.getElementById("aPass").autocomplete = reg ? "new-password" : "current-password";
+  if (user) document.getElementById("hello").textContent = t("auth_hello").replace("{name}", `${user.name} ${user.surname || ""}`.trim());
+  const av = document.getElementById("avatar");
+  av.textContent = user ? user.name.trim().charAt(0).toUpperCase() : "";
+  userBtn.classList.toggle("in", !!user);
+  if (authMsgKey) authMsg.textContent = t(authMsgKey);
+}
+
+let authMsgKey = null;
+function setAuthMsg(key, ok) { authMsgKey = key || null; authMsg.className = "msg " + (ok ? "ok" : "err"); authMsg.textContent = key ? t(key) : ""; }
+
+function openAuth() {
+  setAuthMsg("");
+  renderAuth();
+  if (!authDlg.open) authDlg.showModal();
+  const first = currentUser() ? document.getElementById("logout") : (authMode === "register" ? "aName" : "aEmail");
+  (typeof first === "string" ? document.getElementById(first) : first).focus();
+}
+
+userBtn.addEventListener("click", openAuth);
+document.getElementById("authClose").addEventListener("click", () => authDlg.close());
+authDlg.addEventListener("click", e => { if (e.target === authDlg) authDlg.close(); });
+authForm.querySelector(".tabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-mode]");
+  if (!b) return;
+  authMode = b.dataset.mode; setAuthMsg(""); renderAuth();
+});
+document.getElementById("logout").addEventListener("click", () => {
+  try { localStorage.removeItem("session"); } catch (e) {}
+  authMode = "login"; renderAuth(); authDlg.close();
+});
+
+authForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = document.getElementById("aName").value.trim();
+  const surname = document.getElementById("aSurname").value.trim();
+  const phone = document.getElementById("aPhone").value.trim();
+  const email = document.getElementById("aEmail").value.trim().toLowerCase();
+  const pw = document.getElementById("aPass").value;
+  const pw2 = document.getElementById("aPass2").value;
+  const reg = authMode === "register";
+  if (reg && !name) return setAuthMsg("auth_err_name");
+  if (reg && !surname) return setAuthMsg("auth_err_surname");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAuthMsg("auth_err_email");
+  if (reg && !/^\+?\d{7,15}$/.test(phone.replace(/[\s\-()]/g, ""))) return setAuthMsg("auth_err_phone");
+  if (reg && pw.length < 8) return setAuthMsg("auth_err_pass");
+  if (reg && pw !== pw2) return setAuthMsg("auth_err_match");
+  const users = load("users", {});
+  try {
+    if (reg) {
+      if (users[email]) return setAuthMsg("auth_err_exists");
+      const salt = newSalt();
+      users[email] = { name, surname, phone, salt, hash: await hashPw(pw, salt) };
+      save("users", users);
+    } else {
+      const u = users[email];
+      if (!u || (await hashPw(pw, u.salt)) !== u.hash) return setAuthMsg("auth_err_login");
+    }
+  } catch (err) { return setAuthMsg("auth_err_crypto"); }
+  save("session", email);
+  authForm.reset();
+  renderAuth();
+  setAuthMsg("");
 });
 
 applyLang();
