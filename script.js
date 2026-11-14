@@ -1,0 +1,112 @@
+const products = [
+  { name: "Aurelia Ring", mat: "m_vermeil", price: 98, img: "assets/p1.png", cat: "c_rings" },
+  { name: "Lumin Pearl Drops", mat: "m_pearls", price: 128, img: "assets/p2.png", cat: "c_earrings" },
+  { name: "Sentinel Pendant", mat: "m_vermeil", price: 98, img: "assets/p3.png", cat: "c_necklaces" },
+  { name: "Forma Cuff", mat: "m_vermeil", price: 148, img: "assets/p4.png", cat: "c_bracelets" },
+  { name: "Moment Chain", mat: "m_fill", price: 68, img: "assets/p5.png", cat: "c_chains" },
+  { name: "Ora Hoops", mat: "m_vermeil", price: 108, img: "assets/p6.png", cat: "c_earrings" },
+];
+
+const LANGS = ["hy", "ru", "en"];
+let lang = "ru";
+try {
+  const saved = localStorage.getItem("lang");
+  if (LANGS.includes(saved)) lang = saved;
+} catch (e) {}
+
+const t = key => I18N[lang][key] ?? I18N.ru[key] ?? key;
+
+const grid = document.getElementById("products");
+const count = document.getElementById("count");
+const msg = document.getElementById("msg");
+let n = 0;
+let msgKey = null;
+
+let query = "";
+const noResults = document.getElementById("noresults");
+
+function renderProducts() {
+  const q = query.trim().toLowerCase();
+  // ищем сразу по всем языкам (hy/ru/en)
+  const hay = p => `${p.name} ${LANGS.map(l => `${I18N[l][p.mat]} ${I18N[l][p.cat]}`).join(" ")}`.toLowerCase();
+  const list = products.filter(p => !q || hay(p).includes(q));
+  noResults.hidden = list.length > 0;
+  grid.innerHTML = list.map(p => `
+    <article class="card">
+      <div class="img"><img src="${p.img}" alt="${p.name}"></div>
+      <div class="meta">
+        <div class="name">${p.name}</div>
+        <div class="mat">${t(p.mat)}</div>
+        <div class="row"><span>$${p.price.toFixed(2)}</span>
+          <button aria-label="+ ${p.name}">+</button></div>
+      </div>
+    </article>`).join("");
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll("[data-i18n-alt]").forEach(el => { el.alt = t(el.dataset.i18nAlt); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  document.querySelector('meta[name="description"]').content = t("meta_desc");
+  document.querySelectorAll(".langs button").forEach(b => {
+    const on = b.dataset.lang === lang;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on);
+  });
+  if (msgKey) msg.textContent = t(msgKey);
+  renderProducts();
+}
+
+const searchBtn = document.getElementById("searchBtn");
+const searchbar = document.getElementById("searchbar");
+const qInput = document.getElementById("q");
+
+function openSearch(open) {
+  searchbar.hidden = !open;
+  searchBtn.setAttribute("aria-expanded", open);
+  if (open) qInput.focus();
+  else if (query) { query = ""; qInput.value = ""; renderProducts(); }
+}
+searchBtn.addEventListener("click", () => openSearch(searchbar.hidden));
+document.getElementById("qclose").addEventListener("click", () => openSearch(false));
+searchbar.addEventListener("submit", e => { e.preventDefault(); document.getElementById("bestsellers").scrollIntoView(); });
+qInput.addEventListener("input", () => {
+  query = qInput.value;
+  renderProducts();
+  document.getElementById("bestsellers").scrollIntoView({ behavior: "smooth" });
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !searchbar.hidden) { openSearch(false); searchBtn.focus(); } });
+
+document.querySelector(".langs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-lang]");
+  if (!b) return;
+  lang = b.dataset.lang;
+  try { localStorage.setItem("lang", lang); } catch (err) {}
+  applyLang();
+});
+
+grid.addEventListener("click", e => {
+  if (e.target.closest("button")) count.textContent = ++n;
+});
+
+const burger = document.getElementById("burger");
+const nav = document.getElementById("nav");
+burger.addEventListener("click", () => {
+  const open = nav.classList.toggle("open");
+  burger.setAttribute("aria-expanded", open);
+});
+nav.addEventListener("click", () => { nav.classList.remove("open"); burger.setAttribute("aria-expanded", false); });
+
+document.getElementById("form").addEventListener("submit", e => {
+  e.preventDefault();
+  const email = document.getElementById("email");
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+  msgKey = ok ? "sub_ok" : "sub_err";
+  msg.className = "msg " + (ok ? "ok" : "err");
+  msg.textContent = t(msgKey);
+  if (ok) email.value = "";
+});
+
+applyLang();
