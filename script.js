@@ -461,11 +461,11 @@ function renderCats() {
   catsEl.querySelectorAll(".cat").forEach(box => {
     const key = box.dataset.cat;
     const items = products.filter(p => p.tags.includes(key));
-    box.querySelector(".dd").innerHTML = `<div class="dd-grid">` + items.slice(0, 6).map(p => `
-      <div class="dd-item">
-        <div class="dd-ph"><img src="${p.img}" alt="${p.name}" loading="lazy">
-          <button type="button" class="dd-add" data-name="${p.name}" aria-label="${t("cart_add")}: ${p.name}">+</button></div>
-        <div class="dd-name">${p.name}</div><div class="dd-price">${money(p.price)}</div>
+    box.querySelector(".dd").innerHTML = `<div class="dd-list" tabindex="0" role="list">` + items.map(p => `
+      <div class="dd-item" role="listitem">
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <div class="dd-info"><div class="dd-name">${p.name}</div><div class="dd-mat">${t(p.mat)}</div><div class="dd-price">${money(p.price)}</div></div>
+        <button type="button" class="dd-add" data-name="${p.name}" aria-label="${t("cart_add")}: ${p.name}">+</button>
       </div>`).join("") + `</div><button type="button" class="dd-all" data-cat="${key}">${t("dd_view_all")}</button>`;
   });
   const cur = openCatKey; openCatKey = null; if (cur) setCat(cur, true);
