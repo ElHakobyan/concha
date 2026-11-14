@@ -22,8 +22,11 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round
 .langs button.on { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
 
 .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 40px; padding: 14px 5vw; position: sticky; top: 0; background: rgba(247,244,240,.94); backdrop-filter: blur(8px); z-index: 20; border-bottom: 1px solid var(--line); }
-.logo { font-family: var(--serif); font-size: 28px; letter-spacing: .2em; display: flex; flex-direction: column; line-height: 1; font-weight: 400; }
+.logo { display: flex; align-items: center; gap: 12px; color: var(--ink); }
+.logo .shell { width: 64px; height: auto; flex: none; }
+.logo .wm { font-family: var(--serif); font-size: 28px; letter-spacing: .2em; display: flex; flex-direction: column; line-height: 1; font-weight: 400; }
 .logo small { font-family: var(--sans); font-size: 8px; letter-spacing: .55em; margin: 6px 0 0 4px; }
+.footer .logo .shell { width: 80px; }
 .nav { display: flex; gap: 32px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; justify-self: center; }
 .nav a { white-space: nowrap; }
 .nav a:hover { opacity: .6; }
@@ -144,6 +147,8 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
   .nav a { padding: 14px 5vw; border-top: 1px solid var(--line); }
 }
 @media (max-width: 800px) {
+  .logo .shell { width: 52px; }
+  .logo .wm { font-size: 24px; }
   .topbar .promos { justify-content: flex-start; gap: 24px; margin-left: 0; }
   .hero { min-height: 420px; align-items: flex-start; background-size: auto 55%; background-position: right bottom; }
   .hero::before { background: linear-gradient(180deg, #f1ece6 0%, #f1ece6 52%, rgba(241,236,230,0) 85%); }
