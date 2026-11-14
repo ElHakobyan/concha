@@ -21,6 +21,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round
 .logo { font-family: var(--serif); font-size: 28px; letter-spacing: .2em; display: flex; flex-direction: column; line-height: 1; font-weight: 400; }
 .logo small { font-family: var(--sans); font-size: 8px; letter-spacing: .55em; margin: 6px 0 0 4px; }
 .nav { display: flex; gap: 32px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; justify-self: center; }
+.nav a { white-space: nowrap; }
 .nav a:hover { opacity: .6; }
 .icons { display: flex; gap: 22px; align-items: center; }
 .icons svg { width: 22px; height: 22px; }
@@ -131,14 +132,16 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
   .duo { grid-template-columns: 1fr; }
   .portrait { height: 300px; }
 }
-@media (max-width: 800px) {
-  .topbar { justify-content: flex-start; gap: 24px; overflow: hidden; white-space: nowrap; }
-  .topbar .cur { display: none; }
+@media (max-width: 1100px) {
   .header { grid-template-columns: 1fr auto; gap: 12px; }
   .burger { display: block; }
   .nav { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: var(--bg); border-bottom: 1px solid var(--line); }
   .nav.open { display: flex; }
   .nav a { padding: 14px 5vw; border-top: 1px solid var(--line); }
+}
+@media (max-width: 800px) {
+  .topbar { justify-content: flex-start; gap: 24px; overflow: hidden; white-space: nowrap; }
+  .topbar .cur { display: none; }
   .hero { grid-template-columns: 1fr; }
   .hero-text { padding: 36px 0 0; }
   .hero-art { min-height: 300px; }
