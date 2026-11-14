@@ -170,3 +170,54 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
   .promise { grid-template-columns: 1fr; }
   .promise > div { border-left: 0; padding-left: 0; }
 }
+
+/* CART */
+.bag { position: relative; }
+.bag.bump { animation: bump .35s; }
+@keyframes bump { 40% { transform: scale(1.25); } }
+.card button.add.added { background: #3d7a4a; }
+.overlay { position: fixed; inset: 0; background: rgba(38,34,31,.4); z-index: 40; }
+.overlay[hidden] { display: none; }
+.cart { position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 100vw); background: var(--bg); z-index: 50; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .3s ease; box-shadow: -8px 0 30px rgba(0,0,0,.12); visibility: hidden; }
+.cart.open { transform: none; visibility: visible; }
+.cart-head { display: flex; justify-content: space-between; align-items: center; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+.cart-head h3 { font-family: var(--serif); font-size: 26px; font-weight: 500; }
+.cart-head button { background: none; border: 0; font-size: 20px; cursor: pointer; color: var(--ink); padding: 4px 8px; }
+.cart-items { flex: 1; overflow-y: auto; padding: 8px 22px; }
+.cart-empty { color: var(--muted); text-align: center; padding: 48px 0; }
+.cart-item { display: grid; grid-template-columns: 76px 1fr auto; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.cart-item img { width: 76px; height: 76px; object-fit: cover; }
+.ci-name { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; }
+.ci-mat { font-size: 11px; color: var(--muted); margin: 2px 0 8px; }
+.ci-qty { display: inline-flex; align-items: center; border: 1px solid var(--line); }
+.ci-qty button { width: 26px; height: 26px; background: none; border: 0; cursor: pointer; font-size: 15px; color: var(--ink); }
+.ci-qty button:hover { background: var(--beige); }
+.ci-qty span { min-width: 26px; text-align: center; font-size: 12px; }
+.ci-side { text-align: right; font-size: 13px; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+.ci-rm { background: none; border: 0; padding: 0; font: inherit; font-size: 11px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.ci-rm:hover { color: var(--ink); }
+.cart-foot { padding: 18px 22px 24px; border-top: 1px solid var(--line); display: grid; gap: 12px; }
+.total { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.total b { font-size: 20px; letter-spacing: 0; font-family: var(--serif); }
+.cart-foot .btn { width: 100%; padding: 15px; }
+.cart-foot .btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* AUTH */
+.icon-btn.in svg { display: none; }
+.avatar { display: none; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; place-items: center; }
+.icon-btn.in .avatar { display: grid; }
+.auth { border: 0; max-height: calc(100vh - 32px); overflow-y: auto; padding: 28px 28px 26px; width: min(420px, calc(100vw - 32px)); background: var(--bg); color: var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,.25); margin: auto; }
+.auth::backdrop { background: rgba(38,34,31,.45); }
+.auth h3 { font-family: var(--serif); font-size: 30px; font-weight: 500; margin-bottom: 16px; }
+.auth-x { position: absolute; top: 12px; right: 14px; background: none; border: 0; font-size: 20px; cursor: pointer; color: var(--ink); padding: 4px 8px; }
+.auth .tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+.auth .tabs button { flex: 1; background: none; border: 0; padding: 10px; font: inherit; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.auth .tabs button.on { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
+.auth form { display: grid; gap: 12px; }
+.auth form[hidden], .auth [hidden] { display: none; }
+.auth label { display: grid; gap: 5px; font-size: 11px; letter-spacing: .08em; color: var(--muted); }
+.auth input { padding: 12px 13px; border: 1px solid var(--line); background: #faf8f5; font: inherit; font-size: 14px; color: var(--ink); }
+.auth input:focus-visible, .auth button:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.auth .btn { width: 100%; padding: 15px; }
+.auth-note { font-size: 10.5px; color: var(--muted); text-align: center; }
+.hello { font-size: 16px; margin-bottom: 18px; }

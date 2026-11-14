@@ -19,7 +19,6 @@ const t = key => I18N[lang][key] ?? I18N.ru[key] ?? key;
 const grid = document.getElementById("products");
 const count = document.getElementById("count");
 const msg = document.getElementById("msg");
-let n = 0;
 let msgKey = null;
 
 let query = "";
@@ -38,7 +37,7 @@ function renderProducts() {
         <div class="name">${p.name}</div>
         <div class="mat">${t(p.mat)}</div>
         <div class="row"><span>$${p.price.toFixed(2)}</span>
-          <button aria-label="+ ${p.name}">+</button></div>
+          <button class="add" data-name="${p.name}" aria-label="${t("cart_add")}: ${p.name}">+</button></div>
       </div>
     </article>`).join("");
 }
@@ -57,6 +56,8 @@ function applyLang() {
   });
   if (msgKey) msg.textContent = t(msgKey);
   renderProducts();
+  renderCart();
+  renderAuth();
 }
 
 const searchBtn = document.getElementById("searchBtn");
@@ -87,9 +88,75 @@ document.querySelector(".langs").addEventListener("click", e => {
   applyLang();
 });
 
+// ---------- корзина ----------
+let cart = {};
+try { cart = JSON.parse(localStorage.getItem("cart") || "{}") || {}; } catch (e) { cart = {}; }
+const byName = name => products.find(p => p.name === name);
+const money = v => "$" + v.toFixed(2);
+const cartEl = document.getElementById("cart");
+const overlay = document.getElementById("overlay");
+const cartBtn = document.getElementById("cartBtn");
+const cartItems = document.getElementById("cartItems");
+const cartMsg = document.getElementById("cartMsg");
+
+function saveCart() { try { localStorage.setItem("cart", JSON.stringify(cart)); } catch (e) {} }
+
+function renderCart() {
+  const names = Object.keys(cart).filter(k => byName(k) && cart[k] > 0);
+  const qty = names.reduce((s, k) => s + cart[k], 0);
+  const total = names.reduce((s, k) => s + cart[k] * byName(k).price, 0);
+  count.textContent = qty;
+  document.getElementById("cartTotal").textContent = money(total);
+  document.getElementById("checkout").disabled = qty === 0;
+  cartItems.innerHTML = names.length ? names.map(k => {
+    const p = byName(k);
+    return `<div class="cart-item">
+      <img src="${p.img}" alt="">
+      <div class="ci-info"><div class="ci-name">${p.name}</div><div class="ci-mat">${t(p.mat)}</div>
+        <div class="ci-qty"><button type="button" data-act="dec" data-name="${p.name}" aria-label="-">−</button><span>${cart[k]}</span><button type="button" data-act="inc" data-name="${p.name}" aria-label="+">+</button></div></div>
+      <div class="ci-side"><b>${money(cart[k] * p.price)}</b><button type="button" class="ci-rm" data-act="rm" data-name="${p.name}">${t("cart_remove")}</button></div>
+    </div>`;
+  }).join("") : `<p class="cart-empty">${t("cart_empty")}</p>`;
+}
+
+function openCart(open) {
+  cartEl.classList.toggle("open", open);
+  cartEl.setAttribute("aria-hidden", !open);
+  overlay.hidden = !open;
+  cartBtn.setAttribute("aria-expanded", open);
+  if (open) { cartMsg.textContent = ""; document.getElementById("cartClose").focus(); }
+}
+
+function addToCart(name) {
+  cart[name] = (cart[name] || 0) + 1;
+  saveCart(); renderCart();
+}
+
 grid.addEventListener("click", e => {
-  if (e.target.closest("button")) count.textContent = ++n;
+  const b = e.target.closest("button.add");
+  if (!b) return;
+  addToCart(b.dataset.name);
+  b.classList.add("added"); b.textContent = "✓"; b.setAttribute("title", t("cart_added"));
+  setTimeout(() => { b.classList.remove("added"); b.textContent = "+"; b.removeAttribute("title"); }, 1200);
+  cartBtn.classList.remove("bump"); void cartBtn.offsetWidth; cartBtn.classList.add("bump");
 });
+cartBtn.addEventListener("click", () => openCart(!cartEl.classList.contains("open")));
+document.getElementById("cartClose").addEventListener("click", () => openCart(false));
+overlay.addEventListener("click", () => openCart(false));
+cartItems.addEventListener("click", e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  const k = b.dataset.name;
+  if (b.dataset.act === "inc") cart[k]++;
+  if (b.dataset.act === "dec") cart[k]--;
+  if (b.dataset.act === "rm" || cart[k] <= 0) delete cart[k];
+  saveCart(); renderCart();
+});
+document.getElementById("checkout").addEventListener("click", () => {
+  cart = {}; saveCart(); renderCart();
+  cartMsg.textContent = t("cart_done");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && cartEl.classList.contains("open")) { openCart(false); cartBtn.focus(); } });
 
 const burger = document.getElementById("burger");
 const nav = document.getElementById("nav");
@@ -107,6 +174,100 @@ document.getElementById("form").addEventListener("submit", e => {
   msg.className = "msg " + (ok ? "ok" : "err");
   msg.textContent = t(msgKey);
   if (ok) email.value = "";
+});
+
+// ---------- регистрация / вход (демо: данные только в localStorage) ----------
+const authDlg = document.getElementById("auth");
+const authForm = document.getElementById("authForm");
+const authMsg = document.getElementById("authMsg");
+const userBtn = document.getElementById("userBtn");
+let authMode = "register";
+
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+async function hashPw(pw, salt) {
+  if (!(window.crypto && crypto.subtle)) throw new Error("no-crypto");
+  return hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + pw)));
+}
+const newSalt = () => hex(crypto.getRandomValues(new Uint8Array(16)));
+const currentUser = () => { const e = load("session", null); const u = e && load("users", {})[e]; return u ? { email: e, ...u } : null; };
+
+function renderAuth() {
+  const user = currentUser();
+  const reg = authMode === "register";
+  authForm.hidden = !!user;
+  document.getElementById("account").hidden = !user;
+  document.getElementById("authTitle").textContent = user ? t("auth_account") : t(reg ? "auth_register" : "auth_login");
+  authForm.querySelectorAll("[data-reg]").forEach(el => { el.hidden = !reg; });
+  authForm.querySelectorAll(".tabs button").forEach(b => {
+    const on = b.dataset.mode === authMode;
+    b.classList.toggle("on", on); b.setAttribute("aria-selected", on);
+  });
+  document.getElementById("authSubmit").textContent = t(reg ? "auth_sub_reg" : "auth_sub_login");
+  document.getElementById("aPass").autocomplete = reg ? "new-password" : "current-password";
+  if (user) document.getElementById("hello").textContent = t("auth_hello").replace("{name}", `${user.name} ${user.surname || ""}`.trim());
+  const av = document.getElementById("avatar");
+  av.textContent = user ? user.name.trim().charAt(0).toUpperCase() : "";
+  userBtn.classList.toggle("in", !!user);
+  if (authMsgKey) authMsg.textContent = t(authMsgKey);
+}
+
+let authMsgKey = null;
+function setAuthMsg(key, ok) { authMsgKey = key || null; authMsg.className = "msg " + (ok ? "ok" : "err"); authMsg.textContent = key ? t(key) : ""; }
+
+function openAuth() {
+  setAuthMsg("");
+  renderAuth();
+  if (!authDlg.open) authDlg.showModal();
+  const first = currentUser() ? document.getElementById("logout") : (authMode === "register" ? "aName" : "aEmail");
+  (typeof first === "string" ? document.getElementById(first) : first).focus();
+}
+
+userBtn.addEventListener("click", openAuth);
+document.getElementById("authClose").addEventListener("click", () => authDlg.close());
+authDlg.addEventListener("click", e => { if (e.target === authDlg) authDlg.close(); });
+authForm.querySelector(".tabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-mode]");
+  if (!b) return;
+  authMode = b.dataset.mode; setAuthMsg(""); renderAuth();
+});
+document.getElementById("logout").addEventListener("click", () => {
+  try { localStorage.removeItem("session"); } catch (e) {}
+  authMode = "login"; renderAuth(); authDlg.close();
+});
+
+authForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = document.getElementById("aName").value.trim();
+  const surname = document.getElementById("aSurname").value.trim();
+  const phone = document.getElementById("aPhone").value.trim();
+  const email = document.getElementById("aEmail").value.trim().toLowerCase();
+  const pw = document.getElementById("aPass").value;
+  const pw2 = document.getElementById("aPass2").value;
+  const reg = authMode === "register";
+  if (reg && !name) return setAuthMsg("auth_err_name");
+  if (reg && !surname) return setAuthMsg("auth_err_surname");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAuthMsg("auth_err_email");
+  if (reg && !/^\+?\d{7,15}$/.test(phone.replace(/[\s\-()]/g, ""))) return setAuthMsg("auth_err_phone");
+  if (reg && pw.length < 8) return setAuthMsg("auth_err_pass");
+  if (reg && pw !== pw2) return setAuthMsg("auth_err_match");
+  const users = load("users", {});
+  try {
+    if (reg) {
+      if (users[email]) return setAuthMsg("auth_err_exists");
+      const salt = newSalt();
+      users[email] = { name, surname, phone, salt, hash: await hashPw(pw, salt) };
+      save("users", users);
+    } else {
+      const u = users[email];
+      if (!u || (await hashPw(pw, u.salt)) !== u.hash) return setAuthMsg("auth_err_login");
+    }
+  } catch (err) { return setAuthMsg("auth_err_crypto"); }
+  save("session", email);
+  authForm.reset();
+  renderAuth();
+  setAuthMsg("");
 });
 
 applyLang();
