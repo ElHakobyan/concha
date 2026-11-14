@@ -1,10 +1,10 @@
 const products = [
-  { name: "Aurelia Ring", mat: "m_vermeil", price: 98, img: "assets/p1.png" },
-  { name: "Lumin Pearl Drops", mat: "m_pearls", price: 128, img: "assets/p2.png" },
-  { name: "Sentinel Pendant", mat: "m_vermeil", price: 98, img: "assets/p3.png" },
-  { name: "Forma Cuff", mat: "m_vermeil", price: 148, img: "assets/p4.png" },
-  { name: "Moment Chain", mat: "m_fill", price: 68, img: "assets/p5.png" },
-  { name: "Ora Hoops", mat: "m_vermeil", price: 108, img: "assets/p6.png" },
+  { name: "Aurelia Ring", mat: "m_vermeil", price: 98, img: "assets/p1.png", cat: "c_rings" },
+  { name: "Lumin Pearl Drops", mat: "m_pearls", price: 128, img: "assets/p2.png", cat: "c_earrings" },
+  { name: "Sentinel Pendant", mat: "m_vermeil", price: 98, img: "assets/p3.png", cat: "c_necklaces" },
+  { name: "Forma Cuff", mat: "m_vermeil", price: 148, img: "assets/p4.png", cat: "c_bracelets" },
+  { name: "Moment Chain", mat: "m_fill", price: 68, img: "assets/p5.png", cat: "c_chains" },
+  { name: "Ora Hoops", mat: "m_vermeil", price: 108, img: "assets/p6.png", cat: "c_earrings" },
 ];
 
 const LANGS = ["hy", "ru", "en"];
@@ -22,8 +22,16 @@ const msg = document.getElementById("msg");
 let n = 0;
 let msgKey = null;
 
+let query = "";
+const noResults = document.getElementById("noresults");
+
 function renderProducts() {
-  grid.innerHTML = products.map(p => `
+  const q = query.trim().toLowerCase();
+  // ищем сразу по всем языкам (hy/ru/en)
+  const hay = p => `${p.name} ${LANGS.map(l => `${I18N[l][p.mat]} ${I18N[l][p.cat]}`).join(" ")}`.toLowerCase();
+  const list = products.filter(p => !q || hay(p).includes(q));
+  noResults.hidden = list.length > 0;
+  grid.innerHTML = list.map(p => `
     <article class="card">
       <div class="img"><img src="${p.img}" alt="${p.name}"></div>
       <div class="meta">
@@ -50,6 +58,26 @@ function applyLang() {
   if (msgKey) msg.textContent = t(msgKey);
   renderProducts();
 }
+
+const searchBtn = document.getElementById("searchBtn");
+const searchbar = document.getElementById("searchbar");
+const qInput = document.getElementById("q");
+
+function openSearch(open) {
+  searchbar.hidden = !open;
+  searchBtn.setAttribute("aria-expanded", open);
+  if (open) qInput.focus();
+  else if (query) { query = ""; qInput.value = ""; renderProducts(); }
+}
+searchBtn.addEventListener("click", () => openSearch(searchbar.hidden));
+document.getElementById("qclose").addEventListener("click", () => openSearch(false));
+searchbar.addEventListener("submit", e => { e.preventDefault(); document.getElementById("bestsellers").scrollIntoView(); });
+qInput.addEventListener("input", () => {
+  query = qInput.value;
+  renderProducts();
+  document.getElementById("bestsellers").scrollIntoView({ behavior: "smooth" });
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !searchbar.hidden) { openSearch(false); searchBtn.focus(); } });
 
 document.querySelector(".langs").addEventListener("click", e => {
   const b = e.target.closest("button[data-lang]");

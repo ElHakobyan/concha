@@ -2,6 +2,7 @@
 // Значения вставляются как HTML (нужны <br> и <strong>) — только наши собственные строки.
 const I18N = {
   ru: {
+    search_label: "Поиск", search_ph: "Поиск: кольца, жемчуг, цепочка…", search_close: "Закрыть поиск", search_none: "Ничего не найдено. Попробуйте другой запрос.",
     meta_desc: "Concha — украшения, которые хочется носить каждый день.",
     top1: "▭ Бесплатная доставка от $75",
     top2: "▢ Подарочная упаковка к каждому заказу",
@@ -42,6 +43,7 @@ const I18N = {
     copy2: "Политика конфиденциальности &nbsp;|&nbsp; Условия",
   },
   en: {
+    search_label: "Search", search_ph: "Search: rings, pearls, chain…", search_close: "Close search", search_none: "Nothing found. Try a different search.",
     meta_desc: "Concha — jewelry you will want to wear every day.",
     top1: "▭ Free shipping on orders over $75",
     top2: "▢ Complimentary gift box with every order",
@@ -82,6 +84,7 @@ const I18N = {
     copy2: "Privacy Policy &nbsp;|&nbsp; Terms of Service",
   },
   hy: {
+    search_label: "Որոնում", search_ph: "Որոնել՝ մատանի, մարգարիտ, շղթա…", search_close: "Փակել որոնումը", search_none: "Ոչինչ չի գտնվել։ Փորձեք այլ հարցում։",
     meta_desc: "Concha — զարդեր, որոնք ուզում ես կրել ամեն օր։",
     top1: "▭ Անվճար առաքում $75-ից բարձր պատվերների համար",
     top2: "▢ Նվերի տուփ՝ յուրաքանչյուր պատվերի հետ",
