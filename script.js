@@ -22,14 +22,16 @@ const msg = document.getElementById("msg");
 let msgKey = null;
 
 let query = "";
+let catFilter = null;
 const noResults = document.getElementById("noresults");
 
 function renderProducts() {
   const q = query.trim().toLowerCase();
   // ищем сразу по всем языкам (hy/ru/en)
   const hay = p => `${p.name} ${LANGS.map(l => `${I18N[l][p.mat]} ${I18N[l][p.cat]}`).join(" ")}`.toLowerCase();
-  const list = products.filter(p => !q || hay(p).includes(q));
+  const list = products.filter(p => (!catFilter || p.tags.includes(catFilter)) && (!q || hay(p).includes(q)));
   noResults.hidden = list.length > 0;
+  updateFilterbar();
   grid.innerHTML = list.map(p => `
     <article class="card">
       <div class="img"><img src="${p.img}" alt="${p.name}"></div>
@@ -57,6 +59,7 @@ function applyLang() {
   if (msgKey) msg.textContent = t(msgKey);
   renderProducts();
   renderCart();
+  renderCats();
   renderAuth();
   setMusicUi();
   if (window.heroSlidesRelabel) window.heroSlidesRelabel();
@@ -413,5 +416,70 @@ const HERO_SLIDES = [
   });
   start();
 })();
+
+// ---------- категории: выпадающие списки с товарами ----------
+const CAT_ORDER = ["c_rings", "c_earrings", "c_necklaces", "c_bracelets", "c_chains", "c_new", "c_gifts"];
+const NEW_ITEMS = ["Ora Hoops", "Moment Chain", "Lumin Pearl Drops"];
+const GIFT_ITEMS = ["Lumin Pearl Drops", "Sentinel Pendant", "Moment Chain"];
+products.forEach(p => { p.tags = [p.cat].concat(NEW_ITEMS.includes(p.name) ? ["c_new"] : [], GIFT_ITEMS.includes(p.name) ? ["c_gifts"] : []); });
+const catsEl = document.getElementById("categories");
+const filterbar = document.getElementById("filterbar");
+let openCatKey = null, hoverTimer = null;
+
+function renderCats() {
+  catsEl.querySelectorAll(".cat").forEach(box => {
+    const key = box.dataset.cat;
+    const items = products.filter(p => p.tags.includes(key));
+    box.querySelector(".dd").innerHTML = items.map(p => `
+      <div class="dd-item">
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <div class="dd-info"><div class="dd-name">${p.name}</div><div class="dd-mat">${t(p.mat)}</div><div class="dd-price">${money(p.price)}</div></div>
+        <button type="button" class="dd-add" data-name="${p.name}" aria-label="${t("cart_add")}: ${p.name}">+</button>
+      </div>`).join("") + `<button type="button" class="dd-all" data-cat="${key}">${t("dd_view_all")}</button>`;
+  });
+  const cur = openCatKey; openCatKey = null; if (cur) setCat(cur, true);
+}
+function setCat(key, open) {
+  catsEl.querySelectorAll(".cat").forEach(box => {
+    const on = open && box.dataset.cat === key;
+    box.classList.toggle("open", on);
+    box.querySelector(".cat-btn").setAttribute("aria-expanded", on);
+    box.querySelector(".dd").hidden = !on;
+  });
+  openCatKey = open ? key : null;
+}
+function updateFilterbar() {
+  filterbar.hidden = !catFilter;
+  if (catFilter) document.getElementById("filterLabel").textContent = t("filter_cat").replace("{name}", t(catFilter));
+}
+function setCatFilter(key) { catFilter = key; renderProducts(); }
+
+catsEl.addEventListener("click", e => {
+  const btn = e.target.closest(".cat-btn");
+  if (btn) { const key = btn.closest(".cat").dataset.cat; setCat(key, openCatKey !== key); return; }
+  const add = e.target.closest(".dd-add");
+  if (add) {
+    addToCart(add.dataset.name);
+    add.classList.add("added"); add.textContent = "✓";
+    setTimeout(() => { add.classList.remove("added"); add.textContent = "+"; }, 1200);
+    return;
+  }
+  const all = e.target.closest(".dd-all");
+  if (all) {
+    setCatFilter(all.dataset.cat); setCat(null, false);
+    document.getElementById("bestsellers").scrollIntoView({ behavior: "smooth" });
+  }
+});
+if (window.matchMedia("(hover: hover)").matches) {
+  catsEl.querySelectorAll(".cat").forEach(box => {
+    box.addEventListener("mouseenter", () => { clearTimeout(hoverTimer); hoverTimer = setTimeout(() => setCat(box.dataset.cat, true), 90); });
+    box.addEventListener("mouseleave", () => { clearTimeout(hoverTimer); hoverTimer = setTimeout(() => setCat(null, false), 160); });
+  });
+}
+document.addEventListener("click", e => { if (openCatKey && !e.target.closest(".cat")) setCat(null, false); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && openCatKey) { const k = openCatKey; setCat(null, false); catsEl.querySelector(`.cat[data-cat="${k}"] .cat-btn`).focus(); }
+});
+document.getElementById("filterClear").addEventListener("click", () => setCatFilter(null));
 
 applyLang();
