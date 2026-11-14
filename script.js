@@ -19,7 +19,6 @@ const t = key => I18N[lang][key] ?? I18N.ru[key] ?? key;
 const grid = document.getElementById("products");
 const count = document.getElementById("count");
 const msg = document.getElementById("msg");
-let n = 0;
 let msgKey = null;
 
 let query = "";
@@ -38,7 +37,7 @@ function renderProducts() {
         <div class="name">${p.name}</div>
         <div class="mat">${t(p.mat)}</div>
         <div class="row"><span>$${p.price.toFixed(2)}</span>
-          <button aria-label="+ ${p.name}">+</button></div>
+          <button class="add" data-name="${p.name}" aria-label="${t("cart_add")}: ${p.name}">+</button></div>
       </div>
     </article>`).join("");
 }
@@ -57,6 +56,7 @@ function applyLang() {
   });
   if (msgKey) msg.textContent = t(msgKey);
   renderProducts();
+  renderCart();
 }
 
 const searchBtn = document.getElementById("searchBtn");
@@ -87,9 +87,75 @@ document.querySelector(".langs").addEventListener("click", e => {
   applyLang();
 });
 
+// ---------- корзина ----------
+let cart = {};
+try { cart = JSON.parse(localStorage.getItem("cart") || "{}") || {}; } catch (e) { cart = {}; }
+const byName = name => products.find(p => p.name === name);
+const money = v => "$" + v.toFixed(2);
+const cartEl = document.getElementById("cart");
+const overlay = document.getElementById("overlay");
+const cartBtn = document.getElementById("cartBtn");
+const cartItems = document.getElementById("cartItems");
+const cartMsg = document.getElementById("cartMsg");
+
+function saveCart() { try { localStorage.setItem("cart", JSON.stringify(cart)); } catch (e) {} }
+
+function renderCart() {
+  const names = Object.keys(cart).filter(k => byName(k) && cart[k] > 0);
+  const qty = names.reduce((s, k) => s + cart[k], 0);
+  const total = names.reduce((s, k) => s + cart[k] * byName(k).price, 0);
+  count.textContent = qty;
+  document.getElementById("cartTotal").textContent = money(total);
+  document.getElementById("checkout").disabled = qty === 0;
+  cartItems.innerHTML = names.length ? names.map(k => {
+    const p = byName(k);
+    return `<div class="cart-item">
+      <img src="${p.img}" alt="">
+      <div class="ci-info"><div class="ci-name">${p.name}</div><div class="ci-mat">${t(p.mat)}</div>
+        <div class="ci-qty"><button type="button" data-act="dec" data-name="${p.name}" aria-label="-">−</button><span>${cart[k]}</span><button type="button" data-act="inc" data-name="${p.name}" aria-label="+">+</button></div></div>
+      <div class="ci-side"><b>${money(cart[k] * p.price)}</b><button type="button" class="ci-rm" data-act="rm" data-name="${p.name}">${t("cart_remove")}</button></div>
+    </div>`;
+  }).join("") : `<p class="cart-empty">${t("cart_empty")}</p>`;
+}
+
+function openCart(open) {
+  cartEl.classList.toggle("open", open);
+  cartEl.setAttribute("aria-hidden", !open);
+  overlay.hidden = !open;
+  cartBtn.setAttribute("aria-expanded", open);
+  if (open) { cartMsg.textContent = ""; document.getElementById("cartClose").focus(); }
+}
+
+function addToCart(name) {
+  cart[name] = (cart[name] || 0) + 1;
+  saveCart(); renderCart();
+}
+
 grid.addEventListener("click", e => {
-  if (e.target.closest("button")) count.textContent = ++n;
+  const b = e.target.closest("button.add");
+  if (!b) return;
+  addToCart(b.dataset.name);
+  b.classList.add("added"); b.textContent = "✓"; b.setAttribute("title", t("cart_added"));
+  setTimeout(() => { b.classList.remove("added"); b.textContent = "+"; b.removeAttribute("title"); }, 1200);
+  cartBtn.classList.remove("bump"); void cartBtn.offsetWidth; cartBtn.classList.add("bump");
 });
+cartBtn.addEventListener("click", () => openCart(!cartEl.classList.contains("open")));
+document.getElementById("cartClose").addEventListener("click", () => openCart(false));
+overlay.addEventListener("click", () => openCart(false));
+cartItems.addEventListener("click", e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  const k = b.dataset.name;
+  if (b.dataset.act === "inc") cart[k]++;
+  if (b.dataset.act === "dec") cart[k]--;
+  if (b.dataset.act === "rm" || cart[k] <= 0) delete cart[k];
+  saveCart(); renderCart();
+});
+document.getElementById("checkout").addEventListener("click", () => {
+  cart = {}; saveCart(); renderCart();
+  cartMsg.textContent = t("cart_done");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && cartEl.classList.contains("open")) { openCart(false); cartBtn.focus(); } });
 
 const burger = document.getElementById("burger");
 const nav = document.getElementById("nav");

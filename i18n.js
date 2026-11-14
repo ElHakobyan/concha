@@ -2,6 +2,7 @@
 // Значения вставляются как HTML (нужны <br> и <strong>) — только наши собственные строки.
 const I18N = {
   ru: {
+    cart_title: "Корзина", cart_empty: "Корзина пуста", cart_total: "Итого", cart_checkout: "ОФОРМИТЬ ЗАКАЗ", cart_done: "Спасибо! Заказ принят, мы свяжемся с вами.", cart_remove: "Удалить", cart_add: "Добавить в корзину", cart_added: "Добавлено",
     search_label: "Поиск", search_ph: "Поиск: кольца, жемчуг, цепочка…", search_close: "Закрыть поиск", search_none: "Ничего не найдено. Попробуйте другой запрос.",
     meta_desc: "Concha — украшения, которые хочется носить каждый день.",
     top1: "▭ Бесплатная доставка от $75",
@@ -43,6 +44,7 @@ const I18N = {
     copy2: "Политика конфиденциальности &nbsp;|&nbsp; Условия",
   },
   en: {
+    cart_title: "Cart", cart_empty: "Your cart is empty", cart_total: "Total", cart_checkout: "CHECKOUT", cart_done: "Thank you! Your order is received, we will contact you.", cart_remove: "Remove", cart_add: "Add to cart", cart_added: "Added",
     search_label: "Search", search_ph: "Search: rings, pearls, chain…", search_close: "Close search", search_none: "Nothing found. Try a different search.",
     meta_desc: "Concha — jewelry you will want to wear every day.",
     top1: "▭ Free shipping on orders over $75",
@@ -84,6 +86,7 @@ const I18N = {
     copy2: "Privacy Policy &nbsp;|&nbsp; Terms of Service",
   },
   hy: {
+    cart_title: "Զամբյուղ", cart_empty: "Զամբյուղը դատարկ է", cart_total: "Ընդամենը", cart_checkout: "ՊԱՏՎԻՐԵԼ", cart_done: "Շնորհակալություն։ Պատվերն ընդունված է, կկապվենք ձեզ հետ։", cart_remove: "Հեռացնել", cart_add: "Ավելացնել զամբյուղ", cart_added: "Ավելացվեց",
     search_label: "Որոնում", search_ph: "Որոնել՝ մատանի, մարգարիտ, շղթա…", search_close: "Փակել որոնումը", search_none: "Ոչինչ չի գտնվել։ Փորձեք այլ հարցում։",
     meta_desc: "Concha — զարդեր, որոնք ուզում ես կրել ամեն օր։",
     top1: "▭ Անվճար առաքում $75-ից բարձր պատվերների համար",
