@@ -58,6 +58,7 @@ function applyLang() {
   renderProducts();
   renderCart();
   renderAuth();
+  setMusicUi();
 }
 
 const searchBtn = document.getElementById("searchBtn");
@@ -268,6 +269,90 @@ authForm.addEventListener("submit", async e => {
   authForm.reset();
   renderAuth();
   setAuthMsg("");
+});
+
+// ---------- фоновая музыка ----------
+// Свой трек: положите файл в assets/ и впишите путь, например "assets/music.mp3".
+// Пустая строка — сайт сам играет спокойную мелодию через Web Audio (без файлов).
+const MUSIC_FILE = "";
+const MUSIC_VOLUME = 0.22;
+const musicBtn = document.getElementById("musicBtn");
+let music = null;           // { ctx, master, analyser, stop() } или { audio, stop() }
+let musicOn = false;
+
+function createAmbient() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const master = ctx.createGain(); master.gain.value = 0;
+  const analyser = ctx.createAnalyser(); analyser.fftSize = 512;
+  // простая «реверберация» из затухающего шума
+  const len = ctx.sampleRate * 3.2, ir = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+  const verb = ctx.createConvolver(); verb.buffer = ir;
+  const wet = ctx.createGain(); wet.gain.value = 0.55;
+  const dry = ctx.createGain(); dry.gain.value = 0.7;
+  const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1500; lp.Q.value = 0.4;
+  lp.connect(dry); lp.connect(verb); verb.connect(wet);
+  dry.connect(master); wet.connect(master); master.connect(analyser); analyser.connect(ctx.destination);
+
+  const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+  const chords = [[48, 55, 64, 67], [45, 52, 60, 64], [41, 48, 57, 60], [43, 50, 59, 62]]; // Cmaj7 Am7 Fmaj7 G6
+  const scale = [72, 74, 76, 79, 81, 84];                                                  // пентатоника C
+  const CH = 9; let step = 0; const timers = [];
+
+  function pad(midis, when, dur) {
+    midis.forEach((m, k) => {
+      [-5, 5].forEach(det => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = k % 2 ? "triangle" : "sine"; o.frequency.value = hz(m); o.detune.value = det;
+        g.gain.setValueAtTime(0, when);
+        g.gain.linearRampToValueAtTime(0.07, when + 3);
+        g.gain.setValueAtTime(0.07, when + dur - 3);
+        g.gain.linearRampToValueAtTime(0, when + dur + 2);
+        o.connect(g); g.connect(lp); o.start(when); o.stop(when + dur + 2.2);
+      });
+    });
+  }
+  function bell() {
+    const m = scale[Math.floor(Math.random() * scale.length)], t0 = ctx.currentTime + 0.05;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine"; o.frequency.value = hz(m);
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.09, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 3.5);
+    o.connect(g); g.connect(lp); o.start(t0); o.stop(t0 + 3.6);
+  }
+  function next() { pad(chords[step % chords.length], ctx.currentTime + 0.05, CH); step++; }
+  next(); timers.push(setInterval(next, (CH - 2) * 1000));
+  const bellLoop = () => { bell(); timers.push(setTimeout(bellLoop, 2500 + Math.random() * 4500)); };
+  timers.push(setTimeout(bellLoop, 2500));
+  return { ctx, master, analyser, stop() { timers.forEach(t => { clearInterval(t); clearTimeout(t); }); master.gain.cancelScheduledValues(0); master.gain.setTargetAtTime(0, ctx.currentTime, 0.3); setTimeout(() => ctx.close(), 1500); } };
+}
+
+async function startMusic() {
+  if (MUSIC_FILE) {
+    const audio = new Audio(MUSIC_FILE); audio.loop = true; audio.volume = MUSIC_VOLUME;
+    await audio.play();
+    music = { audio, stop() { audio.pause(); } };
+  } else {
+    music = createAmbient();
+    await music.ctx.resume();
+    music.master.gain.setTargetAtTime(MUSIC_VOLUME, music.ctx.currentTime, 1.2); // плавное нарастание
+  }
+}
+function setMusicUi() {
+  musicBtn.classList.toggle("on", musicOn);
+  musicBtn.setAttribute("aria-pressed", musicOn);
+  musicBtn.setAttribute("aria-label", t(musicOn ? "music_off" : "music_on"));
+}
+musicBtn.addEventListener("click", async () => {
+  try {
+    if (!musicOn) { musicOn = true; setMusicUi(); await startMusic(); }
+    else { musicOn = false; music && music.stop(); music = null; setMusicUi(); }
+  } catch (e) { musicOn = false; music = null; setMusicUi(); }
+});
+document.addEventListener("visibilitychange", () => {
+  if (!music || !musicOn) return;
+  const c = music.ctx;
+  if (c) { document.hidden ? c.suspend() : c.resume(); }
+  else if (music.audio) { document.hidden ? music.audio.pause() : music.audio.play().catch(() => {}); }
 });
 
 applyLang();

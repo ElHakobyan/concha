@@ -219,3 +219,11 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 .auth .btn { width: 100%; padding: 15px; }
 .auth-note { font-size: 10.5px; color: var(--muted); text-align: center; }
 .hello { font-size: 16px; margin-bottom: 18px; }
+
+/* MUSIC */
+.music .slash { stroke-width: 1.6; }
+.music.on .slash { display: none; }
+.music.on { color: #b08a3e; }
+.music.on svg { animation: sway 2.4s ease-in-out infinite; transform-origin: 50% 80%; }
+@keyframes sway { 50% { transform: rotate(-8deg); } }
+@media (prefers-reduced-motion: reduce) { .music.on svg { animation: none; } }
