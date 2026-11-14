@@ -360,9 +360,9 @@ document.addEventListener("visibilitychange", () => {
 // Кадры без файла пропускаются; при одном кадре управление скрыто.
 const HERO_SLIDES = [
   { src: "assets/hero.png", size: "auto 100%" },
-  // Добавьте файлы в assets/ и раскомментируйте строки — слайдшоу включится само:
-  // { src: "assets/hero2.jpg", size: "cover" },
-  // { src: "assets/hero3.jpg", size: "cover" },
+  { src: "assets/hero2.jpg", size: "cover" },
+  { src: "assets/hero3.jpg", size: "cover" },
+  // Ещё кадры: положите файл в assets/ и раскомментируйте строку.
   // { src: "assets/hero4.jpg", size: "cover" },
   // { src: "assets/hero5.jpg", size: "cover" },
 ];
