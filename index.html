@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concha — Jewelry</title>
+  <meta name="description" content="Concha — украшения, которые хочется носить каждый день.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topbar">Бесплатная доставка от $75 · Подарочная упаковка к каждому заказу</div>
+
+  <header class="header">
+    <a class="logo" href="#top">CONCHA<small>JEWELRY</small></a>
+    <nav class="nav" id="nav">
+      <a href="#bestsellers">Хиты</a>
+      <a href="#collections">Коллекции</a>
+      <a href="#about">О нас</a>
+      <a href="#promise">Обещание</a>
+      <a href="#contact">Контакты</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">☰</button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Продуманно. Изящно. Навсегда.</p>
+        <h1>Вещи, которые<br>хочется носить близко</h1>
+        <p class="lead">Тихие формы и настоящий смысл.</p>
+        <a class="btn" href="#bestsellers">Смотреть коллекцию</a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <span class="ring r1"></span><span class="ring r2"></span><span class="pearl"></span>
+      </div>
+    </section>
+
+    <section class="cats" id="collections">
+      <a href="#bestsellers"><span>◯</span>Кольца</a>
+      <a href="#bestsellers"><span>⚭</span>Серьги</a>
+      <a href="#bestsellers"><span>⌵</span>Колье</a>
+      <a href="#bestsellers"><span>○</span>Браслеты</a>
+      <a href="#bestsellers"><span>◡</span>Цепочки</a>
+      <a href="#bestsellers"><span>✦</span>Новинки</a>
+      <a href="#contact"><span>❒</span>Подарки</a>
+    </section>
+
+    <section class="section" id="bestsellers">
+      <div class="section-head"><h2>Хиты продаж</h2><a href="#contact">Смотреть все →</a></div>
+      <div class="grid" id="products"></div>
+    </section>
+
+    <section class="section split" id="about">
+      <div class="story">
+        <p class="eyebrow">История Concha</p>
+        <h2>Украшения на<br>каждый период жизни.</h2>
+        <p>Мы создаём вещи, которые подчёркивают тихие моменты и помогают запомнить главное. Небольшие партии, ручная работа, честные материалы.</p>
+        <a class="link" href="#contact">Написать нам →</a>
+      </div>
+      <div class="story-art" aria-hidden="true"></div>
+    </section>
+
+    <section class="section" id="promise">
+      <p class="eyebrow center">Наше обещание</p>
+      <div class="promise">
+        <div><h3>Этичные материалы</h3><p>Переработанное золото и ответственно добытые камни.</p></div>
+        <div><h3>Сделано с заботой</h3><p>Небольшие партии, внимание к каждой детали.</p></div>
+        <div><h3>Осознанный выбор</h3><p>Экологичная упаковка на каждом шаге.</p></div>
+        <div><h3>На долгие годы</h3><p>Вневременной дизайн, который передают дальше.</p></div>
+      </div>
+    </section>
+
+    <section class="subscribe" id="contact">
+      <div>
+        <h2>Оставайтесь на связи</h2>
+        <p>Новинки, закрытые предложения и истории журнала — первыми.</p>
+      </div>
+      <form id="form" novalidate>
+        <input type="email" id="email" placeholder="Ваш email" required aria-label="Email">
+        <button class="btn" type="submit">Подписаться</button>
+        <p class="msg" id="msg" role="status"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="logo">CONCHA<small>JEWELRY</small></div>
+    <p>Современные семейные ценности. Украшения со смыслом.</p>
+    <p class="copy">© 2026 Concha Jewelry · <a href="https://github.com/ElHakobyan/concha">GitHub</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
