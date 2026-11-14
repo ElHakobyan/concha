@@ -206,7 +206,7 @@ function renderAuth() {
   });
   document.getElementById("authSubmit").textContent = t(reg ? "auth_sub_reg" : "auth_sub_login");
   document.getElementById("aPass").autocomplete = reg ? "new-password" : "current-password";
-  if (user) document.getElementById("hello").textContent = t("auth_hello").replace("{name}", user.name);
+  if (user) document.getElementById("hello").textContent = t("auth_hello").replace("{name}", `${user.name} ${user.surname || ""}`.trim());
   const av = document.getElementById("avatar");
   av.textContent = user ? user.name.trim().charAt(0).toUpperCase() : "";
   userBtn.classList.toggle("in", !!user);
@@ -240,12 +240,16 @@ document.getElementById("logout").addEventListener("click", () => {
 authForm.addEventListener("submit", async e => {
   e.preventDefault();
   const name = document.getElementById("aName").value.trim();
+  const surname = document.getElementById("aSurname").value.trim();
+  const phone = document.getElementById("aPhone").value.trim();
   const email = document.getElementById("aEmail").value.trim().toLowerCase();
   const pw = document.getElementById("aPass").value;
   const pw2 = document.getElementById("aPass2").value;
   const reg = authMode === "register";
   if (reg && !name) return setAuthMsg("auth_err_name");
+  if (reg && !surname) return setAuthMsg("auth_err_surname");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAuthMsg("auth_err_email");
+  if (reg && !/^\+?\d{7,15}$/.test(phone.replace(/[\s\-()]/g, ""))) return setAuthMsg("auth_err_phone");
   if (reg && pw.length < 8) return setAuthMsg("auth_err_pass");
   if (reg && pw !== pw2) return setAuthMsg("auth_err_match");
   const users = load("users", {});
@@ -253,7 +257,7 @@ authForm.addEventListener("submit", async e => {
     if (reg) {
       if (users[email]) return setAuthMsg("auth_err_exists");
       const salt = newSalt();
-      users[email] = { name, salt, hash: await hashPw(pw, salt) };
+      users[email] = { name, surname, phone, salt, hash: await hashPw(pw, salt) };
       save("users", users);
     } else {
       const u = users[email];

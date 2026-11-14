@@ -148,8 +148,10 @@
         <button type="button" role="tab" data-mode="register" data-i18n="auth_register"></button>
         <button type="button" role="tab" data-mode="login" data-i18n="auth_login"></button>
       </div>
-      <label data-reg><span data-i18n="auth_name"></span><input id="aName" autocomplete="name"></label>
+      <label data-reg><span data-i18n="auth_name"></span><input id="aName" autocomplete="given-name"></label>
+      <label data-reg><span data-i18n="auth_surname"></span><input id="aSurname" autocomplete="family-name"></label>
       <label><span data-i18n="auth_email"></span><input id="aEmail" type="email" autocomplete="email"></label>
+      <label data-reg><span data-i18n="auth_phone"></span><input id="aPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+374 99 123456"></label>
       <label><span data-i18n="auth_pass"></span><input id="aPass" type="password" autocomplete="new-password"></label>
       <label data-reg><span data-i18n="auth_pass2"></span><input id="aPass2" type="password" autocomplete="new-password"></label>
       <p class="msg" id="authMsg" role="alert"></p>
