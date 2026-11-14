@@ -5,21 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concha — Jewelry</title>
   <meta name="description" content="Concha — украшения, которые хочется носить каждый день.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="topbar">Бесплатная доставка от $75 · Подарочная упаковка к каждому заказу</div>
+  <div class="topbar">
+    <span>▭ Бесплатная доставка от $75</span>
+    <span>▢ Подарочная упаковка к каждому заказу</span>
+    <span class="cur">US (USD) ⌄</span>
+  </div>
 
   <header class="header">
     <a class="logo" href="#top">CONCHA<small>JEWELRY</small></a>
     <nav class="nav" id="nav">
+      <a href="#bestsellers">Каталог ⌄</a>
       <a href="#bestsellers">Хиты</a>
-      <a href="#collections">Коллекции</a>
+      <a href="#categories">Коллекции</a>
       <a href="#about">О нас</a>
-      <a href="#promise">Обещание</a>
+      <a href="#about">Журнал</a>
       <a href="#contact">Контакты</a>
     </nav>
-    <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">☰</button>
+    <div class="icons">
+      <svg viewBox="0 0 24 24" aria-label="Поиск"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>
+      <svg viewBox="0 0 24 24" aria-label="Аккаунт"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 15-5 16 0"/></svg>
+      <span class="bag"><svg viewBox="0 0 24 24" aria-label="Корзина"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 016 0"/></svg><b id="count">0</b></span>
+      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">☰</button>
+    </div>
   </header>
 
   <main id="top">
@@ -31,63 +44,121 @@
         <a class="btn" href="#bestsellers">Смотреть коллекцию</a>
       </div>
       <div class="hero-art" aria-hidden="true">
-        <span class="ring r1"></span><span class="ring r2"></span><span class="pearl"></span>
+        <div class="stone"></div>
+        <svg class="h-ring a" viewBox="0 0 200 140"><use href="#ring-art"/></svg>
+        <svg class="h-ring b" viewBox="0 0 200 140"><use href="#ring-art"/></svg>
+        <svg class="h-pearl a" viewBox="0 0 100 100"><use href="#pearl-art"/></svg>
+        <svg class="h-pearl b" viewBox="0 0 100 100"><use href="#pearl-art"/></svg>
       </div>
     </section>
 
-    <section class="cats" id="collections">
-      <a href="#bestsellers"><span>◯</span>Кольца</a>
-      <a href="#bestsellers"><span>⚭</span>Серьги</a>
-      <a href="#bestsellers"><span>⌵</span>Колье</a>
-      <a href="#bestsellers"><span>○</span>Браслеты</a>
-      <a href="#bestsellers"><span>◡</span>Цепочки</a>
-      <a href="#bestsellers"><span>✦</span>Новинки</a>
-      <a href="#contact"><span>❒</span>Подарки</a>
+    <section class="cats" id="categories">
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="24" cy="30" r="11"/><path d="M19 15l5-7 5 7-5 4z"/></svg>Кольца</a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="16" cy="32" r="6"/><circle cx="32" cy="32" r="6"/><path d="M16 26V10M32 26V10"/></svg>Серьги</a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M8 8c0 18 10 22 16 22s16-4 16-22"/><circle cx="24" cy="36" r="5"/></svg>Колье</a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/></svg>Браслеты</a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M6 14c6 22 30 22 36 0"/></svg>Цепочки</a>
+      <a href="#bestsellers"><svg viewBox="0 0 48 48"><path d="M24 6c1 11 7 17 18 18-11 1-17 7-18 18-1-11-7-17-18-18 11-1 17-7 18-18z"/></svg>Новинки</a>
+      <a href="#contact"><svg viewBox="0 0 48 48"><rect x="8" y="18" width="32" height="22"/><path d="M6 18h36v-6H6zM24 12v28M24 12c-8-8-14 0-6 0M24 12c8-8 14 0 6 0"/></svg>Подарки</a>
     </section>
 
     <section class="section" id="bestsellers">
-      <div class="section-head"><h2>Хиты продаж</h2><a href="#contact">Смотреть все →</a></div>
+      <div class="section-head"><h2>ХИТЫ ПРОДАЖ</h2><a href="#contact">СМОТРЕТЬ ВСЕ →</a></div>
       <div class="grid" id="products"></div>
     </section>
 
-    <section class="section split" id="about">
+    <section class="section duo" id="about">
       <div class="story">
-        <p class="eyebrow">История Concha</p>
-        <h2>Украшения на<br>каждый период жизни.</h2>
-        <p>Мы создаём вещи, которые подчёркивают тихие моменты и помогают запомнить главное. Небольшие партии, ручная работа, честные материалы.</p>
-        <a class="link" href="#contact">Написать нам →</a>
+        <div class="story-art" aria-hidden="true">
+          <svg viewBox="0 0 220 220"><use href="#vase-art"/></svg>
+        </div>
+        <div class="story-text">
+          <p class="eyebrow">История Concha</p>
+          <h2>Украшения для<br>каждой главы.</h2>
+          <p>Продуманные вещи, которые чтят тихие моменты и отмечают то, что действительно важно.</p>
+          <a class="link" href="#contact">Читать журнал →</a>
+        </div>
       </div>
-      <div class="story-art" aria-hidden="true"></div>
+      <div class="portrait" aria-hidden="true">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><use href="#portrait-art"/></svg>
+      </div>
     </section>
 
     <section class="section" id="promise">
-      <p class="eyebrow center">Наше обещание</p>
+      <p class="eyebrow center">НАШЕ ОБЕЩАНИЕ</p>
       <div class="promise">
-        <div><h3>Этичные материалы</h3><p>Переработанное золото и ответственно добытые камни.</p></div>
-        <div><h3>Сделано с заботой</h3><p>Небольшие партии, внимание к каждой детали.</p></div>
-        <div><h3>Осознанный выбор</h3><p>Экологичная упаковка на каждом шаге.</p></div>
-        <div><h3>На долгие годы</h3><p>Вневременной дизайн, который передают дальше.</p></div>
+        <div><svg viewBox="0 0 48 48"><path d="M10 38C8 20 20 8 40 8c0 20-12 32-30 30zM10 38L28 20"/></svg><div><h3>ЭТИЧНЫЕ МАТЕРИАЛЫ</h3><p>Переработанное золото и ответственно добытые камни.</p></div></div>
+        <div><svg viewBox="0 0 48 48"><path d="M24 40C8 28 6 18 12 14c5-3 9 0 12 5 3-5 7-8 12-5 6 4 4 14-12 26z"/></svg><div><h3>СДЕЛАНО С ЗАБОТОЙ</h3><p>Небольшие партии, сделанные с намерением и честностью.</p></div></div>
+        <div><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><path d="M7 24h34M24 7c-9 9-9 25 0 34M24 7c9 9 9 25 0 34"/></svg><div><h3>ОСОЗНАННЫЙ ВЫБОР</h3><p>Экологичная упаковка на каждом шаге.</p></div></div>
+        <div><svg viewBox="0 0 48 48"><path d="M24 6l16 6v12c0 10-7 15-16 18C15 39 8 34 8 24V12z"/></svg><div><h3>НА ДОЛГИЕ ГОДЫ</h3><p>Вневременной дизайн, который любят годами.</p></div></div>
       </div>
     </section>
 
+    <section class="press">
+      <b>КАК НАС ЗАМЕТИЛИ</b>
+      <span class="p1">Harper</span><span class="p2">THE DAILY EDIT</span><span class="p3">B Y R D I E</span><span class="p4">L A I N E</span><span class="p5">K I N F O L K</span><span class="p6">Home Journal</span>
+    </section>
+
     <section class="subscribe" id="contact">
-      <div>
-        <h2>Оставайтесь на связи</h2>
-        <p>Новинки, закрытые предложения и истории журнала — первыми.</p>
-      </div>
+      <b>ОСТАВАЙТЕСЬ НА СВЯЗИ</b>
+      <p>Новинки, закрытые предложения и истории журнала — первыми.</p>
       <form id="form" novalidate>
         <input type="email" id="email" placeholder="Ваш email" required aria-label="Email">
-        <button class="btn" type="submit">Подписаться</button>
+        <button class="btn" type="submit">ПОДПИСАТЬСЯ</button>
         <p class="msg" id="msg" role="status"></p>
       </form>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="logo">CONCHA<small>JEWELRY</small></div>
-    <p>Современные семейные ценности. Украшения со смыслом.</p>
-    <p class="copy">© 2026 Concha Jewelry · <a href="https://github.com/ElHakobyan/concha">GitHub</a></p>
+    <div class="f-brand">
+      <div class="logo">CONCHA<small>JEWELRY</small></div>
+      <p>Современные семейные ценности. Значимые украшения.</p>
+    </div>
+    <div><h4>КАТАЛОГ</h4><a href="#bestsellers">Все украшения</a><a href="#bestsellers">Хиты</a><a href="#bestsellers">Новинки</a><a href="#bestsellers">Кольца</a><a href="#bestsellers">Серьги</a><a href="#bestsellers">Колье</a><a href="#bestsellers">Браслеты</a><a href="#bestsellers">Цепочки</a></div>
+    <div><h4>КОЛЛЕКЦИИ</h4><a href="#categories">Базовые</a><a href="#categories">Наследие</a><a href="#categories">Скульптурные</a><a href="#categories">Жемчуг</a><a href="#categories">Минимал</a></div>
+    <div><h4>О НАС</h4><a href="#about">Наша история</a><a href="#about">Материалы и уход</a><a href="#about">Устойчивость</a><a href="#about">Мастерство</a></div>
+    <div><h4>ПОМОЩЬ</h4><a href="#contact">FAQ</a><a href="#contact">Доставка и возврат</a><a href="#contact">Отследить заказ</a><a href="#contact">Связаться</a></div>
+    <div class="services">
+      <p><b>▭</b> <span><strong>БЕСПЛАТНАЯ ДОСТАВКА</strong><br>при заказе от $75</span></p>
+      <p><b>↺</b> <span><strong>ЛЁГКИЙ ВОЗВРАТ</strong><br>30 дней без вопросов</span></p>
+      <p><b>▢</b> <span><strong>БЕЗОПАСНАЯ ОПЛАТА</strong><br>Покупайте уверенно</span></p>
+    </div>
+    <div class="copy"><span>© 2026 Concha Jewelry. Все права защищены.</span><span>Политика конфиденциальности &nbsp;|&nbsp; Условия <a href="https://github.com/ElHakobyan/concha">GitHub</a></span></div>
   </footer>
+
+  <!-- SVG-иллюстрации (повторно используются) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f6e1a0"/><stop offset=".45" stop-color="#cfa24a"/><stop offset="1" stop-color="#8a6420"/>
+      </linearGradient>
+      <radialGradient id="pearlg" cx=".35" cy=".3" r=".8">
+        <stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#ece5da"/><stop offset="1" stop-color="#b9ad9d"/>
+      </radialGradient>
+      <g id="ring-art">
+        <ellipse cx="100" cy="76" rx="62" ry="48" fill="url(#gold)"/>
+        <ellipse cx="100" cy="72" rx="34" ry="26" fill="#e8dccd"/>
+        <ellipse cx="100" cy="72" rx="34" ry="26" fill="none" stroke="#8a6420" stroke-opacity=".35" stroke-width="3"/>
+        <ellipse cx="78" cy="48" rx="26" ry="8" fill="#fff" opacity=".35" transform="rotate(-18 78 48)"/>
+      </g>
+      <g id="pearl-art"><circle cx="50" cy="50" r="42" fill="url(#pearlg)"/></g>
+      <g id="vase-art">
+        <ellipse cx="110" cy="196" rx="80" ry="10" fill="#000" opacity=".08"/>
+        <path d="M80 190c-20-30-14-70 10-86 6-4 6-14 4-22h32c-2 8-2 18 4 22 24 16 30 56 10 86z" fill="#e9e0d4"/>
+        <path d="M110 80C100 50 84 30 78 10M112 80c4-30 20-48 34-62M112 80c-2-26-2-44 2-70" stroke="#a07840" stroke-width="3" fill="none"/>
+        <ellipse cx="60" cy="186" rx="30" ry="8" fill="#d8ccbc"/>
+      </g>
+      <g id="portrait-art">
+        <rect width="400" height="300" fill="#e0c9b6"/>
+        <ellipse cx="220" cy="150" rx="60" ry="76" fill="#efd3bd"/>
+        <path d="M150 120c0-70 140-80 150 0 4 40-6 80-20 100 10-60-10-110-60-110-40 0-60 40-66 100-6-20-8-60-4-90z" fill="#4a3228"/>
+        <path d="M200 215h80l40 85H150z" fill="#f2ede6"/>
+        <circle cx="266" cy="160" r="7" fill="none" stroke="url(#gold)" stroke-width="4"/>
+        <circle cx="180" cy="163" r="7" fill="none" stroke="url(#gold)" stroke-width="4"/>
+      </g>
+    </defs>
+  </svg>
 
   <script src="script.js"></script>
 </body>
