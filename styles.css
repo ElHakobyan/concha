@@ -22,8 +22,9 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round
 .langs button.on { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
 
 .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 40px; padding: 14px 5vw; position: sticky; top: 0; background: rgba(247,244,240,.94); backdrop-filter: blur(8px); z-index: 20; border-bottom: 1px solid var(--line); }
-.logo { font-family: var(--serif); font-size: 28px; letter-spacing: .2em; display: flex; flex-direction: column; line-height: 1; font-weight: 400; }
-.logo small { font-family: var(--sans); font-size: 8px; letter-spacing: .55em; margin: 6px 0 0 4px; }
+.logo { display: block; line-height: 0; color: var(--ink); }
+.logo-mark { width: 108px; height: 108px; display: block; margin: -8px 0; }
+.footer .logo-mark { width: 150px; height: 150px; margin: 0; }
 .nav { display: flex; gap: 32px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; justify-self: center; }
 .nav a { white-space: nowrap; }
 .nav a:hover { opacity: .6; }
