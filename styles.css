@@ -100,13 +100,9 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 .promise p { font-size: 11px; color: var(--muted); }
 
 /* PRESS */
-.press { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 36px 5vw; margin-top: 40px; border-top: 1px solid var(--line); font-family: var(--serif); font-size: 22px; color: var(--ink); }
-.press b { font-family: var(--sans); font-size: 10px; letter-spacing: .15em; font-weight: 600; }
-.press .p2, .press .p3, .press .p4, .press .p5 { font-family: var(--sans); font-size: 15px; letter-spacing: .25em; font-weight: 500; }
-.press .p1 { font-size: 30px; letter-spacing: .02em; }
 
 /* SUBSCRIBE */
-.subscribe { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 22px 5vw; background: var(--beige); font-size: 11px; }
+.subscribe { margin-top: 56px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 22px 5vw; background: var(--beige); font-size: 11px; }
 .subscribe b { letter-spacing: .15em; font-size: 10.5px; }
 .subscribe > p { color: var(--muted); flex: 1; min-width: 200px; max-width: 240px; font-size: 10.5px; }
 #form { display: flex; gap: 10px; flex: 1; flex-wrap: wrap; align-items: center; min-width: 280px; }
@@ -156,8 +152,7 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
   .story-text { padding: 28px; }
   .promise { grid-template-columns: 1fr 1fr; gap: 20px 0; }
   .promise > div:nth-child(3) { border-left: 0; padding-left: 0; }
-  .press { justify-content: center; }
-  .subscribe > p { max-width: none; }
+    .subscribe > p { max-width: none; }
 }
 @media (max-width: 480px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
