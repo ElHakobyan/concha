@@ -650,3 +650,18 @@ async function backendGet(path) {
     applyLang();
   } catch (e) { /* база недоступна — остаётся каталог из кода */ }
 })();
+
+// Соцсети в подвале: ссылки берутся из PERLA_SOCIAL в config.js.
+(function initSocial() {
+  const cfg = window.PERLA_SOCIAL || {};
+  const make = {
+    instagram: v => v,
+    facebook: v => v,
+    whatsapp: v => "https://wa.me/" + String(v).replace(/\D/g, ""),
+  };
+  document.querySelectorAll("#social [data-social]").forEach(a => {
+    const v = (cfg[a.dataset.social] || "").trim();
+    if (v) a.href = make[a.dataset.social](v);
+    else a.setAttribute("aria-disabled", "true");
+  });
+})();
