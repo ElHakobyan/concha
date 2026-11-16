@@ -245,16 +245,19 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 @media (prefers-reduced-motion: reduce) { .hero-slides .slide { transition: none; } }
 
 /* CATEGORY DROPDOWNS */
-.dd { position: absolute; top: 100%; left: 0; width: 400px; background: #faf8f5; border-top: 2px solid var(--ink); box-shadow: 0 16px 36px rgba(60,40,20,.18); z-index: 30; padding: 8px 14px 12px; text-align: left; text-transform: none; letter-spacing: 0; font-size: 12px; }
+.dd { position: absolute; top: 100%; left: 0; width: 340px; background: #faf8f5; border-top: 2px solid var(--ink); box-shadow: 0 16px 36px rgba(60,40,20,.18); z-index: 30; padding: 8px 14px 12px; text-align: left; text-transform: none; letter-spacing: 0; font-size: 12px; }
 .dd[hidden] { display: none; }
 .cat:nth-child(n+5) .dd { left: auto; right: 0; }
-.dd-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px; padding-top: 6px; }
-.dd-ph { position: relative; aspect-ratio: 1; background: var(--beige); overflow: hidden; }
-.dd-ph img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
-.dd-item:hover .dd-ph img { transform: scale(1.06); }
-.dd-name { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; margin-top: 7px; line-height: 1.25; }
-.dd-price { font-size: 11px; font-weight: 600; margin-top: 2px; }
-.dd-add { position: absolute; right: 6px; bottom: 6px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; cursor: pointer; font-size: 14px; line-height: 1; display: grid; place-items: center; }
+.dd-list { max-height: 330px; overflow-y: auto; overscroll-behavior: contain; margin: 0 -6px 0 0; padding: 0 8px 0 0; scrollbar-width: thin; scrollbar-color: #c9bfb3 transparent; }
+.dd-list::-webkit-scrollbar { width: 6px; }
+.dd-list::-webkit-scrollbar-thumb { background: #c9bfb3; border-radius: 3px; }
+.dd-list:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.dd-item { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.dd-item img { width: 72px; height: 72px; object-fit: cover; display: block; background: var(--beige); }
+.dd-name { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; }
+.dd-mat { font-size: 11px; color: var(--muted); margin: 2px 0 4px; }
+.dd-price { font-size: 12px; font-weight: 600; }
+.dd-add { width: 26px; height: 26px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; cursor: pointer; font-size: 15px; line-height: 1; display: grid; place-items: center; }
 .dd-add:hover { opacity: .75; }
 .dd-add.added { background: #3d7a4a; }
 .dd-all { margin-top: 14px; background: none; border: 0; padding: 0; font: inherit; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
