@@ -94,6 +94,8 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 .story-text { padding: 28px 24px 28px 0; order: -1; padding-left: 32px; }
 .story-art { align-self: stretch; overflow: hidden; }
 .story-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Армянский заголовочный шрифт: светлый и чуть узкий Noto Serif Armenian, в тон Cormorant */
+:lang(hy) :is(h1, .story h2, .cart-head h3, .auth h3, .total b) { font-weight: 300; font-stretch: 87.5%; }
 .story h2 { font-family: var(--serif); font-size: 34px; line-height: 1.1; margin-bottom: 14px; font-weight: 500; }
 .story p:not(.eyebrow) { color: var(--muted); font-size: 12.5px; margin-bottom: 18px; max-width: 30ch; }
 .portrait { overflow: hidden; min-height: 250px; }
