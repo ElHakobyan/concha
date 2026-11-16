@@ -3,9 +3,9 @@
 -- Файл можно запускать повторно: он ничего не удаляет и не дублирует.
 
 -- ---------- Товары (цены для проверки заказов) ----------
--- Сайт пока берёт каталог из script.js, а эта таблица нужна, чтобы сервер сам
--- считал сумму заказа: покупатель не сможет подменить цену в браузере.
--- Если меняете цену в script.js, поменяйте её и здесь (Table Editor → products).
+-- Сервер сам считает сумму заказа по этой таблице: покупатель не сможет подменить
+-- цену в браузере. После запуска admin.sql сайт берёт отсюда и весь каталог,
+-- а менять товары и цены удобнее в админке (страница /admin).
 create table if not exists public.products (
   name       text primary key,
   price      numeric(10,2) not null check (price >= 0),
@@ -51,7 +51,8 @@ insert into public.products (name, price, category) values
   ('Clasp Chain', 78, 'chains'),
   ('Trio Chain', 98, 'chains')
 
-on conflict (name) do update set price = excluded.price, category = excluded.category;
+-- do nothing: повторный запуск файла не затирает цены, изменённые в админке.
+on conflict (name) do nothing;
 
 -- ---------- Заказы ----------
 create table if not exists public.orders (

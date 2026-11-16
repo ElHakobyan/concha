@@ -45,6 +45,11 @@ try {
 } catch (e) {}
 
 const t = key => I18N[lang][key] ?? I18N.ru[key] ?? key;
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+// Название и материал товара на текущем языке (из админки), иначе — как в коде.
+const pName = p => (p.names && p.names[lang]) || p.name;
+const pMat = p => (p.mats && p.mats[lang]) || t(p.mat);
+const soldOut = p => p.stock === 0;
 
 const grid = document.getElementById("products");
 const count = document.getElementById("count");
@@ -58,19 +63,19 @@ const noResults = document.getElementById("noresults");
 function renderProducts() {
   const q = query.trim().toLowerCase();
   // ищем сразу по всем языкам (hy/ru/en)
-  const hay = p => `${p.name} ${LANGS.map(l => `${I18N[l][p.mat]} ${I18N[l][p.cat]}`).join(" ")}`.toLowerCase();
+  const hay = p => `${p.name} ${LANGS.map(l => `${(p.names && p.names[l]) || ""} ${(p.mats && p.mats[l]) || I18N[l][p.mat] || ""} ${I18N[l][p.cat]}`).join(" ")}`.toLowerCase();
   const pool = (catFilter || q) ? products : products.filter(p => p.best);
   const list = pool.filter(p => (!catFilter || p.tags.includes(catFilter)) && (!q || hay(p).includes(q)));
   noResults.hidden = list.length > 0;
   updateFilterbar();
   grid.innerHTML = list.map(p => `
     <article class="card">
-      <div class="img"><img src="${p.img}" alt="${p.name}"></div>
+      <div class="img"><img src="${esc(p.img)}" alt="${esc(pName(p))}">${soldOut(p) ? `<span class="soldout">${t("sold_out")}</span>` : ""}</div>
       <div class="meta">
-        <div class="name">${p.name}</div>
-        <div class="mat">${t(p.mat)}</div>
+        <div class="name">${esc(pName(p))}</div>
+        <div class="mat">${esc(pMat(p))}</div>
         <div class="row"><span>$${p.price.toFixed(2)}</span>
-          <button class="add" data-name="${p.name}" aria-label="${t("cart_add")}: ${p.name}">+</button></div>
+          <button class="add" data-name="${esc(p.name)}" aria-label="${t("cart_add")}: ${esc(pName(p))}"${soldOut(p) ? ` disabled title="${t("sold_out")}"` : ""}>+</button></div>
       </div>
     </article>`).join("");
 }
@@ -169,10 +174,10 @@ function renderCart() {
   cartItems.innerHTML = names.length ? names.map(k => {
     const p = byName(k);
     return `<div class="cart-item">
-      <img src="${p.img}" alt="">
-      <div class="ci-info"><div class="ci-name">${p.name}</div><div class="ci-mat">${t(p.mat)}</div>
-        <div class="ci-qty"><button type="button" data-act="dec" data-name="${p.name}" aria-label="-">−</button><span>${cart[k]}</span><button type="button" data-act="inc" data-name="${p.name}" aria-label="+">+</button></div></div>
-      <div class="ci-side"><b>${money(cart[k] * p.price)}</b><button type="button" class="ci-rm" data-act="rm" data-name="${p.name}">${t("cart_remove")}</button></div>
+      <img src="${esc(p.img)}" alt="">
+      <div class="ci-info"><div class="ci-name">${esc(pName(p))}</div><div class="ci-mat">${esc(pMat(p))}</div>
+        <div class="ci-qty"><button type="button" data-act="dec" data-name="${esc(p.name)}" aria-label="-">−</button><span>${cart[k]}</span><button type="button" data-act="inc" data-name="${esc(p.name)}" aria-label="+">+</button></div></div>
+      <div class="ci-side"><b>${money(cart[k] * p.price)}</b><button type="button" class="ci-rm" data-act="rm" data-name="${esc(p.name)}">${t("cart_remove")}</button></div>
     </div>`;
   }).join("") : `<p class="cart-empty">${t("cart_empty")}</p>`;
 }
@@ -186,13 +191,15 @@ function openCart(open) {
 }
 
 function addToCart(name) {
+  const p = byName(name);
+  if (!p || soldOut(p) || (p.stock != null && (cart[name] || 0) >= p.stock)) return;
   cart[name] = (cart[name] || 0) + 1;
   saveCart(); renderCart();
 }
 
 grid.addEventListener("click", e => {
   const b = e.target.closest("button.add");
-  if (!b) return;
+  if (!b || b.disabled) return;
   addToCart(b.dataset.name);
   b.classList.add("added"); b.textContent = "✓"; b.setAttribute("title", t("cart_added"));
   setTimeout(() => { b.classList.remove("added"); b.textContent = "+"; b.removeAttribute("title"); }, 1200);
@@ -205,7 +212,7 @@ cartItems.addEventListener("click", e => {
   const b = e.target.closest("button[data-act]");
   if (!b) return;
   const k = b.dataset.name;
-  if (b.dataset.act === "inc") cart[k]++;
+  if (b.dataset.act === "inc") { const p = byName(k); if (p && p.stock != null && cart[k] >= p.stock) return; cart[k]++; }
   if (b.dataset.act === "dec") cart[k]--;
   if (b.dataset.act === "rm" || cart[k] <= 0) delete cart[k];
   saveCart(); renderCart();
@@ -233,6 +240,7 @@ async function backend(fn, args) {
 const ORDER_ERRORS = {
   bad_name: "order_err_name", bad_phone: "order_err_phone", bad_email: "order_err_email",
   unknown_product: "order_err_product", bad_qty: "order_err_product", not_configured: "order_err_offline",
+  out_of_stock: "order_err_stock",
 };
 const isPhone = v => /^\+?\d{7,15}$/.test(v.replace(/[\s\-()]/g, ""));
 const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -541,7 +549,8 @@ const HERO_SLIDES = [
 const CAT_ORDER = ["c_rings", "c_earrings", "c_necklaces", "c_bracelets", "c_chains", "c_new", "c_gifts"];
 const NEW_ITEMS = ["Ora Hoops", "Moment Chain", "Lumin Pearl Drops", "Selene Band", "Luna Crescents", "Wisp Chain"];
 const GIFT_ITEMS = ["Lumin Pearl Drops", "Sentinel Pendant", "Moment Chain", "Aria Thread", "Nyx Hoops", "Twin Bangles"];
-products.forEach(p => { p.tags = [p.cat].concat(NEW_ITEMS.includes(p.name) ? ["c_new"] : [], GIFT_ITEMS.includes(p.name) ? ["c_gifts"] : []); });
+const setTags = p => { p.tags = [p.cat].concat((p.isNew ?? NEW_ITEMS.includes(p.name)) ? ["c_new"] : [], (p.gift ?? GIFT_ITEMS.includes(p.name)) ? ["c_gifts"] : []); };
+products.forEach(setTags);
 const catsEl = document.getElementById("categories");
 const filterbar = document.getElementById("filterbar");
 let openCatKey = null, hoverTimer = null;
@@ -552,9 +561,9 @@ function renderCats() {
     const items = products.filter(p => p.tags.includes(key));
     box.querySelector(".dd").innerHTML = `<div class="dd-list" tabindex="0" role="list">` + items.map(p => `
       <div class="dd-item" role="listitem">
-        <img src="${p.img}" alt="${p.name}" loading="lazy">
-        <div class="dd-info"><div class="dd-name">${p.name}</div><div class="dd-mat">${t(p.mat)}</div><div class="dd-price">${money(p.price)}</div></div>
-        <button type="button" class="dd-add" data-name="${p.name}" aria-label="${t("cart_add")}: ${p.name}">+</button>
+        <img src="${esc(p.img)}" alt="${esc(pName(p))}" loading="lazy">
+        <div class="dd-info"><div class="dd-name">${esc(pName(p))}</div><div class="dd-mat">${esc(pMat(p))}</div><div class="dd-price">${soldOut(p) ? t("sold_out") : money(p.price)}</div></div>
+        <button type="button" class="dd-add" data-name="${esc(p.name)}" aria-label="${t("cart_add")}: ${esc(pName(p))}"${soldOut(p) ? " disabled" : ""}>+</button>
       </div>`).join("") + `</div><button type="button" class="dd-all" data-cat="${key}">${t("dd_view_all")}</button>`;
   });
   const cur = openCatKey; openCatKey = null; if (cur) setCat(cur, true);
@@ -579,6 +588,7 @@ catsEl.addEventListener("click", e => {
   if (btn) { const key = btn.closest(".cat").dataset.cat; setCat(key, openCatKey !== key); return; }
   const add = e.target.closest(".dd-add");
   if (add) {
+    if (add.disabled) return;
     addToCart(add.dataset.name);
     add.classList.add("added"); add.textContent = "✓";
     setTimeout(() => { add.classList.remove("added"); add.textContent = "+"; }, 1200);
@@ -603,3 +613,40 @@ document.addEventListener("keydown", e => {
 document.getElementById("filterClear").addEventListener("click", () => setCatFilter(null));
 
 applyLang();
+
+// ---------- каталог и тексты из админки ----------
+// Если бэкенд подключён (config.js), товары и изменённые тексты берутся из базы.
+// Если нет или база недоступна — сайт показывает каталог из массива products выше.
+const DB_CATS = { rings: "c_rings", earrings: "c_earrings", necklaces: "c_necklaces", bracelets: "c_bracelets", chains: "c_chains" };
+async function backendGet(path) {
+  const cfg = window.CONCHA_BACKEND || {};
+  if (!cfg.url || !cfg.anonKey) return null;
+  const res = await fetch(cfg.url.replace(/\/+$/, "") + "/rest/v1/" + path, { headers: { apikey: cfg.anonKey } });
+  if (!res.ok) throw new Error("http_" + res.status);
+  return res.json();
+}
+(async function loadFromBackend() {
+  try {
+    const [rows, texts] = await Promise.all([
+      backendGet("products?select=*&active=is.true&order=sort.asc,name.asc"),
+      backendGet("site_texts?select=key,ru,en,hy").catch(() => []),
+    ]);
+    if (!rows) return;
+    (texts || []).forEach(r => LANGS.forEach(l => { if (r[l]) I18N[l][r.key] = r[l]; }));
+    // Пока admin.sql не запущен, у товаров нет фото — оставляем каталог из кода.
+    if (rows.length && rows.every(r => r.img)) {
+      const list = rows.map(r => {
+        const p = {
+          name: r.name, price: Number(r.price), img: r.img, cat: DB_CATS[r.category] || "c_rings",
+          best: !!r.best, isNew: !!r.is_new, gift: !!r.gift, stock: r.stock,
+          names: { en: r.name, ru: r.name_ru, hy: r.name_hy },
+          mats: { en: r.mat_en, ru: r.mat_ru, hy: r.mat_hy },
+        };
+        setTags(p);
+        return p;
+      });
+      products.splice(0, products.length, ...list);   // тот же массив: на него ссылаются другие скрипты
+    }
+    applyLang();
+  } catch (e) { /* база недоступна — остаётся каталог из кода */ }
+})();

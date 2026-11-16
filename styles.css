@@ -84,6 +84,9 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 .card .row { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 12px; }
 .card button { width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; cursor: pointer; font-size: 15px; line-height: 1; display: grid; place-items: center; }
 .card button:hover { opacity: .75; }
+.card .img { position: relative; }
+.card .soldout { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,.9); color: var(--ink); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; padding: 4px 8px; }
+.card button:disabled, .dd-add:disabled { opacity: .3; cursor: not-allowed; }
 
 /* STORY + PORTRAIT */
 .duo { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; }
