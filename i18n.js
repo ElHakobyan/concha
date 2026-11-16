@@ -2,6 +2,7 @@
 // Значения вставляются как HTML (нужны <br> и <strong>) — только наши собственные строки.
 const I18N = {
   ru: {
+    sold_out: "Нет в наличии", order_err_stock: "Такого количества нет в наличии. Уменьшите количество или обновите страницу.",
     m_gold: "Золото", credit: "Фото: The Metropolitan Museum of Art (Open Access, CC0)",
     dd_view_all: "Смотреть все →", filter_cat: "Категория: {name}",
     music_on: "Включить музыку", music_off: "Выключить музыку",
@@ -51,6 +52,7 @@ const I18N = {
     copy2: "Политика конфиденциальности &nbsp;|&nbsp; Условия",
   },
   en: {
+    sold_out: "Sold out", order_err_stock: "Not enough items in stock. Reduce the quantity or refresh the page.",
     m_gold: "Gold", credit: "Photos: The Metropolitan Museum of Art (Open Access, CC0)",
     dd_view_all: "View all →", filter_cat: "Category: {name}",
     music_on: "Play music", music_off: "Pause music",
@@ -100,6 +102,7 @@ const I18N = {
     copy2: "Privacy Policy &nbsp;|&nbsp; Terms of Service",
   },
   hy: {
+    sold_out: "Առկա չէ", order_err_stock: "Այդքան քանակ առկա չէ։ Նվազեցրեք քանակը կամ թարմացրեք էջը։",
     m_gold: "Ոսկի", credit: "Լուսանկարներ՝ The Metropolitan Museum of Art (Open Access, CC0)",
     dd_view_all: "Դիտել բոլորը →", filter_cat: "Կատեգորիա՝ {name}",
     music_on: "Միացնել երաժշտությունը", music_off: "Անջատել երաժշտությունը",
