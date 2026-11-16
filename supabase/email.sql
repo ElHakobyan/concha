@@ -1,4 +1,4 @@
--- Concha: письмо на вашу почту о каждом новом заказе (через сервис Resend).
+-- Perla: письмо на вашу почту о каждом новом заказе (через сервис Resend).
 -- Запускать ПОСЛЕ schema.sql. Перед запуском замените две строки ниже
 -- (ключ Resend и вашу почту) — как их получить, написано в supabase/README.md.
 -- Секреты хранятся в Supabase Vault (зашифрованы), а не в коде сайта.
@@ -52,7 +52,7 @@ begin
   );
 
   v_body := jsonb_build_object(
-    'from', 'Concha <onboarding@resend.dev>',
+    'from', 'Perla <onboarding@resend.dev>',
     'to', jsonb_build_array(v_to),
     'subject', format('Новый заказ №%s — $%s', new.id, new.total),
     'text', v_text

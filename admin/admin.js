@@ -1,4 +1,4 @@
-// Админка Concha: товары, заказы, подписчики и тексты сайта.
+// Админка Perla: товары, заказы, подписчики и тексты сайта.
 // Работает напрямую с Supabase (см. supabase/admin.sql). Пускает только администратора:
 // права проверяет сама база (Row Level Security), а не эта страница.
 
@@ -12,7 +12,7 @@ const CATS = { rings: "Кольца", earrings: "Серьги", necklaces: "Ко
 const STATUSES = { new: "Новый", confirmed: "Подтверждён", shipped: "Отправлен", done: "Выполнен", cancelled: "Отменён" };
 const BUCKET = "product-images";
 
-const cfg = window.CONCHA_BACKEND || {};
+const cfg = window.PERLA_BACKEND || {};
 let db = null;
 
 function toast(text, bad = false) {
@@ -365,7 +365,7 @@ $("exportSubs").addEventListener("click", () => {
   const csv = "email,lang,created_at\n" + subs.map(s => [s.email, s.lang || "", s.created_at].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" }));
-  a.download = `concha-subscribers-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `perla-subscribers-${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
