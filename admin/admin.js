@@ -110,6 +110,16 @@ $("logoutBtn").addEventListener("click", async () => {
   show("loginView");
 });
 
+// Глаз рядом с паролем: показать / скрыть.
+document.querySelectorAll(".pw .eye").forEach(btn => btn.addEventListener("click", () => {
+  const input = btn.previousElementSibling;
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  btn.setAttribute("aria-pressed", show);
+  btn.setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль");
+  input.focus();
+}));
+
 // ---------- вкладки ----------
 const loaded = {};
 function openTab(name) {
