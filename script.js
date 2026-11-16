@@ -142,6 +142,17 @@ const overlay = document.getElementById("overlay");
 const cartBtn = document.getElementById("cartBtn");
 const cartItems = document.getElementById("cartItems");
 const cartMsg = document.getElementById("cartMsg");
+const orderForm = document.getElementById("orderForm");
+const orderFields = document.getElementById("orderFields");
+const checkoutBtn = document.getElementById("checkout");
+let sendingOrder = false;
+let cartMsgState = null;    // { key, ok, vars } — чтобы сообщение переводилось при смене языка
+
+function setCartMsg(key, ok = true, vars = {}) {
+  cartMsgState = key ? { key, ok, vars } : null;
+  cartMsg.className = "msg " + (ok ? "ok" : "err");
+  cartMsg.textContent = key ? t(key).replace(/\{(\w+)\}/g, (m, v) => vars[v] ?? m) : "";
+}
 
 function saveCart() { try { localStorage.setItem("cart", JSON.stringify(cart)); } catch (e) {} }
 
@@ -151,7 +162,10 @@ function renderCart() {
   const total = names.reduce((s, k) => s + cart[k] * byName(k).price, 0);
   count.textContent = qty;
   document.getElementById("cartTotal").textContent = money(total);
-  document.getElementById("checkout").disabled = qty === 0;
+  checkoutBtn.disabled = qty === 0 || sendingOrder;
+  if (qty === 0) orderFields.hidden = true;
+  checkoutBtn.textContent = t(orderFields.hidden ? "cart_checkout" : "order_send");
+  if (cartMsgState) setCartMsg(cartMsgState.key, cartMsgState.ok, cartMsgState.vars);
   cartItems.innerHTML = names.length ? names.map(k => {
     const p = byName(k);
     return `<div class="cart-item">
@@ -168,7 +182,7 @@ function openCart(open) {
   cartEl.setAttribute("aria-hidden", !open);
   overlay.hidden = !open;
   cartBtn.setAttribute("aria-expanded", open);
-  if (open) { cartMsg.textContent = ""; document.getElementById("cartClose").focus(); }
+  if (open) { if (!sendingOrder) setCartMsg(null); document.getElementById("cartClose").focus(); }
 }
 
 function addToCart(name) {
@@ -196,9 +210,62 @@ cartItems.addEventListener("click", e => {
   if (b.dataset.act === "rm" || cart[k] <= 0) delete cart[k];
   saveCart(); renderCart();
 });
-document.getElementById("checkout").addEventListener("click", () => {
-  cart = {}; saveCart(); renderCart();
-  cartMsg.textContent = t("cart_done");
+// ---------- бэкенд (Supabase) ----------
+// Настройки подключения — в config.js. Сайт вызывает только две функции из
+// supabase/schema.sql: place_order (заказ) и subscribe (рассылка).
+async function backend(fn, args) {
+  const cfg = window.CONCHA_BACKEND || {};
+  const fail = code => Object.assign(new Error(code), { code });
+  if (!cfg.url || !cfg.anonKey) throw fail("not_configured");
+  let res;
+  try {
+    res = await fetch(cfg.url.replace(/\/+$/, "") + "/rest/v1/rpc/" + fn, {
+      method: "POST",
+      headers: { apikey: cfg.anonKey, "Content-Type": "application/json" },
+      body: JSON.stringify(args),
+    });
+  } catch (e) { throw fail("network"); }
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw fail((data && data.message) || "http_" + res.status);
+  return data;
+}
+
+const ORDER_ERRORS = {
+  bad_name: "order_err_name", bad_phone: "order_err_phone", bad_email: "order_err_email",
+  unknown_product: "order_err_product", bad_qty: "order_err_product", not_configured: "order_err_offline",
+};
+const isPhone = v => /^\+?\d{7,15}$/.test(v.replace(/[\s\-()]/g, ""));
+const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+orderForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const names = Object.keys(cart).filter(k => byName(k) && cart[k] > 0);
+  if (!names.length || sendingOrder) return;
+  if (orderFields.hidden) {           // первый клик: показываем поля для контактов
+    orderFields.hidden = false; setCartMsg(null); renderCart();
+    document.getElementById("oName").focus();
+    return;
+  }
+  const val = id => document.getElementById(id).value.trim();
+  const order = {
+    p_name: val("oName"), p_phone: val("oPhone"), p_email: val("oEmail").toLowerCase(),
+    p_address: val("oAddress"), p_comment: val("oComment"), p_lang: lang,
+    p_items: names.map(k => ({ name: k, qty: cart[k] })),
+  };
+  if (!order.p_name) return setCartMsg("order_err_name", false);
+  if (!isPhone(order.p_phone)) return setCartMsg("order_err_phone", false);
+  if (order.p_email && !isEmail(order.p_email)) return setCartMsg("order_err_email", false);
+
+  sendingOrder = true; setCartMsg("order_sending"); renderCart();
+  try {
+    const id = await backend("place_order", order);
+    cart = {}; saveCart(); orderForm.reset(); orderFields.hidden = true;
+    setCartMsg("cart_done", true, { id });
+  } catch (err) {
+    setCartMsg(ORDER_ERRORS[err.code] || "order_err_net", false);
+  } finally {
+    sendingOrder = false; renderCart();
+  }
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && cartEl.classList.contains("open")) { openCart(false); cartBtn.focus(); } });
 
@@ -210,14 +277,28 @@ burger.addEventListener("click", () => {
 });
 nav.addEventListener("click", () => { nav.classList.remove("open"); burger.setAttribute("aria-expanded", false); });
 
-document.getElementById("form").addEventListener("submit", e => {
+function setSubMsg(key, ok) {
+  msgKey = key;
+  msg.className = "msg " + (ok ? "ok" : "err");
+  msg.textContent = t(key);
+}
+document.getElementById("form").addEventListener("submit", async e => {
   e.preventDefault();
   const email = document.getElementById("email");
-  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
-  msgKey = ok ? "sub_ok" : "sub_err";
-  msg.className = "msg " + (ok ? "ok" : "err");
-  msg.textContent = t(msgKey);
-  if (ok) email.value = "";
+  const btn = e.target.querySelector("button[type=submit]");
+  const value = email.value.trim().toLowerCase();
+  if (!isEmail(value)) return setSubMsg("sub_err", false);
+  if (btn.disabled) return;
+  btn.disabled = true;
+  try {
+    await backend("subscribe", { p_email: value, p_lang: lang });
+    email.value = "";
+    setSubMsg("sub_ok", true);
+  } catch (err) {
+    setSubMsg(err.code === "bad_email" ? "sub_err" : "sub_err_net", false);
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 // ---------- регистрация / вход (демо: данные только в localStorage) ----------

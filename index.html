@@ -138,8 +138,17 @@
     <div class="cart-items" id="cartItems"></div>
     <div class="cart-foot">
       <div class="total"><span data-i18n="cart_total"></span><b id="cartTotal">$0.00</b></div>
-      <button class="btn" type="button" id="checkout" data-i18n="cart_checkout"></button>
-      <p class="msg ok" id="cartMsg" role="status"></p>
+      <form class="order-form" id="orderForm" novalidate>
+        <div class="order-fields" id="orderFields" hidden>
+          <label><span data-i18n="order_name"></span><input id="oName" autocomplete="name" maxlength="100"></label>
+          <label><span data-i18n="order_phone"></span><input id="oPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+374 99 123456" maxlength="30"></label>
+          <label><span data-i18n="order_email"></span><input id="oEmail" type="email" autocomplete="email" maxlength="254"></label>
+          <label><span data-i18n="order_address"></span><input id="oAddress" autocomplete="street-address" maxlength="300"></label>
+          <label><span data-i18n="order_comment"></span><textarea id="oComment" rows="2" maxlength="1000"></textarea></label>
+        </div>
+        <button class="btn" type="submit" id="checkout" data-i18n="cart_checkout"></button>
+        <p class="msg ok" id="cartMsg" role="status"></p>
+      </form>
     </div>
   </aside>
 
@@ -167,6 +176,7 @@
     </div>
   </dialog>
 
+  <script src="config.js"></script>
   <script src="i18n.js"></script>
   <script src="script.js"></script>
 </body>
