@@ -23,7 +23,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round
 
 .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 40px; padding: 14px 5vw; position: sticky; top: 0; background: rgba(247,244,240,.94); backdrop-filter: blur(8px); z-index: 20; border-bottom: 1px solid var(--line); }
 .logo { display: block; line-height: 0; color: var(--ink); }
-.logo-img { width: 260px; height: auto; display: block; margin: -28px 0; mix-blend-mode: multiply; filter: contrast(1.22) saturate(1.05); -webkit-mask-image: radial-gradient(ellipse 52% 52% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 52% 52% at 50% 50%, #000 62%, transparent 100%); }
+.logo-img { width: 260px; height: auto; display: block; margin: -28px 0; mix-blend-mode: multiply; filter: contrast(1.22) saturate(1.25); -webkit-mask-image: radial-gradient(ellipse 52% 52% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 52% 52% at 50% 50%, #000 62%, transparent 100%); }
 .mid { display: flex; align-items: center; gap: 28px; justify-self: center; }
 .nav { display: flex; gap: 32px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
 .nav a { white-space: nowrap; }
