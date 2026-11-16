@@ -116,13 +116,21 @@ qInput.addEventListener("input", () => {
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !searchbar.hidden) { openSearch(false); searchBtn.focus(); } });
 
-document.querySelector(".langs").addEventListener("click", e => {
+const langsBox = document.querySelector(".langs");
+langsBox.addEventListener("click", e => {
   const b = e.target.closest("button[data-lang]");
   if (!b) return;
+  // на телефоне нажатие на текущий язык открывает/закрывает список
+  if (b.dataset.lang === lang && matchMedia("(max-width: 600px)").matches) {
+    langsBox.classList.toggle("open");
+    return;
+  }
+  langsBox.classList.remove("open");
   lang = b.dataset.lang;
   try { localStorage.setItem("lang", lang); } catch (err) {}
   applyLang();
 });
+document.addEventListener("click", e => { if (!e.target.closest(".langs")) langsBox.classList.remove("open"); });
 
 // ---------- корзина ----------
 let cart = {};
