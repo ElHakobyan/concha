@@ -494,7 +494,7 @@ const HERO_SLIDES = [
   { src: "assets/hero2.jpg", size: "cover" },
   { src: "assets/hero3.jpg", size: "cover" },
   // Ещё кадры: положите файл в assets/ и раскомментируйте строку.
-  // { src: "assets/hero4.jpg", size: "cover" },
+  { src: "assets/hero4.jpg", size: "cover" },
   // { src: "assets/hero5.jpg", size: "cover" },
 ];
 (async function initHeroSlides() {
