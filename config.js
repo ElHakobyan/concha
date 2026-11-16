@@ -13,7 +13,7 @@ window.PERLA_BACKEND = {
 //   whatsapp:  "37499123456"  (номер без +, пробелов и тире)
 // Пока поле пустое, значок виден, но не кликается.
 window.PERLA_SOCIAL = {
-  instagram: "",
+  instagram: "https://www.instagram.com/perla.jewelry.am/",
   facebook: "",
   whatsapp: "",
 };
