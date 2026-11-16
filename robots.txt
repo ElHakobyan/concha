@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /ig/
 
 Sitemap: https://perla-jewerly.loan/sitemap.xml
-Disallow: /ig/
