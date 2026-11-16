@@ -54,6 +54,12 @@ label > input, label > select, label > textarea { margin-top: 4px; color: var(--
 .login-box label { margin-bottom: 14px; }
 .login-box .btn { width: 100%; margin-top: 4px; }
 .login-box .link { display: block; margin: 14px auto 0; }
+.pw { position: relative; display: block; margin-top: 4px; }
+.pw input { margin: 0; padding-right: 44px; color: var(--ink); font-size: 14px; }
+.eye { position: absolute; top: 0; right: 0; width: 42px; height: 100%; background: none; border: 0; padding: 0; cursor: pointer; color: var(--muted); display: grid; place-items: center; }
+.eye:hover { color: var(--ink); }
+.eye svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.eye[aria-pressed="false"] .slash { display: none; }
 
 /* каркас */
 .app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
