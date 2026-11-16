@@ -12,7 +12,7 @@ const CATS = { rings: "Кольца", earrings: "Серьги", necklaces: "Ко
 const STATUSES = { new: "Новый", confirmed: "Подтверждён", shipped: "Отправлен", done: "Выполнен", cancelled: "Отменён" };
 const BUCKET = "product-images";
 
-const cfg = window.CONCHA_BACKEND || {};
+const cfg = window.PERLA_BACKEND || {};
 let db = null;
 
 function toast(text, bad = false) {

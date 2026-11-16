@@ -221,7 +221,7 @@ cartItems.addEventListener("click", e => {
 // Настройки подключения — в config.js. Сайт вызывает только две функции из
 // supabase/schema.sql: place_order (заказ) и subscribe (рассылка).
 async function backend(fn, args) {
-  const cfg = window.CONCHA_BACKEND || {};
+  const cfg = window.PERLA_BACKEND || {};
   const fail = code => Object.assign(new Error(code), { code });
   if (!cfg.url || !cfg.anonKey) throw fail("not_configured");
   let res;
@@ -619,7 +619,7 @@ applyLang();
 // Если нет или база недоступна — сайт показывает каталог из массива products выше.
 const DB_CATS = { rings: "c_rings", earrings: "c_earrings", necklaces: "c_necklaces", bracelets: "c_bracelets", chains: "c_chains" };
 async function backendGet(path) {
-  const cfg = window.CONCHA_BACKEND || {};
+  const cfg = window.PERLA_BACKEND || {};
   if (!cfg.url || !cfg.anonKey) return null;
   const res = await fetch(cfg.url.replace(/\/+$/, "") + "/rest/v1/" + path, { headers: { apikey: cfg.anonKey } });
   if (!res.ok) throw new Error("http_" + res.status);
