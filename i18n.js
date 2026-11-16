@@ -119,7 +119,7 @@ const I18N = {
     menu: "Մենյու",
     nav_shop: "Կատալոգ", nav_best: "Լավագույնները", nav_collections: "Հավաքածուներ", nav_about: "Մեր մասին", nav_journal: "Ամսագիր", nav_contact: "Կապ",
     hero_eyebrow: "Մտածված։ Նրբագեղ։ Հարատև։",
-    hero_title: "Իրեր, որոնք<br>ուզում ես մոտդ պահել",
+    hero_title: "Իրեր, որոնք<br>ուզում ես մոտիկից կրել",
     hero_lead: "Հանգիստ ձևեր, տևական իմաստ։",
     hero_btn: "Դիտել հավաքածուն",
     c_rings: "Մատանիներ", c_earrings: "Ականջօղեր", c_necklaces: "Վզնոցներ", c_bracelets: "Ապարանջաններ", c_chains: "Շղթաներ", c_new: "Նորույթներ", c_gifts: "Նվերներ",
