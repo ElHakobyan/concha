@@ -662,6 +662,6 @@ async function backendGet(path) {
   document.querySelectorAll("#social [data-social]").forEach(a => {
     const v = (cfg[a.dataset.social] || "").trim();
     if (v) a.href = make[a.dataset.social](v);
-    else a.setAttribute("aria-disabled", "true");
+    else if (!a.getAttribute("href")) a.setAttribute("aria-disabled", "true");
   });
 })();
