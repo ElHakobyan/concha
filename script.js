@@ -49,7 +49,7 @@ const t = key => I18N[lang][key] ?? I18N.ru[key] ?? key;
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 // Название и материал товара на текущем языке (из админки), иначе — как в коде.
 const pName = p => (p.names && p.names[lang]) || p.name;
-const pMat = p => ((p.mats && p.mats[lang]) || t(p.mat)) + (p.g ? ` · ${String(p.g).replace(".", lang === "en" ? "." : ",")} ${t("unit_g")}` : "");
+const pMat = p => ((p.mats && p.mats[lang]) || t(p.mat));
 const soldOut = p => p.stock === 0;
 
 const grid = document.getElementById("products");
