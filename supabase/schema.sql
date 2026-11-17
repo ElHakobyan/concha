@@ -14,12 +14,12 @@ create table if not exists public.products (
 );
 
 insert into public.products (name, price, category) values
-  ('Aurelia Ring', 98, 'rings'),
+  ('Aurelia Ring', 100, 'rings'),
   ('Lumin Pearl Drops', 128, 'earrings'),
-  ('Sentinel Pendant', 98, 'necklaces'),
-  ('Forma Cuff', 148, 'bracelets'),
-  ('Moment Chain', 68, 'chains'),
-  ('Ora Hoops', 108, 'earrings'),
+  ('Sentinel Pendant', 80, 'necklaces'),
+  ('Forma Cuff', 160, 'bracelets'),
+  ('Moment Chain', 70, 'chains'),
+  ('Ora Hoops', 100, 'earrings'),
   ('Selene Band', 187, 'rings'),
   ('Lyra Leaf Ring', 168, 'rings'),
   ('Thalia Ring', 187, 'rings'),

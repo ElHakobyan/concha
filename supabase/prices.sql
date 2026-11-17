@@ -32,11 +32,11 @@ update public.products p set price = coalesce(v.price, p.price), weight = v.weig
   ('Pendant Chain', 655::numeric, 7::numeric),
   ('Clasp Chain', 936::numeric, 10::numeric),
   ('Trio Chain', 374::numeric, 4::numeric),
-  ('Aurelia Ring', null::numeric, 5::numeric),
+  ('Aurelia Ring', 100::numeric, 5::numeric),
   ('Lumin Pearl Drops', null::numeric, 3.5::numeric),
-  ('Sentinel Pendant', null::numeric, 4::numeric),
-  ('Forma Cuff', null::numeric, 8::numeric),
-  ('Moment Chain', null::numeric, 3.5::numeric),
-  ('Ora Hoops', null::numeric, 5::numeric)
+  ('Sentinel Pendant', 80::numeric, 4::numeric),
+  ('Forma Cuff', 160::numeric, 8::numeric),
+  ('Moment Chain', 70::numeric, 3.5::numeric),
+  ('Ora Hoops', 100::numeric, 5::numeric)
 ) as v(name, price, weight) where p.name = v.name;
--- у вермейля, Gold Fill и жемчуга price = null: их цена не меняется
+-- вермейль и Gold Fill: $20 за грамм; жемчужные серьги (Lumin Pearl Drops) — цена не меняется (null)
