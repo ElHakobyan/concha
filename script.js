@@ -39,6 +39,7 @@ const products = [
 
 const LANGS = ["hy", "ru", "en"];
 let lang = "ru";
+let goldDate = null;
 try {
   const saved = localStorage.getItem("lang");
   if (LANGS.includes(saved)) lang = saved;
@@ -87,6 +88,7 @@ function applyLang() {
   document.querySelectorAll("[data-i18n-alt]").forEach(el => { el.alt = t(el.dataset.i18nAlt); });
   document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
   document.querySelector('meta[name="description"]').content = t("meta_desc");
+  showRateNote();
   document.querySelectorAll(".langs button").forEach(b => {
     const on = b.dataset.lang === lang;
     b.classList.toggle("on", on);
@@ -617,6 +619,12 @@ applyLang();
 // ---------- каталог и тексты из админки ----------
 // Если бэкенд подключён (config.js), товары и изменённые тексты берутся из базы.
 // Если нет или база недоступна — сайт показывает каталог из массива products выше.
+function showRateNote() {
+  const el = document.getElementById("rateNote");
+  if (!el || !goldDate) return;
+  el.textContent = t("rate_note").replace("{date}", goldDate.toLocaleDateString(lang === "ru" ? "ru-RU" : lang === "hy" ? "hy-AM" : "en-GB"));
+  el.hidden = false;
+}
 const DB_CATS = { rings: "c_rings", earrings: "c_earrings", necklaces: "c_necklaces", bracelets: "c_bracelets", chains: "c_chains" };
 async function backendGet(path) {
   const cfg = window.PERLA_BACKEND || {};
@@ -648,6 +656,11 @@ async function backendGet(path) {
       products.splice(0, products.length, ...list);   // тот же массив: на него ссылаются другие скрипты
     }
     applyLang();
+    try {
+      const gs = await backendGet("gold_settings?select=updated_at&id=eq.1");
+      if (gs && gs[0] && gs[0].updated_at) goldDate = new Date(gs[0].updated_at);
+      showRateNote();
+    } catch (e) {}
   } catch (e) { /* база недоступна — остаётся каталог из кода */ }
 })();
 

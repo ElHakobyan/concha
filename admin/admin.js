@@ -186,7 +186,7 @@ $("addProduct").addEventListener("click", () => openEditor(null));
 
 const F = {
   name: "fName", name_ru: "fNameRu", name_hy: "fNameHy", mat_en: "fMatEn", mat_ru: "fMatRu", mat_hy: "fMatHy",
-  category: "fCat", price: "fPrice", stock: "fStock", sort: "fSort",
+  category: "fCat", price: "fPrice", stock: "fStock", sort: "fSort", weight: "fWeight", pricing: "fPricing",
 };
 const CHECKS = { active: "fActive", best: "fBest", is_new: "fNew", gift: "fGift" };
 
@@ -199,7 +199,7 @@ function openEditor(p) {
   newImage = null;
   $("edFile").value = "";
   const maxSort = products.reduce((m, x) => Math.max(m, x.sort || 0), 0);
-  const v = p || { category: "rings", active: true, sort: maxSort + 10 };
+  const v = p || { category: "rings", active: true, sort: maxSort + 10, pricing: "gold" };
   Object.entries(F).forEach(([k, id]) => { $(id).value = v[k] ?? ""; });
   Object.entries(CHECKS).forEach(([k, id]) => { $(id).checked = !!v[k]; });
   setPhoto(imgUrl(v.img));
@@ -258,14 +258,17 @@ $("prodForm").addEventListener("submit", async e => {
     name_ru: val("fNameRu") || null, name_hy: val("fNameHy") || null,
     mat_en: val("fMatEn") || null, mat_ru: val("fMatRu") || null, mat_hy: val("fMatHy") || null,
     category: $("fCat").value,
-    price: Number($("fPrice").value),
+    price: Number($("fPrice").value || 0),
+    weight: val("fWeight") === "" ? null : Number(val("fWeight")),
+    pricing: $("fPricing").value,
     stock: val("fStock") === "" ? null : Math.max(0, Math.floor(Number(val("fStock")))),
     sort: val("fSort") === "" ? 1000 : Math.floor(Number(val("fSort"))),
     updated_at: new Date().toISOString(),
   };
   Object.entries(CHECKS).forEach(([k, id]) => { row[k] = $(id).checked; });
   if (!row.name) return ($("edMsg").textContent = "Впишите название на английском.");
-  if (!(row.price >= 0) || $("fPrice").value === "") return ($("edMsg").textContent = "Укажите цену.");
+  if (row.pricing === "gold" && !(row.weight > 0)) return ($("edMsg").textContent = "Для расчёта по курсу золота укажите вес.");
+  if (row.pricing === "fixed" && (!(row.price >= 0) || $("fPrice").value === "")) return ($("edMsg").textContent = "Укажите цену.");
   if (!newImage && !(editing && editing.img)) return ($("edMsg").textContent = "Загрузите фото товара.");
 
   $("edSave").disabled = true;

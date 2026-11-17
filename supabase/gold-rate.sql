@@ -61,6 +61,24 @@ exception when others then
   return 'error ' || sqlerrm;
 end $$;
 
+-- Цена золотого изделия пересчитывается сразу при добавлении/изменении товара в админке.
+create or replace function public.apply_gold_price() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare s gold_settings;
+begin
+  if new.pricing = 'gold' and new.weight is not null then
+    select * into s from gold_settings where id = 1;
+    if s.rate_24k is not null then
+      new.price := round(new.weight * s.rate_24k * s.purity * (1 + s.markup));
+    end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists products_gold_price on public.products;
+create trigger products_gold_price before insert or update on public.products
+  for each row execute function public.apply_gold_price();
+
+revoke all on function public.apply_gold_price() from public, anon, authenticated;
 revoke all on function public.recalc_prices() from public, anon, authenticated;
 revoke all on function public.update_gold_rate() from public, anon, authenticated;
 

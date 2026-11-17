@@ -3,7 +3,7 @@
 const I18N = {
   ru: {
     sold_out: "Нет в наличии", order_err_stock: "Такого количества нет в наличии. Уменьшите количество или обновите страницу.",
-    m_gold: "Золото", unit_g: "г", credit: "Фото: The Metropolitan Museum of Art (Open Access, CC0)",
+    m_gold: "Золото", unit_g: "г", rate_note: "Цены на золотые изделия считаются по курсу золота на {date}.", credit: "Фото: The Metropolitan Museum of Art (Open Access, CC0)",
     dd_view_all: "Смотреть все →", filter_cat: "Категория: {name}",
     music_on: "Включить музыку", music_off: "Выключить музыку",
     slide_prev: "Предыдущий слайд", slide_next: "Следующий слайд", slide_go: "Слайд {n}",
@@ -51,7 +51,7 @@ const I18N = {
   },
   en: {
     sold_out: "Sold out", order_err_stock: "Not enough items in stock. Reduce the quantity or refresh the page.",
-    m_gold: "Gold", unit_g: "g", credit: "Photos: The Metropolitan Museum of Art (Open Access, CC0)",
+    m_gold: "Gold", unit_g: "g", rate_note: "Gold jewelry prices follow the gold rate as of {date}.", credit: "Photos: The Metropolitan Museum of Art (Open Access, CC0)",
     dd_view_all: "View all →", filter_cat: "Category: {name}",
     music_on: "Play music", music_off: "Pause music",
     slide_prev: "Previous slide", slide_next: "Next slide", slide_go: "Slide {n}",
@@ -99,7 +99,7 @@ const I18N = {
   },
   hy: {
     sold_out: "Առկա չէ", order_err_stock: "Այդքան քանակ առկա չէ։ Նվազեցրեք քանակը կամ թարմացրեք էջը։",
-    m_gold: "Ոսկի", unit_g: "գ", credit: "Լուսանկարներ՝ The Metropolitan Museum of Art (Open Access, CC0)",
+    m_gold: "Ոսկի", unit_g: "գ", rate_note: "Ոսկե զարդերի գները հաշվարկվում են {date}-ի ոսկու կուրսով։", credit: "Լուսանկարներ՝ The Metropolitan Museum of Art (Open Access, CC0)",
     dd_view_all: "Դիտել բոլորը →", filter_cat: "Կատեգորիա՝ {name}",
     music_on: "Միացնել երաժշտությունը", music_off: "Անջատել երաժշտությունը",
     slide_prev: "Նախորդ սլայդ", slide_next: "Հաջորդ սլայդ", slide_go: "Սլայդ {n}",
