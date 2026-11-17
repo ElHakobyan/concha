@@ -1,10 +1,10 @@
 const products = [
-  { name: "Aurelia Ring", mat: "m_vermeil", price: 100, g: 5, img: "assets/p1.png", cat: "c_rings", best: true },
-  { name: "Lumin Pearl Drops", mat: "m_pearls", price: 128, g: 3.5, img: "assets/p2.png", cat: "c_earrings", best: true },
-  { name: "Sentinel Pendant", mat: "m_vermeil", price: 80, g: 4, img: "assets/p3.png", cat: "c_necklaces", best: true },
-  { name: "Forma Cuff", mat: "m_vermeil", price: 160, g: 8, img: "assets/p4.png", cat: "c_bracelets", best: true },
-  { name: "Moment Chain", mat: "m_fill", price: 70, g: 3.5, img: "assets/p5.png", cat: "c_chains", best: true },
-  { name: "Ora Hoops", mat: "m_vermeil", price: 100, g: 5, img: "assets/p6.png", cat: "c_earrings", best: true },
+  { name: "Aurelia Ring", mat: "m_vermeil", price: 100, img: "assets/p1.png", cat: "c_rings", best: true },
+  { name: "Lumin Pearl Drops", mat: "m_pearls", price: 128, img: "assets/p2.png", cat: "c_earrings", best: true },
+  { name: "Sentinel Pendant", mat: "m_vermeil", price: 80, img: "assets/p3.png", cat: "c_necklaces", best: true },
+  { name: "Forma Cuff", mat: "m_vermeil", price: 160, img: "assets/p4.png", cat: "c_bracelets", best: true },
+  { name: "Moment Chain", mat: "m_fill", price: 70, img: "assets/p5.png", cat: "c_chains", best: true },
+  { name: "Ora Hoops", mat: "m_vermeil", price: 100, img: "assets/p6.png", cat: "c_earrings", best: true },
   { name: "Selene Band", mat: "m_gold", price: 174, g: 2.0, img: "assets/catalog/rings-1.jpg", cat: "c_rings" },
   { name: "Lyra Leaf Ring", mat: "m_gold", price: 156, g: 1.8, img: "assets/catalog/rings-2.jpg", cat: "c_rings" },
   { name: "Thalia Ring", mat: "m_gold", price: 174, g: 2.0, img: "assets/catalog/rings-3.jpg", cat: "c_rings" },
@@ -646,7 +646,7 @@ async function backendGet(path) {
       const list = rows.map(r => {
         const p = {
           name: r.name, price: Number(r.price), img: r.img, cat: DB_CATS[r.category] || "c_rings",
-          g: r.weight != null ? Number(r.weight) : undefined, best: !!r.best, isNew: !!r.is_new, gift: !!r.gift, stock: r.stock,
+          g: r.pricing === "gold" && r.weight != null ? Number(r.weight) : undefined, best: !!r.best, isNew: !!r.is_new, gift: !!r.gift, stock: r.stock,
           names: { en: r.name, ru: r.name_ru, hy: r.name_hy },
           mats: { en: r.mat_en, ru: r.mat_ru, hy: r.mat_hy },
         };
