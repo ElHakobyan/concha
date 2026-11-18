@@ -1,7 +1,6 @@
 -- Perla: админ-панель (страница /admin на сайте).
 -- Как применить: Supabase → SQL Editor → New query → вставить весь файл → Run.
--- Запускать ПОСЛЕ schema.sql. Перед запуском замените ВСТАВЬТЕ_ВАШУ_ПОЧТУ в самом
--- конце файла на почту, с которой вы будете входить в админку (см. supabase/README.md).
+-- Админом вас делает отдельный файл supabase/manual/make-admin.sql (нужна ваша почта).
 -- Файл можно запускать повторно: он ничего не удаляет и не дублирует.
 
 -- ---------- Кто администратор ----------
@@ -231,10 +230,3 @@ drop trigger if exists orders_restock on public.orders;
 create trigger orders_restock
   after update of status on public.orders
   for each row execute function public.restock_on_cancel();
-
--- ---------- Ваш доступ ----------
--- Сначала создайте себе пользователя: Authentication → Users → Add user → Create new user
--- (почта + пароль, галочка Auto Confirm User). Потом впишите эту почту ниже и запустите файл.
-insert into public.admins (user_id)
-select id from auth.users where lower(email) = lower('ВСТАВЬТЕ_ВАШУ_ПОЧТУ')
-on conflict do nothing;

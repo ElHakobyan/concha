@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    name: Проверки сайта
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/check-site.mjs
+      - run: bash scripts/build-site.sh
+
+  database:
+    name: Проверка миграций и прав
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      # supabase start сам применяет все файлы из supabase/migrations на чистую базу
+      - name: Поднять локальную Supabase
+        run: supabase start -x studio,mailpit,imgproxy,edge-runtime,logflare,vector,supavisor
+      - name: Проверить права доступа
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/tests/permissions.sql
+      - name: Остановить
+        if: always()
+        run: supabase stop --no-backup
