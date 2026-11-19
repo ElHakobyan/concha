@@ -30,6 +30,8 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round
 .nav a:hover { opacity: .6; }
 .icons { display: flex; gap: 22px; align-items: center; }
 .icons svg { width: 22px; height: 22px; }
+/* Shopping bag has more empty space in its SVG than the other header icons. */
+#cartBtn svg { width: 28px; height: 28px; }
 .icon-btn { background: none; border: 0; padding: 0; cursor: pointer; color: inherit; display: block; }
 .orders-list { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .orders-list:hover { opacity: .65; }
@@ -185,6 +187,7 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
   .header { column-gap: 14px; }
   .icons { gap: 14px; }
   .icons svg { width: 20px; height: 20px; }
+  #cartBtn svg { width: 25px; height: 25px; }
   /* на телефоне виден только текущий язык, по нажатию раскрываются остальные */
   .langs { position: relative; }
   .langs button { padding: 4px 2px; }
@@ -214,6 +217,7 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
   .header { column-gap: 8px; }
   .icons { gap: 8px; }
   .icons svg { width: 18px; height: 18px; }
+  #cartBtn svg { width: 22px; height: 22px; }
 }
 
 /* CART */
