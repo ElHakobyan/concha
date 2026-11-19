@@ -311,40 +311,86 @@ document.getElementById("form").addEventListener("submit", async e => {
   }
 });
 
-// ---------- регистрация / вход (демо: данные только в localStorage) ----------
+// ---------- регистрация / вход (Supabase Auth) ----------
+// Аккаунты хранятся в Supabase: пароль проверяет сервер, в браузере его нет.
+// Профиль (имя, фамилия, телефон) лежит в таблице profiles, каждый видит только свой.
 const authDlg = document.getElementById("auth");
 const authForm = document.getElementById("authForm");
 const authMsg = document.getElementById("authMsg");
 const userBtn = document.getElementById("userBtn");
-let authMode = "register";
+let authMode = "register";          // register | login | reset (новый пароль по ссылке из письма)
+let authBusy = false;
+let session = null, profile = null;
 
-const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
-const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
-async function hashPw(pw, salt) {
-  if (!(window.crypto && crypto.subtle)) throw new Error("no-crypto");
-  return hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + pw)));
+// Старый демо-режим хранил аккаунты в браузере. Убираем эти данные.
+try { localStorage.removeItem("users"); localStorage.removeItem("session"); } catch (e) {}
+
+// Что пришло в адресе после перехода по ссылке из письма (supabase-js потом очищает адрес).
+const authHash = new URLSearchParams(location.hash.slice(1));
+const authLinkType = authHash.get("type");          // signup | recovery | ...
+const authLinkError = authHash.get("error_code") || authHash.get("error");
+
+const authCfg = window.PERLA_BACKEND || {};
+const sb = window.supabase && authCfg.url && authCfg.anonKey
+  ? window.supabase.createClient(authCfg.url, authCfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } })
+  : null;
+const siteUrl = () => location.origin + location.pathname;
+
+function currentUser() {
+  if (!session) return null;
+  const u = session.user, m = u.user_metadata || {}, p = profile || {};
+  return { email: u.email, name: p.first_name || m.first_name || "", surname: p.last_name || m.last_name || "", phone: p.phone || m.phone || "" };
 }
-const newSalt = () => hex(crypto.getRandomValues(new Uint8Array(16)));
-const currentUser = () => { const e = load("session", null); const u = e && load("users", {})[e]; return u ? { email: e, ...u } : null; };
+
+async function loadProfile() {
+  if (!sb || !session) { profile = null; return renderAuth(); }
+  const { data } = await sb.from("profiles").select("first_name,last_name,phone").eq("id", session.user.id).maybeSingle();
+  profile = data || null;
+  renderAuth();
+  prefillOrder();
+}
+
+// Если покупатель вошёл, подставляем его данные в форму заказа (только пустые поля).
+function prefillOrder() {
+  const u = currentUser();
+  if (!u) return;
+  const fill = (id, v) => { const el = document.getElementById(id); if (el && !el.value && v) el.value = v; };
+  fill("oName", `${u.name} ${u.surname}`.trim());
+  fill("oPhone", u.phone);
+  fill("oEmail", u.email);
+}
 
 function renderAuth() {
   const user = currentUser();
-  const reg = authMode === "register";
-  authForm.hidden = !!user;
-  document.getElementById("account").hidden = !user;
-  document.getElementById("authTitle").textContent = user ? t("auth_account") : t(reg ? "auth_register" : "auth_login");
+  const mode = user && authMode !== "reset" ? "account" : authMode;
+  const reg = mode === "register", reset = mode === "reset";
+  authForm.hidden = mode === "account";
+  document.getElementById("account").hidden = mode !== "account";
+  document.getElementById("authTitle").textContent = t(mode === "account" ? "auth_account" : reset ? "auth_newpass" : reg ? "auth_register" : "auth_login");
+  authForm.querySelector(".tabs").hidden = reset;
   authForm.querySelectorAll("[data-reg]").forEach(el => { el.hidden = !reg; });
+  authForm.querySelectorAll("[data-login]").forEach(el => { el.hidden = mode !== "login"; });
+  authForm.querySelectorAll("[data-email]").forEach(el => { el.hidden = reset; });
+  authForm.querySelectorAll("[data-pass2]").forEach(el => { el.hidden = !(reg || reset); });
   authForm.querySelectorAll(".tabs button").forEach(b => {
     const on = b.dataset.mode === authMode;
     b.classList.toggle("on", on); b.setAttribute("aria-selected", on);
   });
-  document.getElementById("authSubmit").textContent = t(reg ? "auth_sub_reg" : "auth_sub_login");
-  document.getElementById("aPass").autocomplete = reg ? "new-password" : "current-password";
+  document.getElementById("aPassLabel").textContent = t(reset ? "auth_newpass_label" : "auth_pass");
+  const submit = document.getElementById("authSubmit");
+  submit.textContent = authBusy ? t("auth_wait") : t(reset ? "auth_sub_newpass" : reg ? "auth_sub_reg" : "auth_sub_login");
+  submit.disabled = authBusy;
+  document.getElementById("aPass").autocomplete = reg || reset ? "new-password" : "current-password";
   authForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
-  if (user) document.getElementById("hello").textContent = t("auth_hello").replace("{name}", `${user.name} ${user.surname || ""}`.trim());
+  if (user) {
+    const full = `${user.name} ${user.surname}`.trim();
+    document.getElementById("hello").textContent = t("auth_hello").replace("{name}", full || user.email);
+    const info = document.getElementById("accInfo");
+    info.textContent = "";
+    [user.email, user.phone].filter(Boolean).forEach((v, i) => { if (i) info.append(document.createElement("br")); info.append(v); });
+  }
   const av = document.getElementById("avatar");
-  av.textContent = user ? user.name.trim().charAt(0).toUpperCase() : "";
+  av.textContent = user ? (user.name || user.email).trim().charAt(0).toUpperCase() : "";
   userBtn.classList.toggle("in", !!user);
   if (authMsgKey) authMsg.textContent = t(authMsgKey);
 }
@@ -352,12 +398,12 @@ function renderAuth() {
 let authMsgKey = null;
 function setAuthMsg(key, ok) { authMsgKey = key || null; authMsg.className = "msg " + (ok ? "ok" : "err"); authMsg.textContent = key ? t(key) : ""; }
 
-function openAuth() {
-  setAuthMsg("");
+function openAuth(keepMsg) {
+  if (keepMsg !== true) setAuthMsg("");
   renderAuth();
   if (!authDlg.open) authDlg.showModal();
-  const first = currentUser() ? document.getElementById("logout") : (authMode === "register" ? "aName" : "aEmail");
-  (typeof first === "string" ? document.getElementById(first) : first).focus();
+  const first = currentUser() && authMode !== "reset" ? "logout" : authMode === "register" ? "aName" : authMode === "reset" ? "aPass" : "aEmail";
+  document.getElementById(first).focus();
 }
 
 userBtn.addEventListener("click", openAuth);
@@ -368,43 +414,107 @@ authForm.querySelector(".tabs").addEventListener("click", e => {
   if (!b) return;
   authMode = b.dataset.mode; setAuthMsg(""); renderAuth();
 });
-document.getElementById("logout").addEventListener("click", () => {
-  try { localStorage.removeItem("session"); } catch (e) {}
+document.getElementById("logout").addEventListener("click", async () => {
+  if (sb) await sb.auth.signOut().catch(() => {});
+  session = null; profile = null;
   authMode = "login"; renderAuth(); authDlg.close();
+});
+
+// Перевод ошибок Supabase в понятные сообщения.
+function authErrKey(err) {
+  const code = (err && (err.code || "")) + " " + ((err && err.message) || "");
+  if (/invalid_credentials|Invalid login/i.test(code)) return "auth_err_login";
+  if (/email_not_confirmed|not confirmed/i.test(code)) return "auth_err_confirm";
+  if (/user_already_exists|already registered/i.test(code)) return "auth_err_exists";
+  if (/rate_limit|rate limit|too many/i.test(code) || (err && err.status === 429)) return "auth_err_rate";
+  if (/same_password|different from the old/i.test(code)) return "auth_err_same";
+  if (/weak_password|password/i.test(code)) return "auth_err_pass";
+  if (/fetch|network/i.test(code) || (err && err.status === 0)) return "auth_err_net";
+  return "auth_err_net";
+}
+
+async function withBusy(fn) {
+  authBusy = true; renderAuth();
+  try { await fn(); }
+  catch (err) { setAuthMsg(authErrKey(err)); }
+  finally { authBusy = false; renderAuth(); }
+}
+
+document.getElementById("forgotBtn").addEventListener("click", () => {
+  const email = document.getElementById("aEmail").value.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAuthMsg("auth_err_forgot");
+  if (!sb) return setAuthMsg("auth_err_offline");
+  withBusy(async () => {
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: siteUrl() });
+    if (error) throw error;
+    setAuthMsg("auth_reset_sent", true);
+  });
 });
 
 authForm.addEventListener("submit", async e => {
   e.preventDefault();
+  if (authBusy) return;
   const name = document.getElementById("aName").value.trim();
   const surname = document.getElementById("aSurname").value.trim();
   const phone = document.getElementById("aPhone").value.trim();
   const email = document.getElementById("aEmail").value.trim().toLowerCase();
   const pw = document.getElementById("aPass").value;
   const pw2 = document.getElementById("aPass2").value;
-  const reg = authMode === "register";
+  const reg = authMode === "register", reset = authMode === "reset";
   if (reg && !name) return setAuthMsg("auth_err_name");
   if (reg && !surname) return setAuthMsg("auth_err_surname");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAuthMsg("auth_err_email");
+  if (!reset && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAuthMsg("auth_err_email");
   if (reg && !/^\+?\d{7,15}$/.test(phone.replace(/[\s\-()]/g, ""))) return setAuthMsg("auth_err_phone");
-  if (reg && pw.length < 8) return setAuthMsg("auth_err_pass");
-  if (reg && pw !== pw2) return setAuthMsg("auth_err_match");
-  const users = load("users", {});
-  try {
-    if (reg) {
-      if (users[email]) return setAuthMsg("auth_err_exists");
-      const salt = newSalt();
-      users[email] = { name, surname, phone, salt, hash: await hashPw(pw, salt) };
-      save("users", users);
-    } else {
-      const u = users[email];
-      if (!u || (await hashPw(pw, u.salt)) !== u.hash) return setAuthMsg("auth_err_login");
-    }
-  } catch (err) { return setAuthMsg("auth_err_crypto"); }
-  save("session", email);
-  authForm.reset();
-  renderAuth();
+  if ((reg || reset) && pw.length < 8) return setAuthMsg("auth_err_pass");
+  if ((reg || reset) && pw !== pw2) return setAuthMsg("auth_err_match");
+  if (!reg && !reset && !pw) return setAuthMsg("auth_err_login");
+  if (!sb) return setAuthMsg("auth_err_offline");
   setAuthMsg("");
+  await withBusy(async () => {
+    if (reg) {
+      const { data, error } = await sb.auth.signUp({
+        email, password: pw,
+        options: { emailRedirectTo: siteUrl(), data: { first_name: name, last_name: surname, phone } },
+      });
+      if (error) throw error;
+      // Supabase не говорит прямо, что email занят: у такого пользователя нет identities.
+      if (data.user && Array.isArray(data.user.identities) && !data.user.identities.length) return setAuthMsg("auth_err_exists");
+      authForm.reset();
+      if (!data.session) { authMode = "login"; document.getElementById("aEmail").value = email; return setAuthMsg("auth_check_email", true); }
+    } else if (reset) {
+      const { error } = await sb.auth.updateUser({ password: pw });
+      if (error) throw error;
+      authForm.reset();
+      authMode = "login";
+      setAuthMsg("auth_pass_saved", true);
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+      if (error) throw error;
+      authForm.reset();
+      setAuthMsg("");
+    }
+  });
 });
+
+if (sb) {
+  sb.auth.onAuthStateChange((event, s) => {
+    session = s || null;
+    if (!session) profile = null;
+    if (event === "PASSWORD_RECOVERY") { authMode = "reset"; setTimeout(() => openAuth(), 0); }
+    // Внутри этого обработчика нельзя ждать другие запросы Supabase — откладываем.
+    setTimeout(loadProfile, 0);
+  });
+  if (authLinkType === "signup" && !authLinkError) {
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) { authMode = "login"; setAuthMsg("auth_confirmed", true); openAuth(true); }
+    });
+  }
+}
+if (authLinkError) {
+  history.replaceState(null, "", location.pathname + location.search);
+  authMode = "login";
+  setTimeout(() => { setAuthMsg("auth_err_link"); openAuth(true); }, 0);
+}
 
 // ---------- фоновая музыка ----------
 // Свой трек: положите файл в assets/ и впишите путь, например "assets/music.mp3".
