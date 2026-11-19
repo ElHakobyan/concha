@@ -341,6 +341,7 @@ function renderAuth() {
   });
   document.getElementById("authSubmit").textContent = t(reg ? "auth_sub_reg" : "auth_sub_login");
   document.getElementById("aPass").autocomplete = reg ? "new-password" : "current-password";
+  authForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
   if (user) document.getElementById("hello").textContent = t("auth_hello").replace("{name}", `${user.name} ${user.surname || ""}`.trim());
   const av = document.getElementById("avatar");
   av.textContent = user ? user.name.trim().charAt(0).toUpperCase() : "";
@@ -678,3 +679,14 @@ async function backendGet(path) {
     else if (!a.getAttribute("href")) a.setAttribute("aria-disabled", "true");
   });
 })();
+
+// Глаз рядом с паролем: показать / скрыть.
+document.querySelectorAll("#authForm .pw .eye").forEach(btn => btn.addEventListener("click", e => {
+  e.preventDefault();
+  const input = btn.previousElementSibling;
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  btn.setAttribute("aria-pressed", show);
+  btn.setAttribute("aria-label", t(show ? "pw_hide" : "pw_show"));
+  input.focus();
+}));
