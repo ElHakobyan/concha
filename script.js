@@ -57,8 +57,6 @@ const priceHtml = p => p.oldPrice ? `<s class="old">$${p.oldPrice.toFixed(2)}</s
 
 const grid = document.getElementById("products");
 const count = document.getElementById("count");
-const msg = document.getElementById("msg");
-let msgKey = null;
 
 let query = "";
 let catFilter = null;
@@ -98,7 +96,6 @@ function applyLang() {
     b.classList.toggle("on", on);
     b.setAttribute("aria-pressed", on);
   });
-  if (msgKey) msg.textContent = t(msgKey);
   renderProducts();
   renderCart();
   renderCats();
@@ -303,30 +300,6 @@ burger.addEventListener("click", () => {
   burger.setAttribute("aria-expanded", open);
 });
 nav.addEventListener("click", () => { nav.classList.remove("open"); burger.setAttribute("aria-expanded", false); });
-
-function setSubMsg(key, ok) {
-  msgKey = key;
-  msg.className = "msg " + (ok ? "ok" : "err");
-  msg.textContent = t(key);
-}
-document.getElementById("form").addEventListener("submit", async e => {
-  e.preventDefault();
-  const email = document.getElementById("email");
-  const btn = e.target.querySelector("button[type=submit]");
-  const value = email.value.trim().toLowerCase();
-  if (!isEmail(value)) return setSubMsg("sub_err", false);
-  if (btn.disabled) return;
-  btn.disabled = true;
-  try {
-    await backend("subscribe", { p_email: value, p_lang: lang });
-    email.value = "";
-    setSubMsg("sub_ok", true);
-  } catch (err) {
-    setSubMsg(err.code === "bad_email" ? "sub_err" : "sub_err_net", false);
-  } finally {
-    btn.disabled = false;
-  }
-});
 
 // ---------- регистрация / вход (Supabase Auth) ----------
 // Аккаунты хранятся в Supabase: пароль проверяет сервер, в браузере его нет.
