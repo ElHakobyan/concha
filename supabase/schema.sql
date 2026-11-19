@@ -122,7 +122,56 @@ begin
   if p_phone is null or regexp_replace(p_phone, '[\s\-()]', '', 'g') !~ '^\+?\d{7,15}$' then
     raise exception 'bad_phone';
   end if;
-  if p_email is not null and (length(p_email) > 254 or p_email !~ '^[^\s@]+@[^\s@]+\.[^\s@]+$') then
+  if p_email is null or length(p_email) > 254 or p_email !~ '^[^\s@]+@[^\s@]+\.[^\s@]+
+  end if;
+  if length(coalesce(p_address, '')) > 300 or length(coalesce(p_comment, '')) > 1000 then
+    raise exception 'too_long';
+  end if;
+  if jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) not between 1 and 50 then
+    raise exception 'bad_items';
+  end if;
+
+  for v_item in select * from jsonb_array_elements(p_items) loop
+    v_qty := (v_item->>'qty')::int;
+    if v_qty is null or v_qty not between 1 and 20 then raise exception 'bad_qty'; end if;
+    select price into v_price from products where name = v_item->>'name' and active;
+    if v_price is null then raise exception 'unknown_product'; end if;
+    v_items := v_items || jsonb_build_object('name', v_item->>'name', 'qty', v_qty, 'price', v_price);
+    v_total := v_total + v_price * v_qty;
+  end loop;
+
+  insert into orders (customer_name, phone, email, address, comment, lang, items, total)
+  values (p_name, p_phone, p_email, p_address, p_comment, left(p_lang, 5), v_items, v_total)
+  returning id into v_id;
+  return v_id;
+end;
+$body$;
+  $fn$;
+end $guard$;
+
+-- ---------- Функция: подписаться на рассылку ----------
+create or replace function public.subscribe(p_email text, p_lang text default null)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  p_email := lower(btrim(p_email));
+  if p_email is null or length(p_email) > 254 or p_email !~ '^[^\s@]+@[^\s@]+\.[^\s@]+$' then
+    raise exception 'bad_email';
+  end if;
+  insert into subscribers (email, lang) values (p_email, left(p_lang, 5))
+  on conflict (email) do nothing;  -- повторная подписка не считается ошибкой
+end;
+$$;
+
+-- Разрешаем сайту вызывать только эти две функции.
+revoke all on function public.place_order(text, text, jsonb, text, text, text, text) from public;
+revoke all on function public.subscribe(text, text) from public;
+grant execute on function public.place_order(text, text, jsonb, text, text, text, text) to anon, authenticated;
+grant execute on function public.subscribe(text, text) to anon, authenticated;
+ then
     raise exception 'bad_email';
   end if;
   if length(coalesce(p_address, '')) > 300 or length(coalesce(p_comment, '')) > 1000 then
