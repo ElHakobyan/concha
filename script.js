@@ -204,14 +204,17 @@ function addToCart(name) {
 }
 
 grid.addEventListener("click", e => {
-  const o = e.target.closest("[data-open]");
-  if (o) return openProduct(o.dataset.open);
   const b = e.target.closest("button.add");
-  if (!b || b.disabled) return;
-  addToCart(b.dataset.name);
-  b.classList.add("added"); b.textContent = "✓"; b.setAttribute("title", t("cart_added"));
-  setTimeout(() => { b.classList.remove("added"); b.textContent = "+"; b.removeAttribute("title"); }, 1200);
-  openCart(true);
+  if (b) {
+    if (b.disabled) return;
+    addToCart(b.dataset.name);
+    b.classList.add("added"); b.textContent = "✓"; b.setAttribute("title", t("cart_added"));
+    setTimeout(() => { b.classList.remove("added"); b.textContent = "+"; b.removeAttribute("title"); }, 1200);
+    openCart(true);
+    return;
+  }
+  const o = e.target.closest("[data-open]");
+  if (o) openProduct(o.dataset.open);
 });
 cartBtn.addEventListener("click", () => openCart(!cartEl.classList.contains("open")));
 document.getElementById("cartClose").addEventListener("click", () => openCart(false));
