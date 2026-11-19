@@ -56,23 +56,6 @@ const pDesc = p => (p.descs && (p.descs[lang] || p.descs.en || p.descs.ru)) || "
 const priceHtml = p => p.oldPrice ? `<s class="old">$${p.oldPrice.toFixed(2)}</s> <span class="sale">$${p.price.toFixed(2)}</span>` : `$${p.price.toFixed(2)}`;
 
 const grid = document.getElementById("products");
-const favoritesBtn = document.getElementById("favoritesBtn");
-const favoritesPanel = document.getElementById("favoritesPanel");
-const favoritesItems = document.getElementById("favoritesItems");
-const favoriteNames = new Set();
-try { const saved = JSON.parse(localStorage.getItem("perla_favorites") || "[]"); if (Array.isArray(saved)) saved.filter(x => typeof x === "string").forEach(x => favoriteNames.add(x)); } catch (e) {}
-function isFavorite(name) { return favoriteNames.has(name); }
-function favoriteHeart(name) { return `<button type="button" class="favorite-toggle${isFavorite(name) ? " active" : ""}" data-favorite="${esc(name)}" aria-pressed="${isFavorite(name)}" title="${t(isFavorite(name) ? "favorites_remove" : "favorites_add")}" aria-label="${t(isFavorite(name) ? "favorites_remove" : "favorites_add")}">♥</button>`; }
-function renderFavorites() {
-  document.getElementById("favoritesCount").textContent = favoriteNames.size;
-  document.getElementById("favoritesCount").hidden = favoriteNames.size === 0;
-  favoritesItems.innerHTML = [...favoriteNames].map(name => products.find(p => p.name === name)).filter(Boolean).map(p => `<div class="cart-item"><img src="${esc(p.img)}" alt=""><div class="ci-info"><div class="ci-name">${esc(pName(p))}</div><div class="ci-mat">${esc(pMat(p))}</div><button type="button" class="favorites-view" data-fav-open="${esc(p.name)}">${t("favorites_view")}</button></div><button type="button" class="favorites-remove" data-favorite="${esc(p.name)}" aria-label="${t("favorites_remove")}">×</button></div>`).join("") || `<p class="cart-empty">${t("favorites_empty")}</p>`;
-}
-function toggleFavorite(name) { if (favoriteNames.has(name)) favoriteNames.delete(name); else favoriteNames.add(name); try { localStorage.setItem("perla_favorites", JSON.stringify([...favoriteNames])); } catch (e) {} renderProducts(); renderFavorites(); if (typeof pCur !== "undefined" && pCur && pCur.name === name && document.getElementById("product").open) renderProduct(); }
-function openFavorites(open) { favoritesPanel.classList.toggle("open", open); favoritesPanel.setAttribute("aria-hidden", String(!open)); favoritesBtn.setAttribute("aria-expanded", String(open)); if (open) { openCart(false); renderFavorites(); overlay.hidden = false; document.getElementById("favoritesClose").focus(); } else if (!cartEl.classList.contains("open")) overlay.hidden = true; }
-favoritesBtn.addEventListener("click", () => openFavorites(!favoritesPanel.classList.contains("open")));
-document.getElementById("favoritesClose").addEventListener("click", () => openFavorites(false));
-favoritesItems.addEventListener("click", e => { const b = e.target.closest("[data-favorite]"); if (b) return toggleFavorite(b.dataset.favorite); const o = e.target.closest("[data-fav-open]"); if (o) { openFavorites(false); openProduct(o.dataset.favOpen); } });
 const count = document.getElementById("count");
 const msg = document.getElementById("msg");
 let msgKey = null;
@@ -91,7 +74,7 @@ function renderProducts() {
   updateFilterbar();
   grid.innerHTML = list.map(p => `
     <article class="card">
-      <div class="img" data-open="${esc(p.name)}">${favoriteHeart(p.name)}<img src="${esc(p.img)}" alt="${esc(pName(p))}">${soldOut(p) ? `<span class="soldout">${t("sold_out")}</span>` : p.discount ? `<span class="soldout salebadge">−${p.discount}%</span>` : ""}${(p.images || []).length ? `<span class="morephotos">+${p.images.length}</span>` : ""}</div>
+      <div class="img" data-open="${esc(p.name)}"><img src="${esc(p.img)}" alt="${esc(pName(p))}">${soldOut(p) ? `<span class="soldout">${t("sold_out")}</span>` : p.discount ? `<span class="soldout salebadge">−${p.discount}%</span>` : ""}${(p.images || []).length ? `<span class="morephotos">+${p.images.length}</span>` : ""}</div>
       <div class="meta">
         <div class="name" data-open="${esc(p.name)}">${esc(pName(p))}</div>
         <div class="mat">${esc(pMat(p))}</div>
@@ -117,7 +100,6 @@ function applyLang() {
   });
   if (msgKey) msg.textContent = t(msgKey);
   renderProducts();
-  renderFavorites();
   renderCart();
   renderCats();
   renderAuth();
@@ -211,7 +193,6 @@ function openCart(open) {
   cartEl.setAttribute("aria-hidden", !open);
   overlay.hidden = !open;
   cartBtn.setAttribute("aria-expanded", open);
-  if (open && favoritesPanel.classList.contains("open")) { favoritesPanel.classList.remove("open"); favoritesPanel.setAttribute("aria-hidden", "true"); favoritesBtn.setAttribute("aria-expanded", "false"); }
   if (open) { if (!sendingOrder) setCartMsg(null); document.getElementById("cartClose").focus(); }
 }
 
@@ -223,20 +204,21 @@ function addToCart(name) {
 }
 
 grid.addEventListener("click", e => {
-  const fav = e.target.closest("[data-favorite]");
-  if (fav) return toggleFavorite(fav.dataset.favorite);
-  const o = e.target.closest("[data-open]");
-  if (o) return openProduct(o.dataset.open);
   const b = e.target.closest("button.add");
-  if (!b || b.disabled) return;
-  addToCart(b.dataset.name);
-  b.classList.add("added"); b.textContent = "✓"; b.setAttribute("title", t("cart_added"));
-  setTimeout(() => { b.classList.remove("added"); b.textContent = "+"; b.removeAttribute("title"); }, 1200);
-  openCart(true);
+  if (b) {
+    if (b.disabled) return;
+    addToCart(b.dataset.name);
+    b.classList.add("added"); b.textContent = "✓"; b.setAttribute("title", t("cart_added"));
+    setTimeout(() => { b.classList.remove("added"); b.textContent = "+"; b.removeAttribute("title"); }, 1200);
+    openCart(true);
+    return;
+  }
+  const o = e.target.closest("[data-open]");
+  if (o) openProduct(o.dataset.open);
 });
 cartBtn.addEventListener("click", () => openCart(!cartEl.classList.contains("open")));
 document.getElementById("cartClose").addEventListener("click", () => openCart(false));
-overlay.addEventListener("click", () => { openCart(false); openFavorites(false); });
+overlay.addEventListener("click", () => openCart(false));
 cartItems.addEventListener("click", e => {
   const b = e.target.closest("button[data-act]");
   if (!b) return;
@@ -312,7 +294,7 @@ orderForm.addEventListener("submit", async e => {
     sendingOrder = false; renderCart();
   }
 });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && favoritesPanel.classList.contains("open")) { openFavorites(false); favoritesBtn.focus(); } else if (e.key === "Escape" && cartEl.classList.contains("open")) { openCart(false); cartBtn.focus(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && cartEl.classList.contains("open")) { openCart(false); cartBtn.focus(); } });
 
 const burger = document.getElementById("burger");
 const nav = document.getElementById("nav");
@@ -1049,7 +1031,7 @@ function renderProduct() {
   const pics = [p.img, ...(p.images || [])];
   pIdx = (pIdx + pics.length) % pics.length;
   document.getElementById("pdMain").innerHTML = `<img src="${esc(pics[pIdx])}" alt="${esc(pName(p))}">` +
-    favoriteHeart(p.name) + (pics.length > 1 ? `<button type="button" class="pd-nav prev" data-step="-1" aria-label="${t("slide_prev")}">‹</button><button type="button" class="pd-nav next" data-step="1" aria-label="${t("slide_next")}">›</button>` : "");
+    (pics.length > 1 ? `<button type="button" class="pd-nav prev" data-step="-1" aria-label="${t("slide_prev")}">‹</button><button type="button" class="pd-nav next" data-step="1" aria-label="${t("slide_next")}">›</button>` : "");
   document.getElementById("pdThumbs").innerHTML = pics.length > 1 ? pics.map((src, i) =>
     `<button type="button" data-i="${i}" aria-current="${i === pIdx}"><img src="${esc(src)}" alt="" loading="lazy"></button>`).join("") : "";
   document.getElementById("pdName").textContent = pName(p);
@@ -1070,7 +1052,6 @@ function openProduct(name) {
 if (pDlg) {
   pDlg.addEventListener("click", e => {
     if (e.target === pDlg || e.target.closest("#pdClose")) return pDlg.close();
-    const fav = e.target.closest("[data-favorite]"); if (fav) return toggleFavorite(fav.dataset.favorite);
     const st = e.target.closest("[data-step]"); if (st) { pIdx += +st.dataset.step; return renderProduct(); }
     const th = e.target.closest("#pdThumbs [data-i]"); if (th) { pIdx = +th.dataset.i; return renderProduct(); }
     if (e.target.closest("#pdAdd") && pCur && !soldOut(pCur)) {
