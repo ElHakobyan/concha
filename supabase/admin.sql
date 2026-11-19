@@ -186,7 +186,77 @@ begin
   if p_phone is null or regexp_replace(p_phone, '[\s\-()]', '', 'g') !~ '^\+?\d{7,15}$' then
     raise exception 'bad_phone';
   end if;
-  if p_email is not null and (length(p_email) > 254 or p_email !~ '^[^\s@]+@[^\s@]+\.[^\s@]+$') then
+  if p_email is null or length(p_email) > 254 or p_email !~ '^[^\s@]+@[^\s@]+\.[^\s@]+
+  end if;
+  if length(coalesce(p_address, '')) > 300 or length(coalesce(p_comment, '')) > 1000 then
+    raise exception 'too_long';
+  end if;
+  if jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) not between 1 and 50 then
+    raise exception 'bad_items';
+  end if;
+
+  for v_item in select * from jsonb_array_elements(p_items) loop
+    v_qty := (v_item->>'qty')::int;
+    if v_qty is null or v_qty not between 1 and 20 then raise exception 'bad_qty'; end if;
+    select price, stock, true into v_price, v_stock, v_found
+      from products where name = v_item->>'name' and active
+      for update;                                   -- чтобы два заказа не купили последнюю штуку
+    if v_found is null then raise exception 'unknown_product'; end if;
+    if v_stock is not null then
+      if v_stock < v_qty then raise exception 'out_of_stock'; end if;
+      update products set stock = stock - v_qty where name = v_item->>'name';
+    end if;
+    v_items := v_items || jsonb_build_object('name', v_item->>'name', 'qty', v_qty, 'price', v_price);
+    v_total := v_total + v_price * v_qty;
+    v_found := null;
+  end loop;
+
+  insert into orders (customer_name, phone, email, address, comment, lang, items, total)
+  values (p_name, p_phone, p_email, p_address, p_comment, left(p_lang, 5), v_items, v_total)
+  returning id into v_id;
+  return v_id;
+end;
+$body$;
+  $fn$;
+end $guard$;
+revoke all on function public.place_order(text, text, jsonb, text, text, text, text) from public;
+grant execute on function public.place_order(text, text, jsonb, text, text, text, text) to anon, authenticated;
+
+-- Отменили заказ в админке — товары возвращаются на склад (и наоборот).
+create or replace function public.restock_on_cancel()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_sign int;
+  i jsonb;
+begin
+  if new.status = old.status then return new; end if;
+  if new.status = 'cancelled' then v_sign := 1;
+  elsif old.status = 'cancelled' then v_sign := -1;
+  else return new; end if;
+  for i in select * from jsonb_array_elements(new.items) loop
+    update products set stock = greatest(stock + v_sign * (i->>'qty')::int, 0)
+      where name = i->>'name' and stock is not null;
+  end loop;
+  return new;
+end;
+$$;
+revoke all on function public.restock_on_cancel() from public, anon, authenticated;
+drop trigger if exists orders_restock on public.orders;
+create trigger orders_restock
+  after update of status on public.orders
+  for each row execute function public.restock_on_cancel();
+
+-- ---------- Ваш доступ ----------
+-- Сначала создайте себе пользователя: Authentication → Users → Add user → Create new user
+-- (почта + пароль, галочка Auto Confirm User). Потом впишите эту почту ниже и запустите файл.
+insert into public.admins (user_id)
+select id from auth.users where lower(email) = lower('ВСТАВЬТЕ_ВАШУ_ПОЧТУ')
+on conflict do nothing;
+ then
     raise exception 'bad_email';
   end if;
   if length(coalesce(p_address, '')) > 300 or length(coalesce(p_comment, '')) > 1000 then
