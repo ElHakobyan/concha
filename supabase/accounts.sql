@@ -1,12 +1,13 @@
 -- Аккаунты покупателей (Supabase Auth) и их профили.
 -- Запускать в SQL Editor целиком. Всё выполняется одной транзакцией:
--- если хоть одна строка упадёт, не применится ничего.
--- Запускать повторно безопасно (ничего не удаляет и не дублирует).
--- Таблицу admins и функцию is_admin() не меняет, кроме снятия лишнего права TRUNCATE (шаг 7).
+-- если хоть одна проверка или команда не пройдёт, не применится ничего.
+-- Запускать повторно безопасно: ничего не удаляет из данных и не дублирует.
+-- Таблицу admins (её строки) и функцию is_admin() не меняет.
 
 begin;
 
 -- 1. Колонки профиля. full_name переименовываем в first_name (данные, если есть, сохраняются).
+--    Сайт и админка full_name не используют, только first_name / last_name.
 do $$ begin
   if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'full_name')
      and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'first_name') then
@@ -26,8 +27,8 @@ alter table public.profiles add constraint profiles_lengths check (
 
 alter table public.profiles enable row level security;
 
--- 3. Профиль создаётся сам при регистрации из данных формы.
---    left()/nullif() обрезают и чистят значения, поэтому функция не упадёт и не сорвёт регистрацию.
+-- 3. Функция, которая создаёт профиль при регистрации.
+--    left()/nullif() обрезают и чистят значения, поэтому вставка не упадёт и не сорвёт регистрацию.
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
@@ -42,9 +43,14 @@ begin
   on conflict (id) do nothing;
   return new;
 end $$;
--- Триггер on_auth_user_created уже вызывает эту функцию, его не трогаем.
 
--- 4. Если пользователь сменит email, он обновится и в профиле.
+-- 4. Триггер регистрации: пересоздаём, чтобы он точно был, был включён
+--    и вызывал именно эту функцию после каждой новой записи в auth.users.
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- 5. Если пользователь сменит email, он обновится и в профиле.
 create or replace function public.handle_user_email_change()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
@@ -60,32 +66,71 @@ create trigger on_auth_user_email_changed after update of email on auth.users
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
 revoke execute on function public.handle_user_email_change() from public, anon, authenticated;
 
--- 5. Права на profiles: гость (anon) ничего; вошедший может читать и менять
---    только имя, фамилию и телефон (не id и не email). Какие строки — решают политики ниже.
+-- 6. Права на profiles, минимально необходимые:
+--    гость (anon) — ничего;
+--    вошедший (authenticated) — читать только перечисленные колонки
+--      (новые колонки в будущем не откроются сами), менять только имя, фамилию и телефон.
+--    Какие именно строки — решают политики в шаге 7.
 revoke all on public.profiles from anon, authenticated;
-grant select on public.profiles to authenticated;
+grant select (id, first_name, last_name, phone, email, created_at) on public.profiles to authenticated;
 grant update (first_name, last_name, phone) on public.profiles to authenticated;
 
--- 6. Политики: каждый видит свою строку, администратор видит все. Менять можно только свою.
-drop policy if exists profiles_select_own on public.profiles;
-drop policy if exists profiles_update_own on public.profiles;
+-- 7. Политики RLS. Удаляем ВСЕ существующие политики на profiles (какие бы ни были,
+--    например profiles_admin_read), и создаём ровно две. Так ни одна старая политика
+--    не расширит доступ незаметно.
+do $$
+declare r record;
+begin
+  for r in select policyname from pg_policies where schemaname = 'public' and tablename = 'profiles' loop
+    execute format('drop policy %I on public.profiles', r.policyname);
+  end loop;
+end $$;
+-- Читать: свою строку; администратор — все.
 create policy profiles_select_own on public.profiles for select to authenticated
   using ((select auth.uid()) = id or (select public.is_admin()));
+-- Менять: только свою строку (даже администратор чужие профили не правит).
 create policy profiles_update_own on public.profiles for update to authenticated
   using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
+-- Политик на INSERT и DELETE нет: профиль создаёт только триггер, удаляется вместе с пользователем.
 
--- 7. Таблица admins: у гостей и вошедших есть право TRUNCATE (очистить таблицу целиком,
+-- 8. Таблица admins: у гостей и вошедших есть право TRUNCATE (очистить таблицу целиком,
 --    в обход RLS). Через сайт им не воспользоваться, но держать его незачем. Снимаем.
---    Ваша запись в admins и is_admin() не меняются.
 revoke truncate, trigger, references on public.admins from anon, authenticated;
 
--- 8. Профили для тех, кто зарегистрировался раньше (сейчас это только вы).
+-- 9. Профили для тех, кто зарегистрировался раньше (сейчас это только вы).
 insert into public.profiles (id, email)
 select id, email from auth.users
 on conflict (id) do nothing;
 
+-- 10. Проверки. Если что-то не так, транзакция откатится и ничего не изменится.
+do $$
+begin
+  if not exists (
+    select 1 from pg_trigger
+    where tgrelid = 'auth.users'::regclass and tgname = 'on_auth_user_created'
+      and tgfoid = 'public.handle_new_user'::regproc and tgenabled <> 'D'
+  ) then raise exception 'Проверка: триггер on_auth_user_created не создан'; end if;
+
+  if (select count(*) from pg_policies where schemaname = 'public' and tablename = 'profiles') <> 2 then
+    raise exception 'Проверка: на profiles должно быть ровно 2 политики';
+  end if;
+
+  if exists (select 1 from information_schema.role_table_grants
+             where table_schema = 'public' and table_name = 'profiles' and grantee in ('anon', 'PUBLIC')) then
+    raise exception 'Проверка: у anon остались права на profiles';
+  end if;
+
+  if exists (select 1 from auth.users u where not exists (select 1 from public.profiles p where p.id = u.id)) then
+    raise exception 'Проверка: не у всех пользователей есть профиль';
+  end if;
+
+  if (select count(*) from public.admins) < 1 then
+    raise exception 'Проверка: таблица admins пуста';
+  end if;
+end $$;
+
 commit;
 
--- Проверка после запуска (можно выполнить отдельно):
+-- После запуска можно выполнить отдельно, чтобы посмотреть результат:
 -- select (select count(*) from auth.users) users, (select count(*) from public.profiles) profiles,
 --        (select count(*) from public.admins) admins;
