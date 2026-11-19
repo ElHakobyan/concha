@@ -277,6 +277,20 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 .auth-link:hover { color: var(--ink); }
 .acc-info { font-size: 12.5px; color: var(--muted); margin-bottom: 18px; line-height: 1.7; }
 .hello { font-size: 16px; margin-bottom: 18px; }
+/* AUTH: мои заказы */
+.my-orders { margin: -4px 0 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+.my-orders h4 { font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
+.my-orders ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; max-height: 300px; overflow-y: auto; }
+.mo-item { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: #faf8f5; font-size: 12.5px; }
+.mo-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 4px; }
+.mo-top b { font-weight: 600; }
+.mo-st { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 99px; background: var(--beige); white-space: nowrap; }
+.mo-st.done, .mo-st.shipped { background: #e3eee4; color: #2f6a3b; }
+.mo-st.cancelled { background: #f3e1dd; color: #9a3a2b; }
+.mo-date, .mo-lines { color: var(--muted); }
+.mo-lines { margin-top: 4px; line-height: 1.5; }
+.mo-total { margin-top: 6px; font-weight: 600; }
+.mo-empty { font-size: 12.5px; color: var(--muted); }
 /* AUTH: выбор As User / As Admin */
 .auth { border-radius: 16px; }
 .auth[open] { animation: authIn .28s cubic-bezier(.2,.7,.2,1); }
