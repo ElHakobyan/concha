@@ -458,3 +458,11 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
   .pd-info { padding: 20px 18px 22px; }
   .pd-info h3 { font-size: 26px; }
 }
+
+/* Compact signed-in account menu */
+.icons { position: relative; }
+.profile-menu { position: absolute; right: 54px; top: calc(100% + 14px); z-index: 35; width: min(260px, 75vw); padding: 14px; background: #faf8f5; border: 1px solid var(--line); box-shadow: 0 8px 25px #0002; }
+.profile-menu[hidden] { display: none; }
+.profile-email { display: block; font-size: 12px; overflow-wrap: anywhere; padding-bottom: 12px; color: var(--ink); }
+.profile-menu button { display: block; width: 100%; text-align: left; padding: 10px 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font: inherit; font-size: 12px; }
+.profile-menu button:hover { background: #eee8e0; }
