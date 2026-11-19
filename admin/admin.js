@@ -39,22 +39,39 @@ function show(view) {
 // ---------- вход ----------
 async function start() {
   if (!cfg.url || !cfg.anonKey || !window.supabase) return show("setupView");
+  // Capture the recovery marker before Supabase consumes and removes URL tokens.
+  const recoveryLink = new URLSearchParams(location.hash.slice(1)).get("type") === "recovery"
+    || new URLSearchParams(location.search).get("type") === "recovery";
+  const showRecovery = () => {
+    show("loginView");
+    $("loginFields").hidden = true;
+    $("newPassFields").hidden = false;
+    setLoginMsg("");
+  };
   db = window.supabase.createClient(cfg.url, cfg.anonKey);
+  if (recoveryLink) showRecovery();
   db.auth.onAuthStateChange(event => {
     // Сессия закончилась или вышли в другой вкладке — сразу закрываем панель.
     if (event === "SIGNED_OUT" && !$("appView").hidden) {
       show("loginView");
       setLoginMsg("Сеанс завершён. Войдите снова.", true);
     }
-    if (event === "PASSWORD_RECOVERY") {
-      show("loginView");
-      $("loginFields").hidden = true;
-      $("newPassFields").hidden = false;
-    }
+    if (event === "PASSWORD_RECOVERY") showRecovery();
   });
-  const { data } = await db.auth.getSession();
-  if (data.session && !location.hash.includes("type=recovery")) await enter(data.session);
-  else if (!location.hash.includes("type=recovery")) show("loginView");
+  const { data, error } = await db.auth.getSession();
+  if (recoveryLink) {
+    showRecovery();
+    if (error || !data.session) {
+      $("newPassFields").hidden = true;
+      $("loginFields").hidden = false;
+      setLoginMsg("Ссылка восстановления недействительна или истекла. Запросите новое письмо.", true);
+    }
+    return;
+  }
+  // The auth event may fire during getSession(), including for PKCE recovery links.
+  if (!$("newPassFields").hidden) return;
+  if (data.session) await enter(data.session);
+  else show("loginView");
 }
 
 async function enter(session) {
