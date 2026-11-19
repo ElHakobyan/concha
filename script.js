@@ -453,7 +453,6 @@ function renderAuth() {
   adSubmit.textContent = adminBusy ? t("auth_wait") : t("auth_sub_admin");
   adSubmit.disabled = adminBusy; adSubmit.classList.toggle("busy", adminBusy);
   if (adminMsgKey) adminMsg.textContent = t(adminMsgKey);
-  document.getElementById("toAdmin").hidden = !(user && isAdmin);
   renderMyOrders();
   if (authDlg.open) placeAuth();   // ширина меняется между выбором роли и формой
   adminForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
@@ -494,7 +493,7 @@ function setAdminMsg(key, ok) { adminMsgKey = key || null; adminMsg.className = 
 function focusAuth() {
   const user = currentUser() && authMode !== "reset";
   const pane = user ? "account" : authMode === "reset" ? "user" : authView;
-  const first = pane === "account" ? (isAdmin ? "toAdmin" : "logout")
+  const first = pane === "account" ? "logout"
     : pane === "choose" ? null
     : pane === "admin" ? "adEmail"
     : authMode === "register" ? "aName" : authMode === "reset" ? "aPass" : "aEmail";
