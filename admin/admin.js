@@ -703,10 +703,26 @@ $("orderList").addEventListener("change", async e => {
   const sel = e.target.closest("select[data-id]");
   if (!sel) return;
   const id = Number(sel.dataset.id);
-  const { error } = await db.from("orders").update({ status: sel.value }).eq("id", id);
-  if (error) { toast(errText(error), true); return loadOrders(); }
-  orders.find(o => o.id === id).status = sel.value;
-  toast(`Заказ №${id}: ${STATUSES[sel.value].toLowerCase()}`);
+  // "Отправлен" = передан курьеру. Сервер сам обновляет статус и
+  // отправляет одно письмо (с проверкой прав администратора).
+  if (sel.value === "shipped") {
+    sel.disabled = true;
+    try {
+      const { data, error } = await db.functions.invoke("courier-notification", { body: { orderId: id } });
+      if (error || !data?.ok) throw new Error(data?.error || error?.message || "Не удалось отправить уведомление");
+      orders.find(o => o.id === id).status = "shipped";
+      toast(data.alreadySent ? "Уведомление уже отправлялось" : `Заказ №${id}: покупателю отправлено письмо о доставке`);
+    } catch (err) {
+      toast("Уведомление не отправлено: " + err.message, true);
+      await loadOrders();
+      return;
+    } finally { sel.disabled = false; }
+  } else {
+    const { error } = await db.from("orders").update({ status: sel.value }).eq("id", id);
+    if (error) { toast(errText(error), true); return loadOrders(); }
+    orders.find(o => o.id === id).status = sel.value;
+    toast(`Заказ №${id}: ${STATUSES[sel.value].toLowerCase()}`);
+  }
   renderOrders();
   if (loaded.products) loadProducts(); // отмена возвращает товары на склад
 });
