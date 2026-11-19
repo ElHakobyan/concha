@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
   if (!order) return reply(404, { error: "not_found" });
   if (order.courier_email_sent_at) return reply(200, { ok: true, alreadySent: true });
   if (order.status === "cancelled" || order.status === "done") return reply(409, { error: "order_not_deliverable" });
-  if (!order.email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(order.email)) return reply(422, { error: "customer_email_missing" });
+  if (!order.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.email)) return reply(422, { error: "customer_email_missing" });
   const now = new Date().toISOString();
   // Atomic claim prevents two administrators sending duplicate emails concurrently.
   const { data: claimed, error: claimError } = await db.from("orders")
