@@ -406,6 +406,10 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 .dd-list:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .dd-item { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .dd-item img { width: 72px; height: 72px; object-fit: cover; display: block; background: var(--beige); }
+.dd-item img[data-open] { cursor: pointer; transition: opacity .15s; }
+.dd-item img[data-open]:hover { opacity: .8; }
+.dd-open { background: none; border: 0; padding: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; cursor: pointer; text-align: left; }
+.dd-open:hover { text-decoration: underline; text-underline-offset: 3px; }
 .dd-name { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; }
 .dd-mat { font-size: 11px; color: var(--muted); margin: 2px 0 4px; }
 .dd-price { font-size: 12px; font-weight: 600; }

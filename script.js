@@ -878,8 +878,8 @@ function renderCats() {
     const items = products.filter(p => p.tags.includes(key));
     box.querySelector(".dd").innerHTML = `<div class="dd-list" tabindex="0" role="list">` + items.map(p => `
       <div class="dd-item" role="listitem">
-        <img src="${esc(p.img)}" alt="${esc(pName(p))}" loading="lazy">
-        <div class="dd-info"><div class="dd-name">${esc(pName(p))}</div><div class="dd-mat">${esc(pMat(p))}</div><div class="dd-price">${soldOut(p) ? t("sold_out") : priceHtml(p)}</div></div>
+        <img src="${esc(p.img)}" alt="${esc(pName(p))}" loading="lazy" data-open="${esc(p.name)}">
+        <div class="dd-info"><div class="dd-name"><button type="button" class="dd-open" data-open="${esc(p.name)}">${esc(pName(p))}</button></div><div class="dd-mat">${esc(pMat(p))}</div><div class="dd-price">${soldOut(p) ? t("sold_out") : priceHtml(p)}</div></div>
         <button type="button" class="dd-add" data-name="${esc(p.name)}" aria-label="${t("cart_add")}: ${esc(pName(p))}"${soldOut(p) ? " disabled" : ""}>+</button>
       </div>`).join("") + `</div><button type="button" class="dd-all" data-cat="${key}">${t("dd_view_all")}</button>`;
   });
@@ -903,6 +903,8 @@ function setCatFilter(key) { catFilter = key; renderProducts(); }
 catsEl.addEventListener("click", e => {
   const btn = e.target.closest(".cat-btn");
   if (btn) { const key = btn.closest(".cat").dataset.cat; setCat(key, openCatKey !== key); return; }
+  const o = e.target.closest("[data-open]");
+  if (o) { setCat(null, false); return openProduct(o.dataset.open); }
   const add = e.target.closest(".dd-add");
   if (add) {
     if (add.disabled) return;
