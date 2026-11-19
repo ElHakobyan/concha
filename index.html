@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@400;500;600&family=Noto+Sans+Armenian:wght@400;500;600&family=Noto+Serif+Armenian:wdth,wght@87.5,300..500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet" href="styles.css?v=20261119d">
+  <link rel="stylesheet" href="styles.css?v=20261119e">
 </head>
 <body>
   <div class="topbar">
@@ -212,6 +212,11 @@
     <div id="account" hidden>
       <p class="hello" id="hello"></p>
       <p class="acc-info" id="accInfo"></p>
+      <section class="my-orders" id="myOrders" hidden>
+        <h4 data-i18n="orders_my"></h4>
+        <p class="mo-empty" id="moEmpty" data-i18n="orders_none" hidden></p>
+        <ul id="moList"></ul>
+      </section>
       <a class="btn btn-line" id="toAdmin" href="admin/" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/></svg><span data-i18n="auth_open_admin"></span></a>
       <button class="btn" type="button" id="logout" data-i18n="auth_logout"></button>
     </div>
@@ -219,7 +224,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="config.js?v=20261119b"></script>
-  <script src="i18n.js?v=20261119d"></script>
-  <script src="script.js?v=20261119d"></script>
+  <script src="i18n.js?v=20261119e"></script>
+  <script src="script.js?v=20261119f"></script>
 </body>
 </html>

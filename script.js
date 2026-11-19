@@ -231,13 +231,20 @@ async function backend(fn, args) {
   const cfg = window.PERLA_BACKEND || {};
   const fail = code => Object.assign(new Error(code), { code });
   if (!cfg.url || !cfg.anonKey) throw fail("not_configured");
+  // Если покупатель вошёл — передаём его токен, чтобы заказ привязался к аккаунту («Мои заказы»).
+  // getSession() сам обновляет просроченный токен.
+  let token = null;
+  if (sb && session) { try { const { data } = await sb.auth.getSession(); token = data.session && data.session.access_token; } catch (e) {} }
+  const call = tok => fetch(cfg.url.replace(/\/+$/, "") + "/rest/v1/rpc/" + fn, {
+    method: "POST",
+    headers: Object.assign({ apikey: cfg.anonKey, "Content-Type": "application/json" }, tok ? { Authorization: "Bearer " + tok } : {}),
+    body: JSON.stringify(args),
+  });
   let res;
   try {
-    res = await fetch(cfg.url.replace(/\/+$/, "") + "/rest/v1/rpc/" + fn, {
-      method: "POST",
-      headers: { apikey: cfg.anonKey, "Content-Type": "application/json" },
-      body: JSON.stringify(args),
-    });
+    res = await call(token);
+    // Токен не приняли (истёк/отозван) — не теряем заказ, отправляем как гость.
+    if (res.status === 401 && token) res = await call(null);
   } catch (e) { throw fail("network"); }
   const data = await res.json().catch(() => null);
   if (!res.ok) throw fail((data && data.message) || "http_" + res.status);
@@ -276,6 +283,7 @@ orderForm.addEventListener("submit", async e => {
     const id = await backend("place_order", order);
     cart = {}; saveCart(); orderForm.reset(); orderFields.hidden = true;
     setCartMsg("cart_done", true, { id });
+    if (session) loadMyOrders().then(renderAuth);
   } catch (err) {
     setCartMsg(ORDER_ERRORS[err.code] || "order_err_net", false);
   } finally {
@@ -360,8 +368,52 @@ async function loadProfile() {
   // Есть ли права администратора — спрашиваем у базы (is_admin), сама страница ничего не решает.
   try { const { data: adm } = await sb.rpc("is_admin"); isAdmin = adm === true; }
   catch (e) { isAdmin = false; }
+  await loadMyOrders();
   renderAuth();
   prefillOrder();
+}
+
+// «Мои заказы»: только заказы этого аккаунта. Фильтр по user_id нужен и для админа
+// (ему база отдаёт все заказы), а чужие заказы покупателю не отдаст сама база (RLS).
+// Пока колонки user_id нет (не запущен supabase/my-orders.sql) — раздел просто скрыт.
+let myOrders = null;
+async function loadMyOrders() {
+  myOrders = null;
+  if (!sb || !session) return;
+  try {
+    const { data, error } = await sb.from("orders").select("id,created_at,status,items,total")
+      .eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(30);
+    if (!error) myOrders = data || [];
+  } catch (e) { myOrders = null; }
+}
+
+function renderMyOrders() {
+  const box = document.getElementById("myOrders");
+  box.hidden = !currentUser() || myOrders === null;
+  if (box.hidden) return;
+  document.getElementById("moEmpty").hidden = myOrders.length > 0;
+  const list = document.getElementById("moList");
+  list.textContent = "";
+  const locale = { hy: "hy-AM", ru: "ru-RU", en: "en-US" }[lang] || "ru-RU";
+  myOrders.forEach(o => {
+    const li = document.createElement("li"); li.className = "mo-item";
+    const top = document.createElement("div"); top.className = "mo-top";
+    const no = document.createElement("b"); no.textContent = t("orders_no").replace("{id}", o.id);
+    const st = document.createElement("span"); st.className = "mo-st " + o.status; st.textContent = t("st_" + o.status);
+    top.append(no, st);
+    const date = document.createElement("div"); date.className = "mo-date";
+    date.textContent = new Date(o.created_at).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
+    const lines = document.createElement("div"); lines.className = "mo-lines";
+    (Array.isArray(o.items) ? o.items : []).forEach((it, i) => {
+      const p = products.find(x => x.name === it.name);
+      if (i) lines.append(document.createElement("br"));
+      lines.append(`${p ? pName(p) : it.name} × ${it.qty}`);
+    });
+    const total = document.createElement("div"); total.className = "mo-total";
+    total.textContent = `${t("orders_total")}: ${money(Number(o.total))}`;
+    li.append(top, date, lines, total);
+    list.append(li);
+  });
 }
 
 // Если покупатель вошёл, подставляем его данные в форму заказа (только пустые поля).
@@ -402,6 +454,7 @@ function renderAuth() {
   adSubmit.disabled = adminBusy; adSubmit.classList.toggle("busy", adminBusy);
   if (adminMsgKey) adminMsg.textContent = t(adminMsgKey);
   document.getElementById("toAdmin").hidden = !(user && isAdmin);
+  renderMyOrders();
   adminForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
   authForm.querySelector(".tabs").hidden = reset;
   authForm.querySelectorAll("[data-reg]").forEach(el => { el.hidden = !reg; });
@@ -622,7 +675,7 @@ authForm.addEventListener("submit", async e => {
 if (sb) {
   sb.auth.onAuthStateChange((event, s) => {
     session = s || null;
-    if (!session) { profile = null; isAdmin = false; }
+    if (!session) { profile = null; isAdmin = false; myOrders = null; }
     if (event === "PASSWORD_RECOVERY") { authMode = "reset"; setTimeout(() => openAuth(), 0); }
     // Внутри этого обработчика нельзя ждать другие запросы Supabase — откладываем.
     setTimeout(loadProfile, 0);
