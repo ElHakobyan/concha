@@ -1,0 +1,43 @@
+name: Deploy database
+
+# Применение миграций к рабочей базе Supabase. Только вручную (Actions → Run workflow).
+# По умолчанию показывает, что будет применено (dry run). Чтобы применить, поставьте галочку apply.
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Применить миграции (без галочки только показать план)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-db
+  cancel-in-progress: false
+
+env:
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+  SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+  PROJECT_REF: xyslzdkhxfhqeyzaiqen
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase link --project-ref "$PROJECT_REF"
+      # Эти две миграции были выполнены вручную до появления CI. Отмечаем их как применённые,
+      # чтобы они не запускались повторно (повторная отметка безопасна).
+      - name: Отметить базовые миграции как применённые
+        run: supabase migration repair --status applied 20261101000000 20261101000100
+      - name: План (dry run)
+        run: supabase db push --dry-run
+      - name: Применить
+        if: ${{ inputs.apply }}
+        run: supabase db push

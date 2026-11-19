@@ -1,0 +1,37 @@
+name: Deploy site
+
+# Выпуск сайта на Cloudflare (Worker "concha"). Запускается после слияния в main
+# и ждёт подтверждения в окружении "production".
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "supabase/**"
+      - "README.md"
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/deploy-db.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/check-site.mjs
+      - run: bash scripts/build-site.sh
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

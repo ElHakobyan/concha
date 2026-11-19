@@ -1,0 +1,9 @@
+# Локальная копия Supabase для проверок (supabase start). Рабочий проект настраивается в панели.
+project_id = "concha"
+
+[api]
+enabled = true
+
+[db]
+port = 54322
+major_version = 17
