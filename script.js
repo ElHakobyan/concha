@@ -322,10 +322,16 @@ document.getElementById("form").addEventListener("submit", async e => {
 const authDlg = document.getElementById("auth");
 const authForm = document.getElementById("authForm");
 const authMsg = document.getElementById("authMsg");
+// Сообщения формы администратора (отдельно от формы покупателя).
+const adminForm = document.getElementById("adminForm");
+const adminMsg = document.getElementById("adminMsg");
+let adminBusy = false, adminMsgKey = null;
 const userBtn = document.getElementById("userBtn");
 let authMode = "register";          // register | login | reset (новый пароль по ссылке из письма)
 let authBusy = false;
+let authView = "choose";            // choose | user | admin — какое окно показать гостю
 let session = null, profile = null;
+let isAdmin = false;                // только для показа кнопки «Открыть админку»; права всё равно проверяет база
 
 // Старый демо-режим хранил аккаунты в браузере. Убираем эти данные.
 try { localStorage.removeItem("users"); localStorage.removeItem("session"); } catch (e) {}
@@ -351,6 +357,9 @@ async function loadProfile() {
   if (!sb || !session) { profile = null; return renderAuth(); }
   const { data } = await sb.from("profiles").select("first_name,last_name,phone").eq("id", session.user.id).maybeSingle();
   profile = data || null;
+  // Есть ли права администратора — спрашиваем у базы (is_admin), сама страница ничего не решает.
+  try { const { data: adm } = await sb.rpc("is_admin"); isAdmin = adm === true; }
+  catch (e) { isAdmin = false; }
   renderAuth();
   prefillOrder();
 }
@@ -365,13 +374,35 @@ function prefillOrder() {
   fill("oEmail", u.email);
 }
 
+let lastPane = null;
 function renderAuth() {
   const user = currentUser();
   const mode = user && authMode !== "reset" ? "account" : authMode;
   const reg = mode === "register", reset = mode === "reset";
-  authForm.hidden = mode === "account";
-  document.getElementById("account").hidden = mode !== "account";
-  document.getElementById("authTitle").textContent = t(mode === "account" ? "auth_account" : reset ? "auth_newpass" : reg ? "auth_register" : "auth_login");
+  // Какое окно видно: аккаунт, выбор роли, форма покупателя или форма администратора.
+  const pane = mode === "account" ? "account" : reset ? "user" : authView;
+  authForm.hidden = pane !== "user";
+  adminForm.hidden = pane !== "admin";
+  document.getElementById("authChoose").hidden = pane !== "choose";
+  document.getElementById("account").hidden = pane !== "account";
+  document.getElementById("authBack").hidden = !(pane === "user" && !reset || pane === "admin");
+  const title = pane === "choose" ? "auth_welcome" : pane === "admin" ? "auth_admin_title" : mode === "account" ? "auth_account" : reset ? "auth_newpass" : reg ? "auth_register" : "auth_login";
+  document.getElementById("authTitle").textContent = t(title);
+  const sub = document.getElementById("authSub");
+  sub.hidden = !(pane === "choose" || pane === "admin");
+  sub.textContent = pane === "choose" ? t("auth_choose") : pane === "admin" ? t("auth_admin_sub") : "";
+  if (pane !== lastPane) {
+    const el = { account: "account", choose: "authChoose", user: "authForm", admin: "adminForm" }[pane];
+    const node = document.getElementById(el);
+    node.classList.remove("pane-in"); void node.offsetWidth; node.classList.add("pane-in");
+    lastPane = pane;
+  }
+  const adSubmit = document.getElementById("adminSubmit");
+  adSubmit.textContent = adminBusy ? t("auth_wait") : t("auth_sub_admin");
+  adSubmit.disabled = adminBusy; adSubmit.classList.toggle("busy", adminBusy);
+  if (adminMsgKey) adminMsg.textContent = t(adminMsgKey);
+  document.getElementById("toAdmin").hidden = !(user && isAdmin);
+  adminForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
   authForm.querySelector(".tabs").hidden = reset;
   authForm.querySelectorAll("[data-reg]").forEach(el => { el.hidden = !reg; });
   authForm.querySelectorAll("[data-login]").forEach(el => { el.hidden = mode !== "login"; });
@@ -385,6 +416,7 @@ function renderAuth() {
   const submit = document.getElementById("authSubmit");
   submit.textContent = authBusy ? t("auth_wait") : t(reset ? "auth_sub_newpass" : reg ? "auth_sub_reg" : "auth_sub_login");
   submit.disabled = authBusy;
+  submit.classList.toggle("busy", authBusy);
   document.getElementById("aPass").autocomplete = reg || reset ? "new-password" : "current-password";
   authForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
   if (user) {
@@ -403,17 +435,53 @@ function renderAuth() {
 let authMsgKey = null;
 function setAuthMsg(key, ok) { authMsgKey = key || null; authMsg.className = "msg " + (ok ? "ok" : "err"); authMsg.textContent = key ? t(key) : ""; }
 
-function openAuth(keepMsg) {
-  if (keepMsg !== true) setAuthMsg("");
-  renderAuth();
-  if (!authDlg.open) authDlg.showModal();
-  const first = currentUser() && authMode !== "reset" ? "logout" : authMode === "register" ? "aName" : authMode === "reset" ? "aPass" : "aEmail";
-  document.getElementById(first).focus();
+function setAdminMsg(key, ok) { adminMsgKey = key || null; adminMsg.className = "msg " + (ok ? "ok" : "err"); adminMsg.textContent = key ? t(key) : ""; }
+
+function focusAuth() {
+  const user = currentUser() && authMode !== "reset";
+  const pane = user ? "account" : authMode === "reset" ? "user" : authView;
+  const first = pane === "account" ? (isAdmin ? "toAdmin" : "logout")
+    : pane === "choose" ? null
+    : pane === "admin" ? "adEmail"
+    : authMode === "register" ? "aName" : authMode === "reset" ? "aPass" : "aEmail";
+  const el = first ? document.getElementById(first) : document.querySelector("#authChoose .role");
+  if (el) el.focus();
 }
 
-userBtn.addEventListener("click", openAuth);
-document.getElementById("authClose").addEventListener("click", () => authDlg.close());
-authDlg.addEventListener("click", e => { if (e.target === authDlg) authDlg.close(); });
+// keepMsg === true — открыть с уже готовым сообщением (после ссылки из письма) сразу на форме покупателя.
+function openAuth(keepMsg) {
+  if (keepMsg !== true) { setAuthMsg(""); setAdminMsg(""); if (authMode !== "reset") authView = "choose"; }
+  else authView = "user";
+  authDlg.classList.remove("closing");
+  renderAuth();
+  if (!authDlg.open) authDlg.showModal();
+  focusAuth();
+}
+
+// Плавное закрытие (Escape, крестик, клик по фону).
+function closeAuth() {
+  if (!authDlg.open || authDlg.classList.contains("closing")) return;
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) return authDlg.close();
+  authDlg.classList.add("closing");
+  setTimeout(() => { authDlg.classList.remove("closing"); authDlg.close(); }, 180);
+}
+
+function showAuthView(v) {
+  authView = v; setAuthMsg(""); setAdminMsg("");
+  if (v === "user" && authMode === "reset") authMode = "login";
+  renderAuth(); focusAuth();
+}
+
+userBtn.addEventListener("click", () => openAuth());
+document.getElementById("authClose").addEventListener("click", closeAuth);
+authDlg.addEventListener("click", e => { if (e.target === authDlg) closeAuth(); });
+authDlg.addEventListener("cancel", e => { e.preventDefault(); closeAuth(); });
+document.getElementById("authChoose").addEventListener("click", e => {
+  const b = e.target.closest(".role");
+  if (b) showAuthView(b.dataset.view);
+});
+document.getElementById("authBack").addEventListener("click", () => showAuthView("choose"));
 authForm.querySelector(".tabs").addEventListener("click", e => {
   const b = e.target.closest("button[data-mode]");
   if (!b) return;
@@ -421,8 +489,57 @@ authForm.querySelector(".tabs").addEventListener("click", e => {
 });
 document.getElementById("logout").addEventListener("click", async () => {
   if (sb) await sb.auth.signOut().catch(() => {});
-  session = null; profile = null;
-  authMode = "login"; renderAuth(); authDlg.close();
+  session = null; profile = null; isAdmin = false;
+  authMode = "login"; authView = "choose"; renderAuth(); closeAuth();
+});
+
+// ---------- вход администратора ----------
+// Та же Supabase Auth, что и у покупателей. Выбор «As Admin» сам по себе ничего не даёт:
+// после входа спрашиваем базу (is_admin), а каждую операцию в админке база проверяет ещё раз (RLS).
+const adminUrl = () => new URL("admin/", siteUrl()).href;
+
+adminForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (adminBusy) return;
+  const email = document.getElementById("adEmail").value.trim().toLowerCase();
+  const pw = document.getElementById("adPass").value;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAdminMsg("auth_err_email");
+  if (!pw) return setAdminMsg("auth_err_login");
+  if (!sb) return setAdminMsg("auth_err_offline");
+  setAdminMsg("");
+  const wasSignedIn = !!session;
+  adminBusy = true; renderAuth();
+  try {
+    const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    if (error) throw error;
+    const { data: ok, error: rpcErr } = await sb.rpc("is_admin");
+    if (rpcErr) throw rpcErr;
+    if (ok === true) {
+      isAdmin = true;
+      setAdminMsg("auth_admin_go", true);
+      location.href = adminUrl();
+      return;
+    }
+    // Прав нет. Если до этого никто не был в аккаунте — выходим, чтобы не оставлять случайный вход.
+    if (!wasSignedIn) { await sb.auth.signOut().catch(() => {}); setAdminMsg("auth_admin_denied"); }
+    else setAdminMsg("auth_admin_denied_user");
+    document.getElementById("adPass").value = "";
+  } catch (err) { setAdminMsg(authErrKey(err)); }
+  finally { adminBusy = false; renderAuth(); }
+});
+
+document.getElementById("adForgot").addEventListener("click", async () => {
+  const email = document.getElementById("adEmail").value.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAdminMsg("auth_err_forgot");
+  if (!sb) return setAdminMsg("auth_err_offline");
+  adminBusy = true; renderAuth();
+  try {
+    // Ссылка из письма ведёт в админку: там есть форма нового пароля.
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: adminUrl() });
+    if (error) throw error;
+    setAdminMsg("auth_reset_sent", true);
+  } catch (err) { setAdminMsg(authErrKey(err)); }
+  finally { adminBusy = false; renderAuth(); }
 });
 
 // Перевод ошибок Supabase в понятные сообщения.
@@ -497,6 +614,7 @@ authForm.addEventListener("submit", async e => {
       if (error) throw error;
       authForm.reset();
       setAuthMsg("");
+      closeAuth();   // вошли — закрываем окно, иконка в шапке показывает аккаунт
     }
   });
 });
@@ -504,7 +622,7 @@ authForm.addEventListener("submit", async e => {
 if (sb) {
   sb.auth.onAuthStateChange((event, s) => {
     session = s || null;
-    if (!session) profile = null;
+    if (!session) { profile = null; isAdmin = false; }
     if (event === "PASSWORD_RECOVERY") { authMode = "reset"; setTimeout(() => openAuth(), 0); }
     // Внутри этого обработчика нельзя ждать другие запросы Supabase — откладываем.
     setTimeout(loadProfile, 0);
@@ -814,7 +932,7 @@ async function backendGet(path) {
 })();
 
 // Глаз рядом с паролем: показать / скрыть.
-document.querySelectorAll("#authForm .pw .eye").forEach(btn => btn.addEventListener("click", e => {
+document.querySelectorAll("#auth .pw .eye").forEach(btn => btn.addEventListener("click", e => {
   e.preventDefault();
   const input = btn.previousElementSibling;
   const show = input.type === "password";
