@@ -336,6 +336,9 @@ const adminForm = document.getElementById("adminForm");
 const adminMsg = document.getElementById("adminMsg");
 let adminBusy = false, adminMsgKey = null;
 const userBtn = document.getElementById("userBtn");
+const profileMenu = document.getElementById("profileMenu");
+const profileEmail = document.getElementById("profileEmail");
+function closeProfileMenu() { profileMenu.hidden = true; userBtn.setAttribute("aria-expanded", "false"); }
 let authMode = "register";          // register | login | reset (новый пароль по ссылке из письма)
 let authBusy = false;
 let authView = "user";            // choose | user | admin — какое окно показать гостю
@@ -475,6 +478,8 @@ function renderAuth() {
   const av = document.getElementById("avatar");
   av.textContent = user ? (user.name || user.email).trim().charAt(0).toUpperCase() : "";
   userBtn.classList.toggle("in", !!user);
+  profileEmail.textContent = user ? user.email : "";
+  if (!user) closeProfileMenu();
   if (authMsgKey) authMsg.textContent = t(authMsgKey);
 }
 
@@ -533,7 +538,27 @@ function showAuthView(v) {
   renderAuth(); focusAuth();
 }
 
-userBtn.addEventListener("click", () => { if (session && authMode !== "reset") location.href = "orders/"; else openAuth(); });
+userBtn.addEventListener("click", () => {
+  if (session && authMode !== "reset") {
+    profileMenu.hidden = !profileMenu.hidden;
+    userBtn.setAttribute("aria-expanded", String(!profileMenu.hidden));
+  } else { closeProfileMenu(); openAuth(); }
+});
+document.getElementById("profileLogout").addEventListener("click", async () => {
+  if (!sb) return;
+  const btn = document.getElementById("profileLogout");
+  btn.disabled = true;
+  try {
+    const { error } = await sb.auth.signOut();
+    if (error) throw error;
+    closeProfileMenu();
+    session = null; profile = null; myOrders = null;
+    renderAuth();
+  } catch (err) { alert(err.message || "Sign out failed"); }
+  finally { btn.disabled = false; }
+});
+document.addEventListener("click", e => { if (!profileMenu.hidden && !profileMenu.contains(e.target) && !userBtn.contains(e.target)) closeProfileMenu(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !profileMenu.hidden) { closeProfileMenu(); userBtn.focus(); } });
 document.getElementById("authClose").addEventListener("click", closeAuth);
 authDlg.addEventListener("click", e => { if (e.target === authDlg) closeAuth(); });
 authDlg.addEventListener("cancel", e => { e.preventDefault(); closeAuth(); });
