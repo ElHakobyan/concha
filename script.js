@@ -168,7 +168,7 @@ function renderCart() {
   const names = Object.keys(cart).filter(k => byName(k) && cart[k] > 0);
   const qty = names.reduce((s, k) => s + cart[k], 0);
   const total = names.reduce((s, k) => s + cart[k] * byName(k).price, 0);
-  count.textContent = qty;
+  count.textContent = qty > 0 ? String(qty) : "";
   count.hidden = qty === 0;
   document.getElementById("cartTotal").textContent = money(total);
   checkoutBtn.disabled = qty === 0 || sendingOrder;
