@@ -204,8 +204,6 @@ function addToCart(name) {
 }
 
 grid.addEventListener("click", e => {
-  const fav = e.target.closest("[data-favorite]");
-  if (fav) return toggleFavorite(fav.dataset.favorite);
   const o = e.target.closest("[data-open]");
   if (o) return openProduct(o.dataset.open);
   const b = e.target.closest("button.add");
