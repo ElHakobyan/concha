@@ -57,7 +57,6 @@ create or replace function public.product_discount(p_name text, p_category text)
 returns numeric
 language sql
 stable
-security definer
 set search_path = public
 as $$
   select coalesce(max(percent), 0) from promotions
@@ -66,13 +65,13 @@ as $$
           or (scope = 'category' and category = p_category)
           or (scope = 'products' and p_name = any(products)));
 $$;
-revoke all on function public.product_discount(text, text) from public;
-grant execute on function public.product_discount(text, text) to anon, authenticated;
+-- Вызывается только изнутри place_order; напрямую через сайт её вызвать нельзя.
+revoke all on function public.product_discount(text, text) from public, anon, authenticated;
 
 -- ---------- 3. Баннеры (слайды на главной) ----------
 create table if not exists public.banners (
   id          bigint generated always as identity primary key,
-  img         text not null,
+  img         text not null check (img ~ '^(https://[^\s''"()<>\\]+|assets/[A-Za-z0-9._/-]+)$'),  -- только https-ссылка или файл сайта
   size        text not null default 'cover' check (size in ('cover', 'auto 100%')),  -- заполнить / целиком
   sort        int not null default 100,
   active      boolean not null default true,
@@ -171,7 +170,20 @@ $$;
 revoke all on function public.place_order(text, text, jsonb, text, text, text, text) from public;
 grant execute on function public.place_order(text, text, jsonb, text, text, text, text) to anon, authenticated;
 
--- ---------- 5. Проверки ----------
+-- ---------- 5. Лишние права ----------
+-- У гостей и покупателей по умолчанию есть TRUNCATE (очистить таблицу целиком в обход RLS),
+-- TRIGGER и REFERENCES. Через сайт ими не воспользоваться, но держать их незачем.
+do $$
+declare t text;
+begin
+  foreach t in array array['products', 'orders', 'subscribers', 'site_texts', 'promotions', 'banners', 'admins'] loop
+    if to_regclass('public.' || t) is not null then
+      execute format('revoke truncate, trigger, references on public.%I from anon, authenticated', t);
+    end if;
+  end loop;
+end $$;
+
+-- ---------- 6. Проверки ----------
 do $$
 begin
   if (select count(*) from public.admins) < 1 then
@@ -188,6 +200,22 @@ begin
   end if;
   if (select count(*) from public.banners) < 1 then
     raise exception 'Проверка: баннеры не перенесены';
+  end if;
+  if has_function_privilege('anon', 'public.product_discount(text, text)', 'execute') then
+    raise exception 'Проверка: product_discount не должна вызываться гостями';
+  end if;
+  if not has_function_privilege('anon', 'public.place_order(text, text, jsonb, text, text, text, text)', 'execute') then
+    raise exception 'Проверка: сайт не сможет оформлять заказы';
+  end if;
+  if (select prosecdef from pg_proc where oid = 'public.place_order(text, text, jsonb, text, text, text, text)'::regprocedure) is not true
+     or not exists (select 1 from pg_proc where oid = 'public.place_order(text, text, jsonb, text, text, text, text)'::regprocedure
+                    and prosrc like '%product_discount%' and prosrc like '%not archived%') then
+    raise exception 'Проверка: place_order не обновилась';
+  end if;
+  if exists (select 1 from pg_class c where c.relnamespace = 'public'::regnamespace
+             and c.relname in ('products', 'orders', 'subscribers', 'site_texts', 'promotions', 'banners', 'admins')
+             and not c.relrowsecurity) then
+    raise exception 'Проверка: на одной из таблиц выключен Row Level Security';
   end if;
 end $$;
 

@@ -86,6 +86,15 @@ alter table public.orders      enable row level security;
 alter table public.subscribers enable row level security;
 
 -- ---------- Функция: оформить заказ ----------
+-- Если уже запущен admin.sql или admin-v2.sql, их версия функции новее: повторный запуск этого файла её не откатит.
+do $guard$
+begin
+  if exists (select 1 from pg_proc where proname = 'place_order' and pronamespace = 'public'::regnamespace
+             and prosrc like '%stock%') then
+    raise notice 'place_order: оставляю более новую версию';
+    return;
+  end if;
+  execute $fn$
 create or replace function public.place_order(
   p_name text, p_phone text, p_items jsonb,
   p_email text default null, p_address text default null,
@@ -94,7 +103,7 @@ create or replace function public.place_order(
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $body$
 declare
   v_items jsonb := '[]'::jsonb;
   v_total numeric(10,2) := 0;
@@ -137,7 +146,9 @@ begin
   returning id into v_id;
   return v_id;
 end;
-$$;
+$body$;
+  $fn$;
+end $guard$;
 
 -- ---------- Функция: подписаться на рассылку ----------
 create or replace function public.subscribe(p_email text, p_lang text default null)
