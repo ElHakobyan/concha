@@ -337,7 +337,7 @@ let adminBusy = false, adminMsgKey = null;
 const userBtn = document.getElementById("userBtn");
 let authMode = "register";          // register | login | reset (новый пароль по ссылке из письма)
 let authBusy = false;
-let authView = "choose";            // choose | user | admin — какое окно показать гостю
+let authView = "user";            // choose | user | admin — какое окно показать гостю
 let session = null, profile = null;
 let isAdmin = false;                // только для показа кнопки «Открыть админку»; права всё равно проверяет база
 
@@ -432,12 +432,12 @@ function renderAuth() {
   const mode = user && authMode !== "reset" ? "account" : authMode;
   const reg = mode === "register", reset = mode === "reset";
   // Какое окно видно: аккаунт, выбор роли, форма покупателя или форма администратора.
-  const pane = mode === "account" ? "account" : reset ? "user" : authView;
+  const pane = mode === "account" ? "account" : "user";
   authForm.hidden = pane !== "user";
   adminForm.hidden = pane !== "admin";
-  document.getElementById("authChoose").hidden = pane !== "choose";
+  
   document.getElementById("account").hidden = pane !== "account";
-  document.getElementById("authBack").hidden = !(pane === "user" && !reset || pane === "admin");
+  document.getElementById("authBack").hidden = true;
   const title = pane === "choose" ? "" : pane === "admin" ? "auth_admin_title" : mode === "account" ? "auth_account" : reset ? "auth_newpass" : reg ? "auth_register" : "auth_login";
   document.getElementById("authTitle").textContent = title ? t(title) : "";
   const sub = document.getElementById("authSub");
@@ -498,13 +498,13 @@ function focusAuth() {
     : pane === "choose" ? null
     : pane === "admin" ? "adEmail"
     : authMode === "register" ? "aName" : authMode === "reset" ? "aPass" : "aEmail";
-  const el = first ? document.getElementById(first) : document.querySelector("#authChoose .role");
+  const el = first ? document.getElementById(first) : document.getElementById("aEmail");
   if (el) el.focus();
 }
 
 // keepMsg === true — открыть с уже готовым сообщением (после ссылки из письма) сразу на форме покупателя.
 function openAuth(keepMsg) {
-  if (keepMsg !== true) { setAuthMsg(""); setAdminMsg(""); if (authMode !== "reset") authView = "choose"; }
+  if (keepMsg !== true) { setAuthMsg(""); setAdminMsg(""); authView = "user"; }
   else authView = "user";
   authDlg.classList.remove("closing");
   renderAuth();
@@ -546,10 +546,6 @@ userBtn.addEventListener("click", () => openAuth());
 document.getElementById("authClose").addEventListener("click", closeAuth);
 authDlg.addEventListener("click", e => { if (e.target === authDlg) closeAuth(); });
 authDlg.addEventListener("cancel", e => { e.preventDefault(); closeAuth(); });
-document.getElementById("authChoose").addEventListener("click", e => {
-  const b = e.target.closest(".role");
-  if (b) showAuthView(b.dataset.view);
-});
 document.getElementById("authBack").addEventListener("click", () => showAuthView("choose"));
 authForm.querySelector(".tabs").addEventListener("click", e => {
   const b = e.target.closest("button[data-mode]");
@@ -559,7 +555,7 @@ authForm.querySelector(".tabs").addEventListener("click", e => {
 document.getElementById("logout").addEventListener("click", async () => {
   if (sb) await sb.auth.signOut().catch(() => {});
   session = null; profile = null; isAdmin = false;
-  authMode = "login"; authView = "choose"; renderAuth(); closeAuth();
+  authMode = "login"; authView = "user"; renderAuth(); closeAuth();
 });
 
 // ---------- вход администратора ----------
