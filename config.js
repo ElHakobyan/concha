@@ -15,5 +15,5 @@ window.PERLA_BACKEND = {
 window.PERLA_SOCIAL = {
   instagram: "https://www.instagram.com/perla.jewelry.am/",
   facebook: "",
-  whatsapp: "",
+  whatsapp: "37493838038",
 };
