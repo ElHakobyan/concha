@@ -31,6 +31,9 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round
 .icons { display: flex; gap: 22px; align-items: center; }
 .icons svg { width: 22px; height: 22px; }
 .icon-btn { background: none; border: 0; padding: 0; cursor: pointer; color: inherit; display: block; }
+.orders-shell { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.orders-shell:hover { opacity: .65; }
+.orders-shell:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .searchbar { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--line); padding-top: 12px; }
 .searchbar[hidden] { display: none; }
 .searchbar input { flex: 1; padding: 12px 14px; border: 1px solid var(--line); background: #faf8f5; font: inherit; font-size: 14px; }
