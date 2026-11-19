@@ -466,15 +466,3 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 .profile-email { display: block; font-size: 12px; overflow-wrap: anywhere; padding-bottom: 12px; color: var(--ink); }
 .profile-menu button { display: block; width: 100%; text-align: left; padding: 10px 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font: inherit; font-size: 12px; }
 .profile-menu button:hover { background: #eee8e0; }
-
-/* Favorites replaces cart icon in header, while cart checkout remains accessible after adding products */
-#cartBtn[hidden] { display: none; }
-.favorites-header { position: relative; }
-.favorites-header b { position: absolute; top: -7px; right: -9px; background: var(--ink); color: #fff; font-size: 9px; width: 15px; height: 15px; border-radius: 50%; display: grid; place-items: center; }
-.favorites-header b[hidden] { display: none; }
-.card .img .favorite-toggle, #pdMain .favorite-toggle { position: absolute; z-index: 3; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ddd; background: #fffdf9; color: #8b8178; font-size: 19px; display: grid; place-items: center; cursor: pointer; }
-.card .img .favorite-toggle.active, #pdMain .favorite-toggle.active { color: #a8432f; }
-#pdMain { position: relative; }
-.favorites-panel .favorites-view, .favorites-panel .favorites-remove { background: transparent; border: 0; cursor: pointer; color: var(--ink); }
-.favorites-panel .favorites-view { text-decoration: underline; font-size: 12px; margin-top: 8px; }
-.favorites-panel .favorites-remove { font-size: 24px; align-self: flex-start; }
