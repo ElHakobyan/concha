@@ -455,6 +455,7 @@ function renderAuth() {
   if (adminMsgKey) adminMsg.textContent = t(adminMsgKey);
   document.getElementById("toAdmin").hidden = !(user && isAdmin);
   renderMyOrders();
+  if (authDlg.open) placeAuth();   // ширина меняется между выбором роли и формой
   adminForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
   authForm.querySelector(".tabs").hidden = reset;
   authForm.querySelectorAll("[data-reg]").forEach(el => { el.hidden = !reg; });
@@ -509,6 +510,7 @@ function openAuth(keepMsg) {
   renderAuth();
   placeAuth();
   if (!authDlg.open) authDlg.showModal();
+  placeAuth();   // второй раз — уже с настоящей шириной окна
   focusAuth();
 }
 
@@ -517,7 +519,10 @@ function placeAuth() {
   authDlg.classList.add("drop");
   const r = userBtn.getBoundingClientRect();
   authDlg.style.setProperty("--drop-top", Math.max(12, Math.round(r.bottom + 8)) + "px");
-  authDlg.style.setProperty("--drop-right", Math.max(12, Math.round(innerWidth - r.right - 12)) + "px");
+  // По центру под иконкой, но не выходя за края экрана.
+  const w = authDlg.offsetWidth || 264;
+  const left = Math.min(Math.max(12, r.left + r.width / 2 - w / 2), innerWidth - w - 12);
+  authDlg.style.setProperty("--drop-left", Math.round(left) + "px");
 }
 addEventListener("resize", () => { if (authDlg.open) placeAuth(); });
 addEventListener("scroll", () => { if (authDlg.open) placeAuth(); }, { passive: true });
