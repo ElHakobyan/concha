@@ -98,6 +98,14 @@ alter table public.site_texts enable row level security;
 drop policy if exists "public reads active products" on public.products;
 create policy "public reads active products" on public.products
   for select to anon, authenticated using (active or public.is_admin());
+-- Если уже запущен admin-v2.sql, архивные товары по-прежнему скрыты от посетителей.
+do $$
+begin
+  if exists (select 1 from information_schema.columns
+             where table_schema = 'public' and table_name = 'products' and column_name = 'archived') then
+    execute 'alter policy "public reads active products" on public.products using ((active and not archived) or public.is_admin())';
+  end if;
+end $$;
 drop policy if exists "admin manages products" on public.products;
 create policy "admin manages products" on public.products
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
@@ -140,6 +148,15 @@ create policy "admin deletes product images" on storage.objects
 -- ---------- Заказ: теперь с проверкой остатка ----------
 -- То же, что в schema.sql, плюс: если у товара указан остаток, заказать больше нельзя,
 -- а после заказа остаток уменьшается.
+-- Если уже запущен admin-v2.sql, его версия функции новее (скидки, архив): повторный запуск этого файла её не откатит.
+do $guard$
+begin
+  if exists (select 1 from pg_proc where proname = 'place_order' and pronamespace = 'public'::regnamespace
+             and prosrc like '%product_discount%') then
+    raise notice 'place_order: оставляю более новую версию';
+    return;
+  end if;
+  execute $fn$
 create or replace function public.place_order(
   p_name text, p_phone text, p_items jsonb,
   p_email text default null, p_address text default null,
@@ -148,7 +165,7 @@ create or replace function public.place_order(
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $body$
 declare
   v_items jsonb := '[]'::jsonb;
   v_total numeric(10,2) := 0;
@@ -200,7 +217,9 @@ begin
   returning id into v_id;
   return v_id;
 end;
-$$;
+$body$;
+  $fn$;
+end $guard$;
 revoke all on function public.place_order(text, text, jsonb, text, text, text, text) from public;
 grant execute on function public.place_order(text, text, jsonb, text, text, text, text) to anon, authenticated;
 

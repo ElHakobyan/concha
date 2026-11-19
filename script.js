@@ -638,7 +638,7 @@ async function heroSlidesList() {
     img.src = s.src;
   })))).filter(Boolean);
   if (!loaded.length) return;
-  box.innerHTML = loaded.map(s => `<div class="slide" style="background-image:url('${esc(s.src)}');background-size:${s.size === "cover" ? "cover" : "auto 100%"}"></div>`).join("");
+  box.innerHTML = loaded.map(s => `<div class="slide" style="background-image:url('${esc(String(s.src).replace(/['"()\\\s]/g, encodeURIComponent))}');background-size:${s.size === "cover" ? "cover" : "auto 100%"}"></div>`).join("");
   const slides = [...box.children];
   let i = 0, timer = null, paused = false;
   const show = n => {
@@ -783,7 +783,7 @@ async function backendGet(path) {
           descs: { en: r.desc_en, ru: r.desc_ru, hy: r.desc_hy }, images: r.images || [],
         };
         const d = discountOf(r);
-        if (d > 0) { p.discount = d; p.oldPrice = p.price; p.price = Math.round(p.price * (1 - d / 100) * 100) / 100; }
+        if (d > 0) { p.discount = d; p.oldPrice = p.price; p.price = Math.round(p.price * (100 - d)) / 100; }
         setTags(p);
         return p;
       });
