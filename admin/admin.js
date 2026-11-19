@@ -41,6 +41,11 @@ async function start() {
   if (!cfg.url || !cfg.anonKey || !window.supabase) return show("setupView");
   db = window.supabase.createClient(cfg.url, cfg.anonKey);
   db.auth.onAuthStateChange(event => {
+    // Сессия закончилась или вышли в другой вкладке — сразу закрываем панель.
+    if (event === "SIGNED_OUT" && !$("appView").hidden) {
+      show("loginView");
+      setLoginMsg("Сеанс завершён. Войдите снова.", true);
+    }
     if (event === "PASSWORD_RECOVERY") {
       show("loginView");
       $("loginFields").hidden = true;
@@ -55,9 +60,10 @@ async function start() {
 async function enter(session) {
   const { data: ok, error } = await db.rpc("is_admin");
   if (error || !ok) {
-    await db.auth.signOut();
+    // Не выходим из аккаунта: это может быть обычный покупатель, его вход на сайте должен сохраниться.
+    // Без прав база всё равно не отдаст и не изменит ни одной защищённой строки (RLS).
     show("loginView");
-    setLoginMsg(error ? errText(error) : "У этого аккаунта нет доступа к админке. Как его дать — в supabase/README.md.", true);
+    setLoginMsg(error ? errText(error) : `У аккаунта ${session.user.email} нет доступа к админке. Войдите другим аккаунтом или вернитесь в магазин.`, true);
     return;
   }
   $("whoami").textContent = session.user.email;

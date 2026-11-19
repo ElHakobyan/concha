@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Jost:wght@400;500;600&family=Noto+Sans+Armenian:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css?v=20261119d">
 </head>
 <body>
   <!-- Вход -->
@@ -28,6 +28,7 @@
         <button class="btn" type="button" id="newPassBtn">Сохранить пароль</button>
       </div>
       <p class="msg" id="loginMsg" role="status"></p>
+      <a class="link back-shop" href="../">← Вернуться в магазин</a>
     </form>
   </main>
 
@@ -55,7 +56,7 @@
         <button type="button" data-tab="texts"><span>¶</span> Тексты сайта</button>
       </nav>
       <div class="side-foot">
-        <a href="../" target="_blank" rel="noopener">Открыть сайт ↗</a>
+        <a href="../">← Вернуться в магазин</a>
         <span id="whoami"></span>
         <button type="button" class="link" id="logoutBtn">Выйти</button>
       </div>
@@ -253,6 +254,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="../config.js"></script>
   <script src="../i18n.js"></script>
-  <script src="admin.js?v=20261119c"></script>
+  <script src="admin.js?v=20261119d"></script>
 </body>
 </html>
