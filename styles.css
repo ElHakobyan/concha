@@ -322,3 +322,36 @@ h1 { font-family: var(--serif); font-size: clamp(44px, 6.2vw, 80px); line-height
 .filterbar button { background: none; border: 0; cursor: pointer; font-size: 14px; color: var(--ink); padding: 2px 6px; }
 
 .copy .credit { opacity: .8; }
+
+/* цена со скидкой, карточка товара */
+.old { color: var(--muted); font-weight: 400; margin-right: 2px; }
+.sale { color: #a8432f; }
+.card .salebadge { background: #a8432f; color: #fff; letter-spacing: .06em; }
+.card .img, .card .name[data-open] { cursor: pointer; }
+.card .morephotos { position: absolute; right: 10px; bottom: 10px; background: rgba(255,255,255,.9); font-size: 10px; padding: 2px 7px; border-radius: 10px; }
+.pd { border: 0; padding: 0; width: min(880px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--bg); color: var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,.25); margin: auto; }
+.pd[open] { display: grid; grid-template-columns: 1.1fr 1fr; }
+.pd::backdrop { background: rgba(38,34,31,.45); }
+.pd .auth-x { z-index: 2; }
+.pd-gallery { background: linear-gradient(160deg, #eadfd2, #ddd0bf); min-width: 0; }
+.pd-main { position: relative; aspect-ratio: 1; }
+.pd-main img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pd-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255,255,255,.85); font-size: 20px; cursor: pointer; color: var(--ink); }
+.pd-nav.prev { left: 10px; } .pd-nav.next { right: 10px; }
+.pd-thumbs { display: flex; gap: 6px; padding: 8px; overflow-x: auto; }
+.pd-thumbs:empty { display: none; }
+.pd-thumbs button { flex: 0 0 56px; height: 56px; padding: 0; border: 2px solid transparent; background: none; cursor: pointer; }
+.pd-thumbs button[aria-current="true"] { border-color: var(--ink); }
+.pd-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pd-info { padding: 40px 32px 32px; display: flex; flex-direction: column; gap: 10px; }
+.pd-info h3 { font-family: var(--serif); font-size: 32px; font-weight: 500; line-height: 1.1; }
+.pd-mat { color: var(--muted); font-size: 13px; }
+.pd-price { font-size: 18px; font-weight: 600; }
+.pd-desc { font-size: 14px; line-height: 1.65; white-space: pre-line; }
+.pd-info .btn { margin-top: auto; align-self: flex-start; }
+.pd-info .btn:disabled { opacity: .4; cursor: not-allowed; }
+@media (max-width: 720px) {
+  .pd[open] { display: block; }
+  .pd-info { padding: 20px 18px 22px; }
+  .pd-info h3 { font-size: 26px; }
+}
