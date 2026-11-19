@@ -438,8 +438,8 @@ function renderAuth() {
   document.getElementById("authChoose").hidden = pane !== "choose";
   document.getElementById("account").hidden = pane !== "account";
   document.getElementById("authBack").hidden = !(pane === "user" && !reset || pane === "admin");
-  const title = pane === "choose" ? "auth_welcome" : pane === "admin" ? "auth_admin_title" : mode === "account" ? "auth_account" : reset ? "auth_newpass" : reg ? "auth_register" : "auth_login";
-  document.getElementById("authTitle").textContent = t(title);
+  const title = pane === "choose" ? "" : pane === "admin" ? "auth_admin_title" : mode === "account" ? "auth_account" : reset ? "auth_newpass" : reg ? "auth_register" : "auth_login";
+  document.getElementById("authTitle").textContent = title ? t(title) : "";
   const sub = document.getElementById("authSub");
   sub.hidden = !(pane === "choose" || pane === "admin");
   sub.textContent = pane === "choose" ? t("auth_choose") : pane === "admin" ? t("auth_admin_sub") : "";
@@ -507,9 +507,20 @@ function openAuth(keepMsg) {
   else authView = "user";
   authDlg.classList.remove("closing");
   renderAuth();
+  placeAuth();
   if (!authDlg.open) authDlg.showModal();
   focusAuth();
 }
+
+// Окно открывается маленькой панелью прямо под иконкой аккаунта.
+function placeAuth() {
+  authDlg.classList.add("drop");
+  const r = userBtn.getBoundingClientRect();
+  authDlg.style.setProperty("--drop-top", Math.max(12, Math.round(r.bottom + 8)) + "px");
+  authDlg.style.setProperty("--drop-right", Math.max(12, Math.round(innerWidth - r.right - 12)) + "px");
+}
+addEventListener("resize", () => { if (authDlg.open) placeAuth(); });
+addEventListener("scroll", () => { if (authDlg.open) placeAuth(); }, { passive: true });
 
 // Плавное закрытие (Escape, крестик, клик по фону).
 function closeAuth() {
