@@ -51,6 +51,9 @@ const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const pName = p => (p.names && p.names[lang]) || p.name;
 const pMat = p => ((p.mats && p.mats[lang]) || t(p.mat));
 const soldOut = p => p.stock === 0;
+const pDesc = p => (p.descs && (p.descs[lang] || p.descs.en || p.descs.ru)) || "";
+// Цена со скидкой: старая зачёркнута.
+const priceHtml = p => p.oldPrice ? `<s class="old">$${p.oldPrice.toFixed(2)}</s> <span class="sale">$${p.price.toFixed(2)}</span>` : `$${p.price.toFixed(2)}`;
 
 const grid = document.getElementById("products");
 const count = document.getElementById("count");
@@ -71,11 +74,11 @@ function renderProducts() {
   updateFilterbar();
   grid.innerHTML = list.map(p => `
     <article class="card">
-      <div class="img"><img src="${esc(p.img)}" alt="${esc(pName(p))}">${soldOut(p) ? `<span class="soldout">${t("sold_out")}</span>` : ""}</div>
+      <div class="img" data-open="${esc(p.name)}"><img src="${esc(p.img)}" alt="${esc(pName(p))}">${soldOut(p) ? `<span class="soldout">${t("sold_out")}</span>` : p.discount ? `<span class="soldout salebadge">−${p.discount}%</span>` : ""}${(p.images || []).length ? `<span class="morephotos">+${p.images.length}</span>` : ""}</div>
       <div class="meta">
-        <div class="name">${esc(pName(p))}</div>
+        <div class="name" data-open="${esc(p.name)}">${esc(pName(p))}</div>
         <div class="mat">${esc(pMat(p))}</div>
-        <div class="row"><span>$${p.price.toFixed(2)}</span>
+        <div class="row"><span>${priceHtml(p)}</span>
           <button class="add" data-name="${esc(p.name)}" aria-label="${t("cart_add")}: ${esc(pName(p))}"${soldOut(p) ? ` disabled title="${t("sold_out")}"` : ""}>+</button></div>
       </div>
     </article>`).join("");
@@ -200,6 +203,8 @@ function addToCart(name) {
 }
 
 grid.addEventListener("click", e => {
+  const o = e.target.closest("[data-open]");
+  if (o) return openProduct(o.dataset.open);
   const b = e.target.closest("button.add");
   if (!b || b.disabled) return;
   addToCart(b.dataset.name);
@@ -610,18 +615,30 @@ const HERO_SLIDES = [
   { src: "assets/hero4.jpg", size: "cover" },
   // { src: "assets/hero5.jpg", size: "cover" },
 ];
+// Слайды можно менять в админке (вкладка «Баннеры»); если база недоступна — берутся кадры выше.
+async function heroSlidesList() {
+  try {
+    const rows = await Promise.race([
+      backendGet("banners?select=img,size&order=sort.asc,id.asc"),
+      new Promise(res => setTimeout(() => res(null), 2500)),
+    ]);
+    if (rows && rows.length) return rows.map(r => ({ src: r.img, size: r.size }));
+  } catch (e) {}
+  return HERO_SLIDES;
+}
 (async function initHeroSlides() {
+  const SLIDES = await heroSlidesList();
   const box = document.getElementById("heroSlides");
   const ctrl = document.getElementById("heroCtrl");
   const dotsEl = document.getElementById("heroDots");
   const hero = document.getElementById("hero");
-  const loaded = (await Promise.all(HERO_SLIDES.map(s => new Promise(res => {
+  const loaded = (await Promise.all(SLIDES.map(s => new Promise(res => {
     const img = new Image();
     img.onload = () => res(s); img.onerror = () => res(null);
     img.src = s.src;
   })))).filter(Boolean);
   if (!loaded.length) return;
-  box.innerHTML = loaded.map(s => `<div class="slide" style="background-image:url('${s.src}');background-size:${s.size}"></div>`).join("");
+  box.innerHTML = loaded.map(s => `<div class="slide" style="background-image:url('${esc(s.src)}');background-size:${s.size === "cover" ? "cover" : "auto 100%"}"></div>`).join("");
   const slides = [...box.children];
   let i = 0, timer = null, paused = false;
   const show = n => {
@@ -675,7 +692,7 @@ function renderCats() {
     box.querySelector(".dd").innerHTML = `<div class="dd-list" tabindex="0" role="list">` + items.map(p => `
       <div class="dd-item" role="listitem">
         <img src="${esc(p.img)}" alt="${esc(pName(p))}" loading="lazy">
-        <div class="dd-info"><div class="dd-name">${esc(pName(p))}</div><div class="dd-mat">${esc(pMat(p))}</div><div class="dd-price">${soldOut(p) ? t("sold_out") : money(p.price)}</div></div>
+        <div class="dd-info"><div class="dd-name">${esc(pName(p))}</div><div class="dd-mat">${esc(pMat(p))}</div><div class="dd-price">${soldOut(p) ? t("sold_out") : priceHtml(p)}</div></div>
         <button type="button" class="dd-add" data-name="${esc(p.name)}" aria-label="${t("cart_add")}: ${esc(pName(p))}"${soldOut(p) ? " disabled" : ""}>+</button>
       </div>`).join("") + `</div><button type="button" class="dd-all" data-cat="${key}">${t("dd_view_all")}</button>`;
   });
@@ -746,21 +763,27 @@ async function backendGet(path) {
 }
 (async function loadFromBackend() {
   try {
-    const [rows, texts] = await Promise.all([
+    const [rows, texts, promos] = await Promise.all([
       backendGet("products?select=*&active=is.true&order=sort.asc,name.asc"),
       backendGet("site_texts?select=key,ru,en,hy").catch(() => []),
+      backendGet("promotions?select=percent,scope,category,products").catch(() => []),   // только идущие сейчас
     ]);
+    const discountOf = r => (promos || []).filter(x => x.scope === "all" || (x.scope === "category" && x.category === r.category) ||
+      (x.scope === "products" && (x.products || []).includes(r.name))).reduce((m, x) => Math.max(m, Number(x.percent)), 0);
     if (!rows) return;
     (texts || []).forEach(r => LANGS.forEach(l => { if (r[l]) I18N[l][r.key] = r[l]; }));
     // Пока admin.sql не запущен, у товаров нет фото — оставляем каталог из кода.
     if (rows.length && rows.every(r => r.img)) {
-      const list = rows.map(r => {
+      const list = rows.filter(r => !r.archived).map(r => {
         const p = {
           name: r.name, price: Number(r.price), img: r.img, cat: DB_CATS[r.category] || "c_rings",
           g: r.pricing === "gold" && r.weight != null ? Number(r.weight) : undefined, best: !!r.best, isNew: !!r.is_new, gift: !!r.gift, stock: r.stock,
           names: { en: r.name, ru: r.name_ru, hy: r.name_hy },
           mats: { en: r.mat_en, ru: r.mat_ru, hy: r.mat_hy },
+          descs: { en: r.desc_en, ru: r.desc_ru, hy: r.desc_hy }, images: r.images || [],
         };
+        const d = discountOf(r);
+        if (d > 0) { p.discount = d; p.oldPrice = p.price; p.price = Math.round(p.price * (1 - d / 100) * 100) / 100; }
         setTags(p);
         return p;
       });
@@ -800,3 +823,48 @@ document.querySelectorAll("#authForm .pw .eye").forEach(btn => btn.addEventListe
   btn.setAttribute("aria-label", t(show ? "pw_hide" : "pw_show"));
   input.focus();
 }));
+
+// ---------- карточка товара: фото, описание ----------
+const pDlg = document.getElementById("product");
+let pCur = null, pIdx = 0;
+function renderProduct() {
+  const p = pCur; if (!p) return;
+  const pics = [p.img, ...(p.images || [])];
+  pIdx = (pIdx + pics.length) % pics.length;
+  document.getElementById("pdMain").innerHTML = `<img src="${esc(pics[pIdx])}" alt="${esc(pName(p))}">` +
+    (pics.length > 1 ? `<button type="button" class="pd-nav prev" data-step="-1" aria-label="${t("slide_prev")}">‹</button><button type="button" class="pd-nav next" data-step="1" aria-label="${t("slide_next")}">›</button>` : "");
+  document.getElementById("pdThumbs").innerHTML = pics.length > 1 ? pics.map((src, i) =>
+    `<button type="button" data-i="${i}" aria-current="${i === pIdx}"><img src="${esc(src)}" alt="" loading="lazy"></button>`).join("") : "";
+  document.getElementById("pdName").textContent = pName(p);
+  document.getElementById("pdMat").textContent = pMat(p);
+  document.getElementById("pdPrice").innerHTML = soldOut(p) ? t("sold_out") : priceHtml(p);
+  const d = pDesc(p);
+  const desc = document.getElementById("pdDesc");
+  desc.textContent = d; desc.hidden = !d;
+  const add = document.getElementById("pdAdd");
+  add.disabled = soldOut(p); add.textContent = soldOut(p) ? t("sold_out") : t("cart_add");
+}
+function openProduct(name) {
+  pCur = byName(name); pIdx = 0;
+  if (!pCur || !pDlg) return;
+  renderProduct();
+  if (!pDlg.open) pDlg.showModal();
+}
+if (pDlg) {
+  pDlg.addEventListener("click", e => {
+    if (e.target === pDlg || e.target.closest("#pdClose")) return pDlg.close();
+    const st = e.target.closest("[data-step]"); if (st) { pIdx += +st.dataset.step; return renderProduct(); }
+    const th = e.target.closest("#pdThumbs [data-i]"); if (th) { pIdx = +th.dataset.i; return renderProduct(); }
+    if (e.target.closest("#pdAdd") && pCur && !soldOut(pCur)) {
+      addToCart(pCur.name);
+      const b = document.getElementById("pdAdd"); b.textContent = t("cart_added");
+      setTimeout(() => { if (pDlg.open) renderProduct(); }, 1200);
+      cartBtn.classList.remove("bump"); void cartBtn.offsetWidth; cartBtn.classList.add("bump");
+    }
+  });
+  pDlg.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") { pIdx--; renderProduct(); }
+    if (e.key === "ArrowRight") { pIdx++; renderProduct(); }
+  });
+  document.querySelector(".langs") && document.querySelector(".langs").addEventListener("click", () => setTimeout(renderProduct, 0));
+}

@@ -48,7 +48,10 @@
         <button type="button" data-tab="products" class="on"><span>◇</span> Товары</button>
         <button type="button" data-tab="orders"><span>▤</span> Заказы <b class="badge" id="newBadge" hidden></b></button>
         <button type="button" data-tab="customers"><span>☺</span> Клиенты</button>
+        <button type="button" data-tab="promos" data-needs="v2" hidden><span>%</span> Скидки</button>
+        <button type="button" data-tab="analytics"><span>▥</span> Аналитика</button>
         <button type="button" data-tab="subscribers"><span>✉</span> Подписчики</button>
+        <button type="button" data-tab="banners" data-needs="v2" hidden><span>▣</span> Баннеры</button>
         <button type="button" data-tab="texts"><span>¶</span> Тексты сайта</button>
       </nav>
       <div class="side-foot">
@@ -70,7 +73,10 @@
           <select id="prodCat">
             <option value="">Все категории</option>
           </select>
+          <div class="chips" id="prodViews"><button type="button" data-view="active" class="on">Товары</button><button type="button" data-view="archive" id="prodViewArchive" hidden>Архив</button></div>
         </div>
+        <p class="notice" data-needs-not="v2" hidden>Описание, несколько фото, архив, скидки и баннеры включатся после запуска файла <code>supabase/admin-v2.sql</code> в Supabase.</p>
+
         <div class="table-wrap">
           <table class="table" id="prodTable">
             <thead><tr><th></th><th>Название</th><th>Категория</th><th class="num">Цена</th><th class="num">В наличии</th><th>Отметки</th></tr></thead>
@@ -112,6 +118,38 @@
         </div>
       </section>
 
+      <!-- Скидки -->
+      <section id="tab-promos" data-needs="v2" hidden>
+        <header class="head"><h1>Скидки</h1><button class="btn" type="button" id="addPromo">+ Новая скидка</button></header>
+        <p class="hint">Скидка в процентах на все товары, на категорию или на выбранные украшения, с датами начала и конца. На сайте покупатель увидит старую цену зачёркнутой, а заказ посчитается со скидкой. Если на товар действуют две скидки, берётся большая.</p>
+        <div id="promoList"></div>
+      </section>
+
+      <!-- Баннеры -->
+      <section id="tab-banners" data-needs="v2" hidden>
+        <header class="head"><h1>Баннеры</h1><label class="btn file">+ Добавить слайд<input type="file" id="bannerFile" accept="image/*"></label></header>
+        <p class="hint">Слайды большого баннера на главной странице, в том порядке, как здесь. Лучше всего подходят широкие фото (примерно 2,5 : 1).</p>
+        <div id="bannerList"></div>
+      </section>
+
+      <!-- Аналитика -->
+      <section id="tab-analytics" hidden>
+        <header class="head"><h1>Аналитика</h1>
+          <select id="anPeriod" aria-label="Период"><option value="7">7 дней</option><option value="30" selected>30 дней</option><option value="90">90 дней</option><option value="365">Год</option><option value="0">Всё время</option></select>
+        </header>
+        <div class="kpis" id="anKpis"></div>
+        <div class="an-grid">
+          <div class="card-box"><h2 id="anChartTitle">Продажи по дням</h2><div class="chart" id="anChart"></div></div>
+          <div class="card-box"><h2>Заказы по статусам</h2><ul class="an-status" id="anStatus"></ul></div>
+        </div>
+        <div class="card-box"><h2>Популярные товары</h2>
+          <div class="table-wrap flat"><table class="table" id="anTop">
+            <thead><tr><th class="num">#</th><th></th><th>Товар</th><th class="num">Продано, шт.</th><th class="num">Сумма</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+        </div>
+      </section>
+
       <!-- Тексты -->
       <section id="tab-texts" hidden>
         <header class="head"><h1>Тексты сайта</h1><button class="btn" type="button" id="saveTexts" disabled>Сохранить</button></header>
@@ -128,9 +166,9 @@
       <header class="head"><h2 id="edTitle">Товар</h2><button type="button" class="x" id="edClose" aria-label="Закрыть">✕</button></header>
       <div class="ed-grid">
         <div class="ed-photo">
-          <div class="photo" id="edPhoto"><span>Нет фото</span></div>
-          <label class="btn ghost file">Загрузить фото<input type="file" id="edFile" accept="image/*"></label>
-          <p class="hint">JPG или PNG. Большие фото уменьшатся автоматически.</p>
+          <div class="photos" id="edPhotos"></div>
+          <label class="btn ghost file">Добавить фото<input type="file" id="edFile" accept="image/*" multiple></label>
+          <p class="hint">Можно выбрать несколько фото сразу. Первое — главное, оно на карточке товара; ★ делает фото главным. Большие фото уменьшатся автоматически.</p>
         </div>
         <div class="ed-fields">
           <fieldset>
@@ -145,15 +183,21 @@
             <label>Русский <input id="fMatRu" maxlength="80"></label>
             <label>Հայերեն <input id="fMatHy" maxlength="80"></label>
           </fieldset>
+          <fieldset data-needs="v2" hidden>
+            <legend>Описание</legend>
+            <label>English <textarea id="fDescEn" rows="3" maxlength="1500"></textarea></label>
+            <label>Русский <textarea id="fDescRu" rows="3" maxlength="1500"></textarea></label>
+            <label>Հայերեն <textarea id="fDescHy" rows="3" maxlength="1500"></textarea></label>
+          </fieldset>
           <div class="row3">
             <label>Категория <select id="fCat"></select></label>
-            <label>Цена, $ * <input id="fPrice" type="number" min="0" step="0.01"></label>
+            <label>Цена, $ <input id="fPrice" type="number" min="0" step="0.01"></label>
             <label>В наличии, шт. <input id="fStock" type="number" min="0" step="1" placeholder="не считать"></label>
           </div>
-          <div class="row3">
+          <div class="row3" data-needs="gold" hidden>
             <label>Вес, г <input id="fWeight" type="number" min="0" step="0.01" placeholder="например 3.2"></label>
             <label>Как считать цену <select id="fPricing"><option value="gold">По курсу золота (автоматически)</option><option value="fixed">Фиксированная цена</option></select></label>
-            <label class="muted" style="align-self:end">При расчёте по курсу цена считается сама: вес × курс золота, поле «Цена» не нужно.</label>
+            <p class="hint gold-hint" id="goldHint"></p>
           </div>
           <div class="checks">
             <label><input type="checkbox" id="fActive"> Показывать на сайте</label>
@@ -166,10 +210,40 @@
       </div>
       <p class="msg" id="edMsg" role="status"></p>
       <footer class="ed-foot">
+        <button type="button" class="btn ghost" id="edArchive" hidden>В архив</button>
+        <button type="button" class="btn ghost" id="edRestore" hidden>Вернуть из архива</button>
         <button type="button" class="btn danger ghost" id="edDelete">Удалить товар</button>
         <span class="grow"></span>
         <button type="button" class="btn ghost" id="edCancel">Отмена</button>
         <button type="submit" class="btn" id="edSave">Сохранить</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Скидка -->
+  <dialog class="editor narrow" id="promoDlg">
+    <form id="promoForm" method="dialog">
+      <header class="head"><h2>Скидка</h2><button type="button" class="x" id="pClose" aria-label="Закрыть">✕</button></header>
+      <div class="row2">
+        <label>Название (видите только вы) <input id="pName" maxlength="100" placeholder="Например: Чёрная пятница"></label>
+        <label>Скидка, % <input id="pPercent" type="number" min="1" max="99" step="1"></label>
+      </div>
+      <label>На что действует
+        <select id="pScope"><option value="all">На все товары</option><option value="category">На категорию</option><option value="products">На выбранные товары</option></select>
+      </label>
+      <label id="pCatWrap" hidden>Категория <select id="pCat"></select></label>
+      <div id="pProductsWrap" hidden><span class="lbl">Товары</span><div class="pick" id="pProducts"></div></div>
+      <div class="row2">
+        <label>Начало <input id="pStart" type="date"></label>
+        <label>Конец (включительно) <input id="pEnd" type="date"><small>пусто = без срока</small></label>
+      </div>
+      <div class="checks"><label><input type="checkbox" id="pActive"> Включена</label></div>
+      <p class="msg" id="pMsg" role="status"></p>
+      <footer class="ed-foot">
+        <button type="button" class="btn danger ghost" id="pDelete">Удалить скидку</button>
+        <span class="grow"></span>
+        <button type="button" class="btn ghost" id="pCancel">Отмена</button>
+        <button type="submit" class="btn">Сохранить</button>
       </footer>
     </form>
   </dialog>
@@ -179,6 +253,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="../config.js"></script>
   <script src="../i18n.js"></script>
-  <script src="admin.js?v=20261119b"></script>
+  <script src="admin.js?v=20261119c"></script>
 </body>
 </html>

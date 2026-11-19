@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@400;500;600&family=Noto+Sans+Armenian:wght@400;500;600&family=Noto+Serif+Armenian:wdth,wght@87.5,300..500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet" href="styles.css?v=20261119b">
+  <link rel="stylesheet" href="styles.css?v=20261119c">
 </head>
 <body>
   <div class="topbar">
@@ -160,6 +160,18 @@
     </div>
   </aside>
 
+  <dialog class="pd" id="product" aria-labelledby="pdName">
+    <button type="button" class="auth-x" id="pdClose" data-i18n-aria="search_close">✕</button>
+    <div class="pd-gallery"><div class="pd-main" id="pdMain"></div><div class="pd-thumbs" id="pdThumbs"></div></div>
+    <div class="pd-info">
+      <h3 id="pdName"></h3>
+      <p class="pd-mat" id="pdMat"></p>
+      <p class="pd-price" id="pdPrice"></p>
+      <p class="pd-desc" id="pdDesc" hidden></p>
+      <button class="btn" type="button" id="pdAdd"></button>
+    </div>
+  </dialog>
+
   <dialog class="auth" id="auth" aria-labelledby="authTitle">
     <button type="button" class="auth-x" id="authClose" data-i18n-aria="search_close">✕</button>
     <h3 id="authTitle"></h3>
@@ -188,6 +200,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="config.js?v=20261119b"></script>
   <script src="i18n.js?v=20261119b"></script>
-  <script src="script.js?v=20261119b"></script>
+  <script src="script.js?v=20261119c"></script>
 </body>
 </html>
