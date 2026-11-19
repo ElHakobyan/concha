@@ -276,7 +276,7 @@ orderForm.addEventListener("submit", async e => {
   };
   if (!order.p_name) return setCartMsg("order_err_name", false);
   if (!isPhone(order.p_phone)) return setCartMsg("order_err_phone", false);
-  if (order.p_email && !isEmail(order.p_email)) return setCartMsg("order_err_email", false);
+  if (!isEmail(order.p_email)) return setCartMsg("order_err_email", false);
 
   sendingOrder = true; setCartMsg("order_sending"); renderCart();
   try {
