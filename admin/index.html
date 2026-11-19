@@ -47,6 +47,7 @@
       <nav id="tabs">
         <button type="button" data-tab="products" class="on"><span>◇</span> Товары</button>
         <button type="button" data-tab="orders"><span>▤</span> Заказы <b class="badge" id="newBadge" hidden></b></button>
+        <button type="button" data-tab="customers"><span>☺</span> Клиенты</button>
         <button type="button" data-tab="subscribers"><span>✉</span> Подписчики</button>
         <button type="button" data-tab="texts"><span>¶</span> Тексты сайта</button>
       </nav>
@@ -87,6 +88,20 @@
       </section>
 
       <!-- Подписчики -->
+      <section id="tab-customers" hidden>
+        <header class="head"><h1>Клиенты <small id="custCount"></small></h1><button class="btn" type="button" id="exportCust">Скачать список (CSV)</button></header>
+        <div class="toolbar">
+          <input type="search" id="custSearch" placeholder="Поиск по имени, email или телефону">
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="custTable">
+            <thead><tr><th>Имя</th><th>Фамилия</th><th>Email</th><th>Телефон</th><th>Дата регистрации</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="hint">Покупатели, которые зарегистрировались на сайте. Пароли здесь не видны и нигде не хранятся в открытом виде.</p>
+      </section>
+
       <section id="tab-subscribers" hidden>
         <header class="head"><h1>Подписчики <small id="subCount"></small></h1><button class="btn" type="button" id="exportSubs">Скачать список (CSV)</button></header>
         <div class="table-wrap">
@@ -164,6 +179,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="../config.js"></script>
   <script src="../i18n.js"></script>
-  <script src="admin.js"></script>
+  <script src="admin.js?v=20261119b"></script>
 </body>
 </html>

@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@400;500;600&family=Noto+Sans+Armenian:wght@400;500;600&family=Noto+Serif+Armenian:wdth,wght@87.5,300..500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet" href="styles.css?v=20261119a">
+  <link rel="stylesheet" href="styles.css?v=20261119b">
 </head>
 <body>
   <div class="topbar">
@@ -168,24 +168,26 @@
         <button type="button" role="tab" data-mode="register" data-i18n="auth_register"></button>
         <button type="button" role="tab" data-mode="login" data-i18n="auth_login"></button>
       </div>
-      <label data-reg><span data-i18n="auth_name"></span><input id="aName" autocomplete="given-name"></label>
-      <label data-reg><span data-i18n="auth_surname"></span><input id="aSurname" autocomplete="family-name"></label>
-      <label><span data-i18n="auth_email"></span><input id="aEmail" type="email" autocomplete="email"></label>
-      <label data-reg><span data-i18n="auth_phone"></span><input id="aPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+374 99 123456"></label>
-      <label><span data-i18n="auth_pass"></span><span class="pw"><input id="aPass" type="password" autocomplete="new-password"><button type="button" class="eye" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button></span></label>
-      <label data-reg><span data-i18n="auth_pass2"></span><span class="pw"><input id="aPass2" type="password" autocomplete="new-password"><button type="button" class="eye" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button></span></label>
+      <label data-reg><span data-i18n="auth_name"></span><input id="aName" autocomplete="given-name" maxlength="100"></label>
+      <label data-reg><span data-i18n="auth_surname"></span><input id="aSurname" autocomplete="family-name" maxlength="100"></label>
+      <label data-email><span data-i18n="auth_email"></span><input id="aEmail" type="email" autocomplete="email"></label>
+      <label data-reg><span data-i18n="auth_phone"></span><input id="aPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+374 99 123456" maxlength="30"></label>
+      <label data-pass><span id="aPassLabel" data-i18n="auth_pass"></span><span class="pw"><input id="aPass" type="password" autocomplete="new-password"><button type="button" class="eye" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button></span></label>
+      <label data-pass2><span data-i18n="auth_pass2"></span><span class="pw"><input id="aPass2" type="password" autocomplete="new-password"><button type="button" class="eye" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button></span></label>
       <p class="msg" id="authMsg" role="alert"></p>
       <button class="btn" type="submit" id="authSubmit"></button>
-      <p class="auth-note" data-i18n="auth_note"></p>
+      <button type="button" class="auth-link" id="forgotBtn" data-login data-i18n="auth_forgot"></button>
     </form>
     <div id="account" hidden>
       <p class="hello" id="hello"></p>
+      <p class="acc-info" id="accInfo"></p>
       <button class="btn" type="button" id="logout" data-i18n="auth_logout"></button>
     </div>
   </dialog>
 
-  <script src="config.js?v=20261119a"></script>
-  <script src="i18n.js?v=20261119a"></script>
-  <script src="script.js?v=20261119a"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="config.js?v=20261119b"></script>
+  <script src="i18n.js?v=20261119b"></script>
+  <script src="script.js?v=20261119b"></script>
 </body>
 </html>

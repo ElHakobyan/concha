@@ -127,7 +127,7 @@ function openTab(name) {
   document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
   document.querySelectorAll(".main > section").forEach(s => { s.hidden = s.id !== "tab-" + name; });
   history.replaceState(null, "", "#" + name);
-  if (!loaded[name]) { loaded[name] = true; ({ products: loadProducts, orders: loadOrders, subscribers: loadSubs, texts: loadTexts })[name](); }
+  if (!loaded[name]) { loaded[name] = true; ({ products: loadProducts, orders: loadOrders, customers: loadCustomers, subscribers: loadSubs, texts: loadTexts })[name](); }
 }
 $("tabs").addEventListener("click", e => { const b = e.target.closest("button[data-tab]"); if (b) openTab(b.dataset.tab); });
 
@@ -353,6 +353,36 @@ $("orderList").addEventListener("change", async e => {
   if (loaded.products) loadProducts(); // отмена возвращает товары на склад
 });
 $("reloadOrders").addEventListener("click", loadOrders);
+
+// ---------- клиенты (зарегистрированные на сайте) ----------
+let customers = [];
+async function loadCustomers() {
+  const { data, error } = await db.from("profiles").select("first_name,last_name,email,phone,created_at").order("created_at", { ascending: false });
+  if (error) return toast(errText(error), true);
+  customers = data;
+  renderCustomers();
+}
+function renderCustomers() {
+  const q = $("custSearch").value.trim().toLowerCase();
+  const list = customers.filter(c => !q || [c.first_name, c.last_name, c.email, c.phone].some(v => (v || "").toLowerCase().includes(q)));
+  $("custCount").textContent = customers.length;
+  $("custTable").tBodies[0].innerHTML = list.map(c => `<tr>
+    <td>${esc(c.first_name || "—")}</td><td>${esc(c.last_name || "—")}</td>
+    <td>${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : "—"}</td>
+    <td>${c.phone ? `<a href="tel:${esc(c.phone.replace(/[^\d+]/g, ""))}">${esc(c.phone)}</a>` : "—"}</td>
+    <td>${fmtDate(c.created_at)}</td>
+  </tr>`).join("") || `<tr><td colspan="5" class="empty">${q ? "Никого не нашли." : "Клиентов пока нет."}</td></tr>`;
+}
+$("custSearch").addEventListener("input", renderCustomers);
+$("exportCust").addEventListener("click", () => {
+  const cols = ["first_name", "last_name", "email", "phone", "created_at"];
+  const csv = cols.join(",") + "\n" + customers.map(c => cols.map(k => `"${String(c[k] || "").replace(/"/g, '""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv" }));
+  a.download = `perla-customers-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
 
 // ---------- подписчики ----------
 let subs = [];
