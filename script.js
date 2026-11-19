@@ -231,15 +231,20 @@ async function backend(fn, args) {
   const cfg = window.PERLA_BACKEND || {};
   const fail = code => Object.assign(new Error(code), { code });
   if (!cfg.url || !cfg.anonKey) throw fail("not_configured");
+  // Если покупатель вошёл — передаём его токен, чтобы заказ привязался к аккаунту («Мои заказы»).
+  // getSession() сам обновляет просроченный токен.
+  let token = null;
+  if (sb && session) { try { const { data } = await sb.auth.getSession(); token = data.session && data.session.access_token; } catch (e) {} }
+  const call = tok => fetch(cfg.url.replace(/\/+$/, "") + "/rest/v1/rpc/" + fn, {
+    method: "POST",
+    headers: Object.assign({ apikey: cfg.anonKey, "Content-Type": "application/json" }, tok ? { Authorization: "Bearer " + tok } : {}),
+    body: JSON.stringify(args),
+  });
   let res;
   try {
-    res = await fetch(cfg.url.replace(/\/+$/, "") + "/rest/v1/rpc/" + fn, {
-      method: "POST",
-      // Если покупатель вошёл — передаём его токен, чтобы заказ привязался к аккаунту («Мои заказы»).
-      headers: Object.assign({ apikey: cfg.anonKey, "Content-Type": "application/json" },
-        session && session.access_token ? { Authorization: "Bearer " + session.access_token } : {}),
-      body: JSON.stringify(args),
-    });
+    res = await call(token);
+    // Токен не приняли (истёк/отозван) — не теряем заказ, отправляем как гость.
+    if (res.status === 401 && token) res = await call(null);
   } catch (e) { throw fail("network"); }
   const data = await res.json().catch(() => null);
   if (!res.ok) throw fail((data && data.message) || "http_" + res.status);
