@@ -389,6 +389,7 @@ async function loadMyOrders() {
 
 function renderMyOrders() {
   const box = document.getElementById("myOrders");
+  if (!box) return;
   box.hidden = !currentUser() || myOrders === null;
   if (box.hidden) return;
   document.getElementById("moEmpty").hidden = myOrders.length > 0;
@@ -432,11 +433,10 @@ function renderAuth() {
   const mode = user && authMode !== "reset" ? "account" : authMode;
   const reg = mode === "register", reset = mode === "reset";
   // Какое окно видно: аккаунт, выбор роли, форма покупателя или форма администратора.
-  const pane = mode === "account" ? "account" : "user";
+  const pane = "user";
   authForm.hidden = pane !== "user";
   adminForm.hidden = pane !== "admin";
   
-  document.getElementById("account").hidden = pane !== "account";
   document.getElementById("authBack").hidden = true;
   const title = pane === "choose" ? "" : pane === "admin" ? "auth_admin_title" : mode === "account" ? "auth_account" : reset ? "auth_newpass" : reg ? "auth_register" : "auth_login";
   document.getElementById("authTitle").textContent = title ? t(title) : "";
@@ -453,8 +453,7 @@ function renderAuth() {
   adSubmit.textContent = adminBusy ? t("auth_wait") : t("auth_sub_admin");
   adSubmit.disabled = adminBusy; adSubmit.classList.toggle("busy", adminBusy);
   if (adminMsgKey) adminMsg.textContent = t(adminMsgKey);
-  renderMyOrders();
-  if (authDlg.open) placeAuth();   // ширина меняется между выбором роли и формой
+  if (authDlg.open) placeAuth();
   adminForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
   authForm.querySelector(".tabs").hidden = reset;
   authForm.querySelectorAll("[data-reg]").forEach(el => { el.hidden = !reg; });
@@ -472,13 +471,6 @@ function renderAuth() {
   submit.classList.toggle("busy", authBusy);
   document.getElementById("aPass").autocomplete = reg || reset ? "new-password" : "current-password";
   authForm.querySelectorAll(".pw .eye").forEach(btn => btn.setAttribute("aria-label", t(btn.getAttribute("aria-pressed") === "true" ? "pw_hide" : "pw_show")));
-  if (user) {
-    const full = `${user.name} ${user.surname}`.trim();
-    document.getElementById("hello").textContent = t("auth_hello").replace("{name}", full || user.email);
-    const info = document.getElementById("accInfo");
-    info.textContent = "";
-    [user.email, user.phone].filter(Boolean).forEach((v, i) => { if (i) info.append(document.createElement("br")); info.append(v); });
-  }
   const av = document.getElementById("avatar");
   av.textContent = user ? (user.name || user.email).trim().charAt(0).toUpperCase() : "";
   userBtn.classList.toggle("in", !!user);
@@ -492,9 +484,8 @@ function setAdminMsg(key, ok) { adminMsgKey = key || null; adminMsg.className = 
 
 function focusAuth() {
   const user = currentUser() && authMode !== "reset";
-  const pane = user ? "account" : authMode === "reset" ? "user" : authView;
-  const first = pane === "account" ? "logout"
-    : pane === "choose" ? null
+  const pane = "user";
+  const first = pane === "choose" ? null
     : pane === "admin" ? "adEmail"
     : authMode === "register" ? "aName" : authMode === "reset" ? "aPass" : "aEmail";
   const el = first ? document.getElementById(first) : document.getElementById("aEmail");
@@ -541,7 +532,7 @@ function showAuthView(v) {
   renderAuth(); focusAuth();
 }
 
-userBtn.addEventListener("click", () => openAuth());
+userBtn.addEventListener("click", () => { if (session && authMode !== "reset") location.href = "orders/"; else openAuth(); });
 document.getElementById("authClose").addEventListener("click", closeAuth);
 authDlg.addEventListener("click", e => { if (e.target === authDlg) closeAuth(); });
 authDlg.addEventListener("cancel", e => { e.preventDefault(); closeAuth(); });
@@ -550,11 +541,6 @@ authForm.querySelector(".tabs").addEventListener("click", e => {
   const b = e.target.closest("button[data-mode]");
   if (!b) return;
   authMode = b.dataset.mode; setAuthMsg(""); renderAuth();
-});
-document.getElementById("logout").addEventListener("click", async () => {
-  if (sb) await sb.auth.signOut().catch(() => {});
-  session = null; profile = null; isAdmin = false;
-  authMode = "login"; authView = "user"; renderAuth(); closeAuth();
 });
 
 // ---------- вход администратора ----------
