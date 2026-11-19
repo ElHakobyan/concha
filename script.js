@@ -407,7 +407,7 @@ async function loadMyOrders() {
   if (!sb || !session) return;
   try {
     const { data, error } = await sb.from("orders").select("id,created_at,status,items,total")
-      .eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(30);
+      .order("created_at", { ascending: false }).limit(30);
     if (!error) myOrders = data || [];
   } catch (e) { myOrders = null; }
 }
