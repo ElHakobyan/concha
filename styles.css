@@ -43,7 +43,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round
 #bestsellers { scroll-margin-top: 190px; }
 .noresults { padding: 40px 0; text-align: center; color: var(--muted); }
 .bag { position: relative; display: block; }
-.bag b[hidden] { display: none; }
+.bag b[hidden], .bag b:empty { display: none !important; }
 .bag b { position: absolute; top: -6px; right: -8px; background: var(--ink); color: #fff; font-size: 9px; font-weight: 500; width: 15px; height: 15px; border-radius: 50%; display: grid; place-items: center; }
 .burger { display: none; background: none; border: 0; font-size: 24px; cursor: pointer; color: var(--ink); }
 
