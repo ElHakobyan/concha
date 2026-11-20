@@ -91,7 +91,7 @@ grant insert, update, delete on public.banners to authenticated;
 -- Текущие слайды сайта переносим в таблицу (только если она пустая).
 insert into public.banners (img, size, sort)
 select v.img, v.size, v.sort
-  from (values ('assets/hero.png', 'auto 100%', 10), ('assets/hero2.jpg', 'cover', 20),
+  from (values ('assets/hero1.jpg', 'auto 100%', 10), ('assets/hero2.jpg', 'cover', 20),
                ('assets/hero3.jpg', 'cover', 30), ('assets/hero4.jpg', 'cover', 40)) as v(img, size, sort)
  where not exists (select 1 from public.banners);
 
