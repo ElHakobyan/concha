@@ -548,7 +548,7 @@ $("edClose").addEventListener("click", closeEditor);
 $("edCancel").addEventListener("click", closeEditor);
 
 // Уменьшаем фото, чтобы сайт грузился быстро.
-function shrink(file, max = 1600) {
+function shrink(file, max = 2000) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -559,7 +559,7 @@ function shrink(file, max = 1600) {
       ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
       ctx.drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(img.src);
-      c.toBlob(b => (b ? resolve(b) : reject(new Error("Не удалось обработать фото."))), "image/jpeg", 0.86);
+      c.toBlob(b => (b ? resolve(b) : reject(new Error("Не удалось обработать фото."))), "image/jpeg", 0.9);
     };
     img.onerror = () => reject(new Error("Этот файл не похож на фото."));
     img.src = URL.createObjectURL(file);

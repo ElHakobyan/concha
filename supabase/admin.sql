@@ -42,12 +42,12 @@ update public.products p set
   img = v.img, sort = v.sort, best = v.best, is_new = v.is_new, gift = v.gift,
   mat_en = v.mat_en, mat_ru = v.mat_ru, mat_hy = v.mat_hy
 from (values
-  ('Aurelia Ring', 'assets/p1.png', 10, true, false, false, 'Gold Vermeil', 'Золотой вермейль', 'Ոսկեպատ արծաթ'),
-  ('Lumin Pearl Drops', 'assets/p2.png', 20, true, true, true, 'Freshwater Pearls', 'Пресноводный жемчуг', 'Քաղցրահամ ջրերի մարգարիտ'),
-  ('Sentinel Pendant', 'assets/p3.png', 30, true, false, true, 'Gold Vermeil', 'Золотой вермейль', 'Ոսկեպատ արծաթ'),
-  ('Forma Cuff', 'assets/p4.png', 40, true, false, false, 'Gold Vermeil', 'Золотой вермейль', 'Ոսկեպատ արծաթ'),
-  ('Moment Chain', 'assets/p5.png', 50, true, true, true, '14k Gold Fill', 'Золото 14k Gold Fill', '14k Gold Fill ոսկի'),
-  ('Ora Hoops', 'assets/p6.png', 60, true, true, false, 'Gold Vermeil', 'Золотой вермейль', 'Ոսկեպատ արծաթ'),
+  ('Aurelia Ring', 'assets/p1.jpg', 10, true, false, false, 'Gold Vermeil', 'Золотой вермейль', 'Ոսկեպատ արծաթ'),
+  ('Lumin Pearl Drops', 'assets/p2.jpg', 20, true, true, true, 'Freshwater Pearls', 'Пресноводный жемчуг', 'Քաղցրահամ ջրերի մարգարիտ'),
+  ('Sentinel Pendant', 'assets/p3.jpg', 30, true, false, true, 'Gold Vermeil', 'Золотой вермейль', 'Ոսկեպատ արծաթ'),
+  ('Forma Cuff', 'assets/p4.jpg', 40, true, false, false, 'Gold Vermeil', 'Золотой вермейль', 'Ոսկեպատ արծաթ'),
+  ('Moment Chain', 'assets/p5.jpg', 50, true, true, true, '14k Gold Fill', 'Золото 14k Gold Fill', '14k Gold Fill ոսկի'),
+  ('Ora Hoops', 'assets/p6.jpg', 60, true, true, false, 'Gold Vermeil', 'Золотой вермейль', 'Ոսկեպատ արծաթ'),
   ('Selene Band', 'assets/catalog/rings-1.jpg', 70, false, true, false, 'Gold', 'Золото', 'Ոսկի'),
   ('Lyra Leaf Ring', 'assets/catalog/rings-2.jpg', 80, false, false, false, 'Gold', 'Золото', 'Ոսկի'),
   ('Thalia Ring', 'assets/catalog/rings-3.jpg', 90, false, false, false, 'Gold', 'Золото', 'Ոսկի'),
