@@ -978,6 +978,7 @@ async function backendGet(path) {
     instagram: v => v,
     facebook: v => v,
     whatsapp: v => "https://wa.me/" + String(v).replace(/\D/g, ""),
+    telegram: v => /^https?:/.test(v) ? v : "https://t.me/" + String(v).replace(/^@/, "").replace(/[\s-]/g, ""),
   };
   document.querySelectorAll("#social [data-social]").forEach(a => {
     const v = (cfg[a.dataset.social] || "").trim();

@@ -11,9 +11,11 @@ window.PERLA_BACKEND = {
 //   instagram: "https://instagram.com/ваш_ник"
 //   facebook:  "https://facebook.com/ваша_страница"
 //   whatsapp:  "37499123456"  (номер без +, пробелов и тире)
+//   telegram:  "ваш_ник" (без @) или "+37499123456" (номер)
 // Пока поле пустое, значок виден, но не кликается.
 window.PERLA_SOCIAL = {
   instagram: "https://www.instagram.com/perla.jewelry.am/",
   facebook: "",
   whatsapp: "37493838038",
+  telegram: "+37493838038",
 };
